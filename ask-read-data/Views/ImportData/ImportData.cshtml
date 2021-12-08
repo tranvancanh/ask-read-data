@@ -1,0 +1,114 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{ ViewData["Title"] = "データ取り込み"; }
+<div class="row">
+    <div class="col-lg-6 ml-2">
+        <div class="h4 mb-3 text-gray-800">
+            @ViewData["Title"]
+        </div>
+        <div class="card shadow mb-4">
+            @using (Html.BeginForm("ImportData", "ImportData", FormMethod.Post, new { enctype = "multipart/form-data", id = "data-upload-form" }))
+            {
+                <div class="card-header text-gray-800">
+                    インポート
+                </div>
+                <div class="card-body">
+                    <div class="form-group col-sm-12">
+                        <div class="form-inline">
+                            <div id="file-select-form" style="display:none">
+                                <input name="FileUpload" type="file" accept="text/plain,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.csv" multiple="multiple" />
+                            </div>
+                            <button id="file-select-button" class="btn btn-light shadow mr-2" type="button">
+                                <i class="far fa-file-alt fa-fw"></i>Textファイル選択
+                            </button>
+                            <button id="file-upload" class="btn btn-secondary" type="submit">
+                                アップロード
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-12">
+                        <p id="import-res" style="font-size:13px"></p>
+                        @if (ViewData["erroremess"] != null)
+                        {
+                            <p class="text-danger float-left" id="erroremess" style="font-size:13px">@ViewData["erroremess"]</p>
+                        }
+                        @if (ViewData["successmess"] != null)
+                        {
+                            <p class="text-success float-left" id="successmess" style="font-size:13px">@ViewData["successmess"]</p>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            //デフォルトのファイル選択UIを非表示にして、機能だけ使用する仕掛け
+            $('#file-select-button').on('click', function (e) {
+                $('#file-select-form input').trigger('click');
+            });
+
+            $('#data-upload-form').on('change', function () {
+                console.log('form change!');
+
+                $('#import-res').empty;
+                $('#erroremess').html("");
+                $('#successmess').html("");
+                $('#import-res').removeClass('text-danger');
+
+                var form = new FormData(document.querySelector("#data-upload-form"));
+                var messege = "";
+                var count = 1;
+                for (var file of form) {
+                    console.log(file);
+                    if (file[0] === "FileUpload") {
+                        if (count === 1) {
+                            if (file[1]["size"] <= 0) {
+                                messege = ('ファイルを選択してください');
+                                $('#import-res').html(messege);
+                                return false;
+                            }
+                            else {
+                                messege += count + "." + file[1]["name"];
+                                $('#import-res').html(messege);
+                                $("#import-res").addClass("text-info");
+                                ++count;
+                            }
+                        }
+                        else if (file[1]["size"] > 0) {
+                            messege += "<br>" + count + "." + file[1]["name"];
+                            $("#import-res").html(messege);
+                            $("#import-res").addClass("text-info");
+                            ++count;
+                        }
+                        else {
+                            messege = ('不明なエラー');
+                            $("#import-res").html(messege);
+                            $("#import-res").addClass("text-danger");
+                            return false;
+                        }
+                    }
+                }
+            });
+        });
+        //  Client Side
+        function GetExt() {
+            var str = document.getElementById('FileUpload1').value;
+            var ext = str.substring(str.length - 3, str.length).toString();
+            extext = ext.toLowerCase();
+            if (ext == "pdf") {
+                alert("valid File")
+                return true;
+            }
+            else {
+                alert("Invalid File"); return false;
+            }
+        }
+    </script>
+
+}
