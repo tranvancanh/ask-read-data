@@ -46,19 +46,25 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    <script type="text/javascript">
+<script type="text/javascript">
         $(document).ready(function () {
             //デフォルトのファイル選択UIを非表示にして、機能だけ使用する仕掛け
             $('#file-select-button').on('click', function (e) {
                 $('#file-select-form input').trigger('click');
             });
-
+            @*if ("@ViewData["erroremess"]" != null || "@ViewData["successmess"]" != null) {
+                $("#import-res").remove();
+            }*@
             $('#data-upload-form').on('change', function () {
                 console.log('form change!');
 
                 $('#import-res').empty;
-                $('#erroremess').html("");
-                $('#successmess').html("");
+                if ($("#erroremess").length){
+                    $("#erroremess").remove();
+                }
+                if ($("#successmess").length){
+                    $("#successmess").remove();
+                }
                 $('#import-res').removeClass('text-danger');
 
                 var form = new FormData(document.querySelector("#data-upload-form"));
@@ -109,6 +115,6 @@
                 alert("Invalid File"); return false;
             }
         }
-    </script>
+</script>
 
 }

@@ -19,6 +19,9 @@ using ask_read_data.Areas.Admin.Models;
 using ask_read_data.Areas.Admin.Repository;
 using ask_read_data.Areas.Admin.Servive;
 using read_data.Areas.Admin.Servive;
+using ask_read_data.Repository;
+using ask_read_data.Servive;
+using ask_read_data.Models;
 
 namespace ask_read_data
 {
@@ -103,8 +106,10 @@ namespace ask_read_data
             services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
             services.Add(new ServiceDescriptor(typeof(ILoginViewModel), typeof(LoginService), ServiceLifetime.Transient));
             services.Add(new ServiceDescriptor(typeof(IUser), typeof(UserService), ServiceLifetime.Transient));
-            services.Add(new ServiceDescriptor(typeof(IRegisterService), typeof(RegisterService), ServiceLifetime.Transient));
+            services.Add(new ServiceDescriptor(typeof(IRegisterService), typeof(RegisterService), ServiceLifetime.Transient)); 
             services.Add(new ServiceDescriptor(typeof(UserViewModel), typeof(UserViewModel), ServiceLifetime.Transient));
+            services.Add(new ServiceDescriptor(typeof(IImportData), typeof(ImportDataService), ServiceLifetime.Transient));
+            services.Add(new ServiceDescriptor(typeof(DataModel), typeof(DataModel), ServiceLifetime.Transient));
 
             services.AddRazorPages();
             services.AddAuthorization(options =>

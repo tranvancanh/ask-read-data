@@ -5,6 +5,6 @@ namespace ask_read_data.Repository
 {
     public interface IImportData
     {
-        List<ResponResult> ImportDataDB();
+        ResponResult ImportDataDB(List<object> datas);
     }
 }

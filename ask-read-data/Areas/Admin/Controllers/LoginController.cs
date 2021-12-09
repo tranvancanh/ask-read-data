@@ -6,7 +6,6 @@ using ask_read_data.Areas.Admin.Models;
 using ask_read_data.Areas.Admin.Repository;
 using ask_tzn_funamiKD.Commons;
 using Microsoft.AspNetCore.Authorization;
-//using System.Web.Providers.Entities;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;

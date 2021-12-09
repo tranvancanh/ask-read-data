@@ -30,7 +30,7 @@ namespace ask_tzn_funamiKD.Commons
             }
             else
             {
-                return Convert.ToInt32(value);
+                return Convert.ToInt32(value.ToString().Trim());
             }
         }
         public static decimal Decimal(object value)
