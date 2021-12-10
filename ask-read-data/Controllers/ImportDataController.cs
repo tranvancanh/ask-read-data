@@ -31,6 +31,11 @@ namespace ask_read_data.Controllers
             return View();
         }
 
+         /// <summary>
+         /// 
+         /// </summary>
+         /// <param name="FileUpload"></param>
+         /// <returns></returns>
         [HttpPost]
         public IActionResult ImportData(List<IFormFile> FileUpload)
         {
@@ -44,8 +49,11 @@ namespace ask_read_data.Controllers
             ////////////////////////////////////////////////////////////////////////////
             ViewData.Add("erroremess", null);
             ViewData.Add("successmess", null);
+            //  宣言 and レセット
             var result = new List<object>();
             var dicts = new Dictionary<string, string>();
+            result.Clear();
+            dicts.Clear();
             var files = FileUpload;
             var fileNamee = "";
             if (files == null || files.Count <= 0)
@@ -114,6 +122,7 @@ namespace ask_read_data.Controllers
                 {
                     var lineNo = 1;
                     int lengh = 0;
+                    int Position = 1;
                     while (!reader.EndOfStream)
                     {
                         var line = reader.ReadLine();
@@ -145,68 +154,79 @@ namespace ask_read_data.Controllers
                         {
                             WAYMD = new DateTime(Convert.ToInt32("20" + line.Substring(17, 2)), Convert.ToInt32(line.Substring(19, 2)), Convert.ToInt32(line.Substring(21, 2)), 00, 00, 00),
                             SEQ = Util.NullToBlank((object)line.Substring(23, 4)),
-                            KATASIKI = line.Substring(27, 12),
-                            MEISHO = line.Substring(39, 1),
-                            FILLER1 = line.Substring(40, 2),
-                            OPT = line.Substring(42, 3),
-                            JIKU = line.Substring(45, 8),
-                            FILLER2 = line.Substring(53, 2),
+                            KATASIKI = Util.NullToBlank(line.Substring(27, 12)),
+                            MEISHO = Util.NullToBlank(line.Substring(39, 1)),
+                            FILLER1 = Util.NullToBlank(line.Substring(40, 2)),
+                            OPT = Util.NullToBlank(line.Substring(42, 3)),
+                            JIKU = Util.NullToBlank(line.Substring(45, 8)),
+                            FILLER2 = Util.NullToBlank(line.Substring(53, 2)),
                             DAI = Util.NullToBlank((object)line.Substring(55, 2)),
-                            MC = line.Substring(57, 2),
-                            SIMUKE = line.Substring(59, 1),
-                            E0 = line.Substring(60, 2),
-                            BUBAN = line.Substring(62, 17),
-                            TANTO = line.Substring(79, 1),
-                            GR = line.Substring(80, 2),
-                            KIGO = line.Substring(82, 4),
-                            MAKR = line.Substring(86, 4),
+                            MC = Util.NullToBlank(line.Substring(57, 2)),
+                            SIMUKE = Util.NullToBlank(line.Substring(59, 1)),
+                            E0 = Util.NullToBlank(line.Substring(60, 2)),
+                            BUBAN = Util.NullToBlank(line.Substring(62, 17)),
+                            TANTO = Util.NullToBlank(line.Substring(79, 1)),
+                            GR = Util.NullToBlank(line.Substring(80, 2)),
+                            KIGO = Util.NullToBlank(line.Substring(82, 4)),
+                            MAKR = Util.NullToBlank(line.Substring(86, 4)),
                             KOSUU = Util.NullToBlank((object)line.Substring(90, 3)),
-                            KISYU = line.Substring(93, 2),
-                            MEWISYO = line.Substring(95, 18),
+                            KISYU = Util.NullToBlank(line.Substring(93, 2)),
+                            MEWISYO = Util.NullToBlank(line.Substring(95, 18)),
                             FYMD = new DateTime(Convert.ToInt32("20" + line.Substring(113, 2)), Convert.ToInt32(line.Substring(115, 2)), Convert.ToInt32(line.Substring(117, 2)), 00, 00, 00), // line.Substring(113, 6),
-                            SEIHINCD = line.Substring(119, 3),
-                            SEHINJNO = line.Substring(122, 6),
-                            FileName = file.FileName,
-                            LineNumber = lineNo
+                            SEIHINCD = Util.NullToBlank(line.Substring(119, 3)),
+                            SEHINJNO = Util.NullToBlank(line.Substring(122, 6)),
+                            FileName = Util.NullToBlank(file.FileName),
+                            LineNumber = lineNo,
+                            Position = Position++
                         };
                         result.Add(dataModel);
                         // Dictionaryの更新
-
+                        var BUBAN = Util.NullToBlank(line.Substring(62, 17));
+                        var MEWISYO = Util.NullToBlank(line.Substring(95, 18));
+                        if (!dicts.ContainsKey(BUBAN))
+                        {
+                            dicts.Add(BUBAN, MEWISYO);
+                        }
 
                         // 2件目(右分)
                         dataModel = new DataModel()
                         {
                             WAYMD = new DateTime(Convert.ToInt32("20" + line.Substring(128, 2)), Convert.ToInt32(line.Substring(130, 2)), Convert.ToInt32(line.Substring(132, 2)), 00, 00, 00),
                             SEQ = Util.NullToBlank((object)line.Substring(134, 4)),
-                            KATASIKI = line.Substring(138, 12),
-                            MEISHO = line.Substring(150, 1),
-                            FILLER1 = line.Substring(151, 2),
-                            OPT = line.Substring(153, 3),
-                            JIKU = line.Substring(156, 8),
-                            FILLER2 = line.Substring(164, 2),
+                            KATASIKI = Util.NullToBlank(line.Substring(138, 12)),
+                            MEISHO = Util.NullToBlank(line.Substring(150, 1)),
+                            FILLER1 = Util.NullToBlank(line.Substring(151, 2)),
+                            OPT = Util.NullToBlank(line.Substring(153, 3)),
+                            JIKU = Util.NullToBlank(line.Substring(156, 8)),
+                            FILLER2 = Util.NullToBlank(line.Substring(164, 2)),
                             DAI = Util.NullToBlank((object)line.Substring(166, 2)),
-                            MC = line.Substring(168, 2),
-                            SIMUKE = line.Substring(170, 1),
-                            E0 = line.Substring(171, 2),
-                            BUBAN = line.Substring(173, 17),
-                            TANTO = line.Substring(190, 1),
-                            GR = line.Substring(191, 2),
-                            KIGO = line.Substring(193, 4),
-                            MAKR = line.Substring(197, 4),
+                            MC = Util.NullToBlank(line.Substring(168, 2)),
+                            SIMUKE = Util.NullToBlank(line.Substring(170, 1)),
+                            E0 = Util.NullToBlank(line.Substring(171, 2)),
+                            BUBAN = Util.NullToBlank(line.Substring(173, 17)),
+                            TANTO = Util.NullToBlank(line.Substring(190, 1)),
+                            GR = Util.NullToBlank(line.Substring(191, 2)),
+                            KIGO = Util.NullToBlank(line.Substring(193, 4)),
+                            MAKR = Util.NullToBlank(line.Substring(197, 4)),
                             KOSUU = Util.NullToBlank((object)line.Substring(201, 3)),
-                            KISYU = line.Substring(204, 2),
-                            MEWISYO = line.Substring(206, 18),
+                            KISYU = Util.NullToBlank(line.Substring(204, 2)),
+                            MEWISYO = Util.NullToBlank(line.Substring(206, 18)),
                             FYMD = new DateTime(Convert.ToInt32("20" + line.Substring(224, 2)), Convert.ToInt32(line.Substring(226, 2)), Convert.ToInt32(line.Substring(228, 2)), 00, 00, 00), // line.Substring(224, 6),
-                            SEIHINCD = line.Substring(230, 3),
-                            SEHINJNO = line.Substring(233, 6),
-                            FileName = file.FileName,
-                            LineNumber = lineNo
+                            SEIHINCD = Util.NullToBlank(line.Substring(230, 3)),
+                            SEHINJNO = Util.NullToBlank(line.Substring(233, 6)),
+                            FileName = Util.NullToBlank(file.FileName),
+                            LineNumber = lineNo,
+                            Position = Position++
                         };
                         lineNo++;
                         result.Add(dataModel);
                         // Dictionaryの更新
-
-
+                        BUBAN = Util.NullToBlank(line.Substring(173, 17));
+                        MEWISYO = Util.NullToBlank(line.Substring(206, 18));
+                        if (!dicts.ContainsKey(BUBAN))
+                        {
+                            dicts.Add(BUBAN, MEWISYO);
+                        }
                     }
 
                 }

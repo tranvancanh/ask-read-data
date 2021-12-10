@@ -275,6 +275,15 @@ namespace ask_read_data.Servive
                                                                     Direction = ParameterDirection.Input
                                                                 };
 
+                        ///////////////////  SetParameter LineNumber  ////////////////////////////////////////////   Position = Position++
+                        SqlParameter Position = new SqlParameter
+                        {
+                            ParameterName = "@Position",
+                            SqlDbType = SqlDbType.Int,
+                            Value = data.Position,
+                            Direction = ParameterDirection.Input
+                        };
+
                         ///////////////////  SetParameter CreateBy  ////////////////////////////////////////////
                         SqlParameter CreateBy = new SqlParameter
                                                                 {
@@ -309,6 +318,7 @@ namespace ask_read_data.Servive
                         cmd.Parameters.Add(SEHINJNO);
                         cmd.Parameters.Add(FileName);
                         cmd.Parameters.Add(LineNumber);
+                        cmd.Parameters.Add(Position);
                         cmd.Parameters.Add(CreateBy);
 
                         int row = cmd.ExecuteNonQuery();

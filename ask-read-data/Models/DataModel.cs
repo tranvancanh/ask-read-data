@@ -34,6 +34,7 @@ namespace ask_read_data.Models
         public string SEHINJNO { get; set; }
         public string FileName { get; set; }
         public int LineNumber { get; set; }
+        public int Position { get; set; }
         public string UpBy { get; set; }
         public string CreateBy { get; set; }
 

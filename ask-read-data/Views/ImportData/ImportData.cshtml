@@ -8,7 +8,7 @@
             @ViewData["Title"]
         </div>
         <div class="card shadow mb-4">
-            @using (Html.BeginForm("ImportData", "ImportData", FormMethod.Post, new { enctype = "multipart/form-data", id = "data-upload-form" }))
+            @using (Html.BeginForm("ImportData", "ImportData", FormMethod.Post, new { enctype = "multipart/form-data", id = "data-upload-form", onsubmit = "return true" }))
             {
                 <div class="card-header text-gray-800">
                     インポート
