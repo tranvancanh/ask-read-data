@@ -58,7 +58,7 @@ namespace ask_read_data.Servive
                         SqlParameter SEQ = new SqlParameter
                                                                  {
                                                                      ParameterName = "@SEQ",
-                                                                     SqlDbType = SqlDbType.NVarChar,
+                                                                     SqlDbType = SqlDbType.Int,
                                                                      Value = data.SEQ,
                                                                      Direction = ParameterDirection.Input
                                                                  };
@@ -121,7 +121,7 @@ namespace ask_read_data.Servive
                         SqlParameter DAI = new SqlParameter
                                                                  {
                                                                      ParameterName = "@DAI",
-                                                                     SqlDbType = SqlDbType.NVarChar,
+                                                                     SqlDbType = SqlDbType.Int,
                                                                      Value = data.DAI,
                                                                      Direction = ParameterDirection.Input
                                                                  };
@@ -202,7 +202,7 @@ namespace ask_read_data.Servive
                         SqlParameter KOSUU = new SqlParameter
                                                                  {
                                                                      ParameterName = "@KOSUU",
-                                                                     SqlDbType = SqlDbType.NVarChar,
+                                                                     SqlDbType = SqlDbType.Int,
                                                                      Value = data.KOSUU,
                                                                      Direction = ParameterDirection.Input
                                                                  };
@@ -251,6 +251,24 @@ namespace ask_read_data.Servive
                                                                      Value = data.SEHINJNO,
                                                                      Direction = ParameterDirection.Input
                                                                  };
+
+                        ///////////////////  SetParameter FileName  ////////////////////////////////////////////
+                        SqlParameter FileName = new SqlParameter
+                        {
+                            ParameterName = "@FileName",
+                            SqlDbType = SqlDbType.NVarChar,
+                            Value = data.FileName,
+                            Direction = ParameterDirection.Input
+                        };
+
+                        ///////////////////  SetParameter CreateBy  ////////////////////////////////////////////
+                        SqlParameter CreateBy = new SqlParameter
+                        {
+                            ParameterName = "@CreateBy",
+                            SqlDbType = SqlDbType.NVarChar,
+                            Value = data.CreateBy,
+                            Direction = ParameterDirection.Input
+                        };
 
                         cmd.Parameters.Add(WAYMD);
                         cmd.Parameters.Add(SEQ);

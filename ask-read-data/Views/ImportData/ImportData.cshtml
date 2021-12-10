@@ -80,14 +80,14 @@
                                 return false;
                             }
                             else {
-                                messege += count + "." + file[1]["name"];
+                                messege += count + ". " + file[1]["name"];
                                 $('#import-res').html(messege);
                                 $("#import-res").addClass("text-info");
                                 ++count;
                             }
                         }
                         else if (file[1]["size"] > 0) {
-                            messege += "<br>" + count + "." + file[1]["name"];
+                            messege += "<br>" + count + ". " + file[1]["name"];
                             $("#import-res").html(messege);
                             $("#import-res").addClass("text-info");
                             ++count;

@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using ask_read_data.Areas.Admin.Commons;
 using ask_read_data.Models;
 using ask_read_data.Repository;
 using ask_tzn_funamiKD.Commons;
@@ -22,6 +24,7 @@ namespace ask_read_data.Controllers
             this._importData = importData;
             this.dataModel = dataModel;
         }
+
         [HttpGet]
         public IActionResult ImportData()
         {
@@ -31,6 +34,14 @@ namespace ask_read_data.Controllers
         [HttpPost]
         public IActionResult ImportData(List<IFormFile> FileUpload)
         {
+            /////////////////////////////////////////////////////////////////////////////
+            //  Get Current User Claims
+            //  var abc = new UserInfor().UserInfo().UserName;
+            var userName = User.GetLoggedInUserName();
+            var userEmail = User.GetLoggedInUserEmail();
+            var user = User.Claims.Where(c => c.Type == ClaimTypes.Name).First().Value;
+            var claims = User.Claims.ToList();
+            ////////////////////////////////////////////////////////////////////////////
             ViewData.Add("erroremess", null);
             ViewData.Add("successmess", null);
             var result = new List<object>();
@@ -131,14 +142,14 @@ namespace ask_read_data.Controllers
                         dataModel = new DataModel()
                         {
                             WAYMD = new DateTime(Convert.ToInt32("20" + line.Substring(17, 2)), Convert.ToInt32(line.Substring(19, 2)), Convert.ToInt32(line.Substring(21, 2)), 00, 00, 00),
-                            SEQ = line.Substring(23, 4),
+                            SEQ = Util.NullToBlank((object)line.Substring(23, 4)),
                             KATASIKI = line.Substring(27, 12),
                             MEISHO = line.Substring(39, 1),
                             FILLER1 = line.Substring(40, 2),
                             OPT = line.Substring(42, 3),
                             JIKU = line.Substring(45, 8),
                             FILLER2 = line.Substring(53, 2),
-                            DAI = line.Substring(55, 2),
+                            DAI = Util.NullToBlank((object)line.Substring(55, 2)),
                             MC = line.Substring(57, 2),
                             SIMUKE = line.Substring(59, 1),
                             E0 = line.Substring(60, 2),
@@ -147,7 +158,7 @@ namespace ask_read_data.Controllers
                             GR = line.Substring(80, 2),
                             KIGO = line.Substring(82, 4),
                             MAKR = line.Substring(86, 4),
-                            KOSUU = line.Substring(90, 3),
+                            KOSUU = Util.NullToBlank((object)line.Substring(90, 3)),
                             KISYU = line.Substring(93, 2),
                             MEWISYO = line.Substring(95, 18),
                             FYMD = line.Substring(117, 2),
@@ -160,14 +171,14 @@ namespace ask_read_data.Controllers
                         dataModel = new DataModel()
                         {
                             WAYMD = new DateTime(Convert.ToInt32("20" + line.Substring(128, 2)), Convert.ToInt32(line.Substring(130, 2)), Convert.ToInt32(line.Substring(132, 2)), 00, 00, 00),
-                            SEQ = line.Substring(134, 4),
+                            SEQ = Util.NullToBlank((object)line.Substring(134, 4)),
                             KATASIKI = line.Substring(138, 12),
                             MEISHO = line.Substring(150, 1),
                             FILLER1 = line.Substring(151, 2),
                             OPT = line.Substring(153, 3),
                             JIKU = line.Substring(156, 8),
                             FILLER2 = line.Substring(164, 2),
-                            DAI = line.Substring(166, 2),
+                            DAI = Util.NullToBlank((object)line.Substring(166, 2)),
                             MC = line.Substring(168, 2),
                             SIMUKE = line.Substring(170, 1),
                             E0 = line.Substring(171, 2),
@@ -176,7 +187,7 @@ namespace ask_read_data.Controllers
                             GR = line.Substring(191, 2),
                             KIGO = line.Substring(193, 4),
                             MAKR = line.Substring(197, 4),
-                            KOSUU = line.Substring(201, 3),
+                            KOSUU = Util.NullToBlank((object)line.Substring(201, 3)),
                             KISYU = line.Substring(204, 2),
                             MEWISYO = line.Substring(206, 18),
                             FYMD =line.Substring(228, 2),
