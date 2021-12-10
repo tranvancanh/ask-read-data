@@ -324,7 +324,7 @@ namespace ask_read_data.Servive
                     var error = ex.Message;
                     transaction.Rollback();
                     respon.Status = "NG";
-                    respon.Resmess = $@"ファイル読み込み中にエラーが発生しましたのでデータがデータベースに保存されていません! | LineNo : {lineNo} (追加: 0件)";
+                    respon.Resmess = $@"ファイル読み込み中にエラーが発生しましたのでデータがデータベースに保存されていません! | Error LineNo : {lineNo} (追加: 0件)";
 
                     return respon;
                 }

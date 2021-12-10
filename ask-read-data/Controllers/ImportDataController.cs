@@ -45,7 +45,9 @@ namespace ask_read_data.Controllers
             ViewData.Add("erroremess", null);
             ViewData.Add("successmess", null);
             var result = new List<object>();
+            var dicts = new Dictionary<string, string>();
             var files = FileUpload;
+            var fileNamee = "";
             if (files == null || files.Count <= 0)
             {
                 ViewData["erroremess"] = "ファイル内にデータが存在しません";
@@ -55,6 +57,7 @@ namespace ask_read_data.Controllers
             {
                 foreach (var file in files)
                 {
+                    fileNamee = file.FileName;
                     if (file.Length > 0)
                     {
                         //  ファイル形式のCheck
@@ -65,7 +68,7 @@ namespace ask_read_data.Controllers
                         }
 
                         //1ファイルデータずつ読み取り
-                        ReaderData(file, ref result);
+                        ReaderData(file, ref result, ref dicts);
                         var firstPosition = result.FirstOrDefault().ToString();
                         if (firstPosition == "NG")
                         {
@@ -82,7 +85,7 @@ namespace ask_read_data.Controllers
             catch (Exception ex)
             {
                 ViewData["successmess"] = null;
-                ViewData["erroremess"] = ex.Message;
+                ViewData["erroremess"] = ex.Message + $@" | file name: {fileNamee}";
                 return View();
             }
             // go to service
@@ -101,7 +104,7 @@ namespace ask_read_data.Controllers
             return View();
         }
 
-        private List<object> ReaderData(IFormFile file, ref List<object> result)
+        private List<object> ReaderData(IFormFile file, ref List<object> result, ref Dictionary<string, string> dicts)
         {
 
             var fileName = file.FileName;
@@ -167,6 +170,8 @@ namespace ask_read_data.Controllers
                             LineNumber = lineNo
                         };
                         result.Add(dataModel);
+                        // Dictionaryの更新
+
 
                         // 2件目(右分)
                         dataModel = new DataModel()
@@ -199,6 +204,9 @@ namespace ask_read_data.Controllers
                         };
                         lineNo++;
                         result.Add(dataModel);
+                        // Dictionaryの更新
+
+
                     }
 
                 }
