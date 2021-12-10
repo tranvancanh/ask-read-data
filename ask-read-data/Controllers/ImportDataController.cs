@@ -123,7 +123,6 @@ namespace ask_read_data.Controllers
                         {
                             break;
                         }
-                        lineNo++;
                         // 1行ずつ読み込む
                         lengh = line.Length;
                         // 各行つずつチェック
@@ -161,10 +160,11 @@ namespace ask_read_data.Controllers
                             KOSUU = Util.NullToBlank((object)line.Substring(90, 3)),
                             KISYU = line.Substring(93, 2),
                             MEWISYO = line.Substring(95, 18),
-                            FYMD = line.Substring(113, 6),
+                            FYMD = new DateTime(Convert.ToInt32("20" + line.Substring(113, 2)), Convert.ToInt32(line.Substring(115, 2)), Convert.ToInt32(line.Substring(117, 2)), 00, 00, 00), // line.Substring(113, 6),
                             SEIHINCD = line.Substring(119, 3),
-                            SEHINJNO = line.Substring(122, 6), 
-                            FileName = file.FileName
+                            SEHINJNO = line.Substring(122, 6),
+                            FileName = file.FileName,
+                            LineNumber = lineNo
                         };
                         result.Add(dataModel);
 
@@ -191,11 +191,13 @@ namespace ask_read_data.Controllers
                             KOSUU = Util.NullToBlank((object)line.Substring(201, 3)),
                             KISYU = line.Substring(204, 2),
                             MEWISYO = line.Substring(206, 18),
-                            FYMD =line.Substring(224, 6),
+                            FYMD = new DateTime(Convert.ToInt32("20" + line.Substring(224, 2)), Convert.ToInt32(line.Substring(226, 2)), Convert.ToInt32(line.Substring(228, 2)), 00, 00, 00), // line.Substring(224, 6),
                             SEIHINCD = line.Substring(230, 3),
                             SEHINJNO = line.Substring(233, 6),
-                            FileName = file.FileName
+                            FileName = file.FileName,
+                            LineNumber = lineNo
                         };
+                        lineNo++;
                         result.Add(dataModel);
                     }
 

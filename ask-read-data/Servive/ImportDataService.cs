@@ -27,6 +27,7 @@ namespace ask_read_data.Servive
             var ConnectionString = new GetConnectString().ConnectionString;
             using (var connection = new SqlConnection(ConnectionString))
             {
+                int lineNo = 0;
                 SqlTransaction transaction = null;
                  
                 connection.Open();
@@ -43,6 +44,7 @@ namespace ask_read_data.Servive
                 { 
                     foreach(var data in datas)
                     {
+                        lineNo = data.LineNumber;
                         //パラメータ初期化
                         cmd.Parameters.Clear();
                         //Set SqlParameter
@@ -230,7 +232,7 @@ namespace ask_read_data.Servive
                         SqlParameter FYMD = new SqlParameter
                                                                  {
                                                                      ParameterName = "@FYMD",
-                                                                     SqlDbType = SqlDbType.NVarChar,
+                                                                     SqlDbType = SqlDbType.DateTime,
                                                                      Value = data.FYMD,
                                                                      Direction = ParameterDirection.Input
                                                                  };
@@ -261,6 +263,15 @@ namespace ask_read_data.Servive
                                                                     ParameterName = "@FileName",
                                                                     SqlDbType = SqlDbType.NVarChar,
                                                                     Value = data.FileName,
+                                                                    Direction = ParameterDirection.Input
+                                                                };
+
+                        ///////////////////  SetParameter LineNumber  ////////////////////////////////////////////
+                        SqlParameter LineNumber = new SqlParameter
+                                                                {
+                                                                    ParameterName = "@LineNumber",
+                                                                    SqlDbType = SqlDbType.Int,
+                                                                    Value = data.LineNumber,
                                                                     Direction = ParameterDirection.Input
                                                                 };
 
@@ -297,6 +308,7 @@ namespace ask_read_data.Servive
                         cmd.Parameters.Add(SEIHINCD);
                         cmd.Parameters.Add(SEHINJNO);
                         cmd.Parameters.Add(FileName);
+                        cmd.Parameters.Add(LineNumber);
                         cmd.Parameters.Add(CreateBy);
 
                         int row = cmd.ExecuteNonQuery();
@@ -312,7 +324,7 @@ namespace ask_read_data.Servive
                     var error = ex.Message;
                     transaction.Rollback();
                     respon.Status = "NG";
-                    respon.Resmess = "ファイル読み込み中にエラーが発生しましたのでデータがデータベースに保存されていません(追加: 0件)";
+                    respon.Resmess = $@"ファイル読み込み中にエラーが発生しましたのでデータがデータベースに保存されていません! | LineNo : {lineNo} (追加: 0件)";
 
                     return respon;
                 }

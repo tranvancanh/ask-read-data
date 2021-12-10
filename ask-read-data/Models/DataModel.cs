@@ -29,10 +29,11 @@ namespace ask_read_data.Models
         public int KOSUU { get; set; }
         public string KISYU { get; set; }
         public string MEWISYO { get; set; }
-        public string FYMD { get; set; }
+        public DateTime FYMD { get; set; }
         public string SEIHINCD { get; set; }
         public string SEHINJNO { get; set; }
         public string FileName { get; set; }
+        public int LineNumber { get; set; }
         public string UpBy { get; set; }
         public string CreateBy { get; set; }
 
@@ -58,10 +59,11 @@ namespace ask_read_data.Models
             KOSUU = 0;
             KISYU = "";
             MEWISYO = "";
-            FYMD = "";
+            FYMD = new DateTime(1900, 01, 01, 00, 00, 00);
             SEIHINCD = "";
             SEHINJNO = "";
             FileName = "tozan.abc";
+            LineNumber = 0;
             UpBy = "";     //(new UserInfor()).UserInfo().UserName;
             CreateBy = ""; // new UserInfor().UserInfo().UserName;
 
