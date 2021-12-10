@@ -10196,7 +10196,7 @@
 		 *       "url": "data.json",
 		 *       "dataSrc": function ( json ) {
 		 *         for ( var i=0, ien=json.length ; i<ien ; i++ ) {
-		 *           json[i][0] = '<a href="/message/'+json[i][0]+'>View message</a>';
+		 *           json[i][0] = '<a href="~/message/'+json[i][0]+'>View message</a>';
 		 *         }
 		 *         return json;
 		 *       }
