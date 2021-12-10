@@ -40,7 +40,7 @@ namespace ask_read_data.Controllers
             var userName = User.GetLoggedInUserName();
             var userEmail = User.GetLoggedInUserEmail();
             var user = User.Claims.Where(c => c.Type == ClaimTypes.Name).First().Value;
-            var claims = User.Claims.ToList();
+            var Claims = User.Claims.ToList();
             ////////////////////////////////////////////////////////////////////////////
             ViewData.Add("erroremess", null);
             ViewData.Add("successmess", null);
@@ -85,8 +85,8 @@ namespace ask_read_data.Controllers
                 ViewData["erroremess"] = ex.Message;
                 return View();
             }
-
-            ResponResult res = _importData.ImportDataDB(result);
+            // go to service
+            ResponResult res = _importData.ImportDataDB(result, Claims);
             if (res.Status != "OK")
             {
                 ViewData["successmess"] = null;
@@ -161,9 +161,10 @@ namespace ask_read_data.Controllers
                             KOSUU = Util.NullToBlank((object)line.Substring(90, 3)),
                             KISYU = line.Substring(93, 2),
                             MEWISYO = line.Substring(95, 18),
-                            FYMD = line.Substring(117, 2),
+                            FYMD = line.Substring(113, 6),
                             SEIHINCD = line.Substring(119, 3),
-                            SEHINJNO = line.Substring(122, 6)
+                            SEHINJNO = line.Substring(122, 6), 
+                            FileName = file.FileName
                         };
                         result.Add(dataModel);
 
@@ -190,9 +191,10 @@ namespace ask_read_data.Controllers
                             KOSUU = Util.NullToBlank((object)line.Substring(201, 3)),
                             KISYU = line.Substring(204, 2),
                             MEWISYO = line.Substring(206, 18),
-                            FYMD =line.Substring(228, 2),
+                            FYMD =line.Substring(224, 6),
                             SEIHINCD = line.Substring(230, 3),
-                            SEHINJNO = line.Substring(233, 6)
+                            SEHINJNO = line.Substring(233, 6),
+                            FileName = file.FileName
                         };
                         result.Add(dataModel);
                     }

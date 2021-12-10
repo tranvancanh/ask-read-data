@@ -7,12 +7,13 @@ using ask_read_data.Models;
 using ask_read_data.Commons;
 using System.Data.SqlClient;
 using System.Data;
+using System.Security.Claims;
 
 namespace ask_read_data.Servive
 {
     public class ImportDataService : IImportData
     {
-        public ResponResult ImportDataDB(List<object> datas1)
+        public ResponResult ImportDataDB(List<object> datas1, List<Claim> Claims)
         {
             List<DataModel> datas = new List<DataModel>();
             foreach (var data in datas1)
@@ -252,23 +253,25 @@ namespace ask_read_data.Servive
                                                                      Direction = ParameterDirection.Input
                                                                  };
 
+                       
+
                         ///////////////////  SetParameter FileName  ////////////////////////////////////////////
                         SqlParameter FileName = new SqlParameter
-                        {
-                            ParameterName = "@FileName",
-                            SqlDbType = SqlDbType.NVarChar,
-                            Value = data.FileName,
-                            Direction = ParameterDirection.Input
-                        };
+                                                                {
+                                                                    ParameterName = "@FileName",
+                                                                    SqlDbType = SqlDbType.NVarChar,
+                                                                    Value = data.FileName,
+                                                                    Direction = ParameterDirection.Input
+                                                                };
 
                         ///////////////////  SetParameter CreateBy  ////////////////////////////////////////////
                         SqlParameter CreateBy = new SqlParameter
-                        {
-                            ParameterName = "@CreateBy",
-                            SqlDbType = SqlDbType.NVarChar,
-                            Value = data.CreateBy,
-                            Direction = ParameterDirection.Input
-                        };
+                                                                {
+                                                                    ParameterName = "@CreateBy",
+                                                                    SqlDbType = SqlDbType.NVarChar,
+                                                                    Value = Claims.Where(c => c.Type == ClaimTypes.Name).First().Value,
+                                                                    Direction = ParameterDirection.Input
+                                                                };
 
                         cmd.Parameters.Add(WAYMD);
                         cmd.Parameters.Add(SEQ);
@@ -293,6 +296,8 @@ namespace ask_read_data.Servive
                         cmd.Parameters.Add(FYMD);
                         cmd.Parameters.Add(SEIHINCD);
                         cmd.Parameters.Add(SEHINJNO);
+                        cmd.Parameters.Add(FileName);
+                        cmd.Parameters.Add(CreateBy);
 
                         int row = cmd.ExecuteNonQuery();
                         affectedRows = affectedRows + row;
