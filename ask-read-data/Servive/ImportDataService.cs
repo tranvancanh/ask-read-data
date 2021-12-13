@@ -8,12 +8,13 @@ using ask_read_data.Commons;
 using System.Data.SqlClient;
 using System.Data;
 using System.Security.Claims;
+using ask_read_data.Models.Entity;
 
 namespace ask_read_data.Servive
 {
     public class ImportDataService : IImportData
     {
-        public ResponResult ImportDataDB(List<object> datas1, List<Claim> Claims)
+        public ResponResult ImportDataDB(List<object> datas1, List<Claim> Claims, List<Bu_MastarModel> buMastars)
         {
             List<DataModel> datas = new List<DataModel>();
             foreach (var data in datas1)
@@ -25,6 +26,7 @@ namespace ask_read_data.Servive
             var respon = new ResponResult();
             int affectedRows = 0;
             var ConnectionString = new GetConnectString().ConnectionString;
+            var UserName = Claims.Where(c => c.Type == ClaimTypes.Name).First().Value;
             using (var connection = new SqlConnection(ConnectionString))
             {
                 int lineNo = 0;
@@ -36,6 +38,14 @@ namespace ask_read_data.Servive
                 SqlCommand cmd = new SqlCommand()
                                                     {
                                                         CommandText = "SP_DataImportInsert",
+                                                        Connection = connection,
+                                                        CommandType = CommandType.StoredProcedure,
+                                                        Transaction = transaction
+                                                    };
+
+                SqlCommand cmd1 = new SqlCommand()
+                                                    {
+                                                        CommandText = "SP_BU_Mastar_SelectInsertUpdateDelete",
                                                         Connection = connection,
                                                         CommandType = CommandType.StoredProcedure,
                                                         Transaction = transaction
@@ -277,19 +287,19 @@ namespace ask_read_data.Servive
 
                         ///////////////////  SetParameter LineNumber  ////////////////////////////////////////////   Position = Position++
                         SqlParameter Position = new SqlParameter
-                        {
-                            ParameterName = "@Position",
-                            SqlDbType = SqlDbType.Int,
-                            Value = data.Position,
-                            Direction = ParameterDirection.Input
-                        };
+                                                                {
+                                                                    ParameterName = "@Position",
+                                                                    SqlDbType = SqlDbType.Int,
+                                                                    Value = data.Position,
+                                                                    Direction = ParameterDirection.Input
+                                                                };
 
-                        ///////////////////  SetParameter CreateBy  ////////////////////////////////////////////
+                        ///////////////////  SetParameter CreateBy  //////////////////////////////////////////////////
                         SqlParameter CreateBy = new SqlParameter
                                                                 {
                                                                     ParameterName = "@CreateBy",
                                                                     SqlDbType = SqlDbType.NVarChar,
-                                                                    Value = Claims.Where(c => c.Type == ClaimTypes.Name).First().Value,
+                                                                    Value = UserName,
                                                                     Direction = ParameterDirection.Input
                                                                 };
 
@@ -324,6 +334,66 @@ namespace ask_read_data.Servive
                         int row = cmd.ExecuteNonQuery();
                         affectedRows = affectedRows + row;
                     }
+                    /////////////////////////////  BU_Mastarに対して　/////////////////////////////////////////////
+                    ///////////////////  SetParameter設定  /////////////////////////////////////////////////////
+                    var statementType = "Insert";
+                    foreach (var buBan in buMastars)
+                    {
+                        //パラメータ初期化
+                        cmd1.Parameters.Clear();
+                        SqlParameter User = new SqlParameter
+                                                                {
+                                                                    ParameterName = "@User",
+                                                                    SqlDbType = SqlDbType.NVarChar,
+                                                                    Value = UserName,
+                                                                    Direction = ParameterDirection.Input
+                                                                };
+                        SqlParameter StatementType = new SqlParameter
+                                                                {
+                                                                    ParameterName = "@StatementType",
+                                                                    SqlDbType = SqlDbType.NVarChar,
+                                                                    Value = statementType,
+                                                                    Direction = ParameterDirection.Input
+                                                                };
+
+                        SqlParameter BUBAN = new SqlParameter
+                                                                {
+                                                                    ParameterName = "@BUBAN",
+                                                                    SqlDbType = SqlDbType.NVarChar,
+                                                                    Value = buBan.BUBAN,
+                                                                    Direction = ParameterDirection.Input
+                                                                };
+                        SqlParameter MEWISYO = new SqlParameter
+                                                                {
+                                                                    ParameterName = "@MEWISYO",
+                                                                    SqlDbType = SqlDbType.NVarChar,
+                                                                    Value = buBan.MEWISYO,
+                                                                    Direction = ParameterDirection.Input
+                                                                };
+                        SqlParameter Nyusu = new SqlParameter
+                                                                {
+                                                                    ParameterName = "@Nyusu",
+                                                                    SqlDbType = SqlDbType.Int,
+                                                                    Value = buBan.Nyusu,
+                                                                    Direction = ParameterDirection.Input
+                                                                };
+
+                        SqlParameter StausCode = new SqlParameter
+                                                                {
+                                                                    ParameterName = "@StausCode",
+                                                                    SqlDbType = SqlDbType.Int,
+                                                                    Direction = ParameterDirection.Output
+                                                                };
+
+                        cmd1.Parameters.Add(User);
+                        cmd1.Parameters.Add(StatementType);
+                        cmd1.Parameters.Add(BUBAN);
+                        cmd1.Parameters.Add(MEWISYO);
+                        cmd1.Parameters.Add(Nyusu);
+                        cmd1.Parameters.Add(StausCode);
+
+                        int row = cmd1.ExecuteNonQuery();
+                    }
 
                     transaction.Commit();
                     respon.Status = "OK";
@@ -340,10 +410,14 @@ namespace ask_read_data.Servive
                 }
                 finally
                 {
-                    //close connection
-                    connection.Close();
-                    // connection dispose
-                    connection.Dispose();
+                    if(connection != null)
+                    {
+                        //close connection
+                        connection.Close();
+                        // connection dispose
+                        connection.Dispose();
+                    }
+                   
                 }
                 return respon;
             }

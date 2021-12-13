@@ -17,6 +17,9 @@
 
     <title>@ViewData["Title"] - Asuka</title>
 
+    <!-- DataTables template-->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.css">
+
     <!-- Custom fonts for this template-->
     <link href="~/Assets/admin/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
@@ -24,6 +27,9 @@
 
     <!-- Custom styles for this template-->
     <link href="~/Assets/admin/css/sb-admin-2.min.css" rel="stylesheet">
+
+
+
 
 </head>
 
@@ -111,6 +117,11 @@
     <!---  Page level custom scripts  --->
     <script src="~/Assets/admin/js/demo/chart-area-demo.js"></script>
     <script src="~/Assets/admin/js/demo/chart-pie-demo.js"></script>
+
+    <!-- DataTables Js-->
+    @*<script type="text/css" src="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css"></script>*@
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
+    <!-- --------------------------------------  Library DataTables Stop ---------------------------------------- -->
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using ask_read_data.Areas.Admin.Commons;
 using ask_read_data.Models;
+using ask_read_data.Models.Entity;
 using ask_read_data.Repository;
 using ask_tzn_funamiKD.Commons;
 using Microsoft.AspNetCore.Authorization;
@@ -19,10 +20,12 @@ namespace ask_read_data.Controllers
     {
         private readonly IImportData _importData;
         private DataModel dataModel;
-        public ImportDataController(IImportData importData, DataModel dataModel)
+        private Bu_MastarModel buMastar;
+        public ImportDataController(IImportData importData, DataModel dataModel, Bu_MastarModel buMastar)
         {
             this._importData = importData;
             this.dataModel = dataModel;
+            this.buMastar = buMastar;
         }
 
         [HttpGet]
@@ -31,11 +34,11 @@ namespace ask_read_data.Controllers
             return View();
         }
 
-         /// <summary>
-         /// 
-         /// </summary>
-         /// <param name="FileUpload"></param>
-         /// <returns></returns>
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="FileUpload"></param>
+        /// <returns></returns>
         [HttpPost]
         public IActionResult ImportData(List<IFormFile> FileUpload)
         {
@@ -51,9 +54,8 @@ namespace ask_read_data.Controllers
             ViewData.Add("successmess", null);
             //  宣言 and レセット
             var result = new List<object>();
-            var dicts = new Dictionary<string, string>();
+            var buMastars = new List<Bu_MastarModel>();
             result.Clear();
-            dicts.Clear();
             var files = FileUpload;
             var fileNamee = "";
             if (files == null || files.Count <= 0)
@@ -76,7 +78,7 @@ namespace ask_read_data.Controllers
                         }
 
                         //1ファイルデータずつ読み取り
-                        ReaderData(file, ref result, ref dicts);
+                        ReaderData(file, ref result, ref buMastars);
                         var firstPosition = result.FirstOrDefault().ToString();
                         if (firstPosition == "NG")
                         {
@@ -97,7 +99,7 @@ namespace ask_read_data.Controllers
                 return View();
             }
             // go to service
-            ResponResult res = _importData.ImportDataDB(result, Claims);
+            ResponResult res = _importData.ImportDataDB(result, Claims, buMastars);
             if (res.Status != "OK")
             {
                 ViewData["successmess"] = null;
@@ -108,11 +110,11 @@ namespace ask_read_data.Controllers
             // ViewData["successmess"] = "ファイル内にデータが保存されました";
             ViewData["erroremess"] = null;
             ViewData["successmess"] = res.Resmess;
-            
+
             return View();
         }
 
-        private List<object> ReaderData(IFormFile file, ref List<object> result, ref Dictionary<string, string> dicts)
+        private List<object> ReaderData(IFormFile file, ref List<object> result, ref List<Bu_MastarModel> bu_Mastars)
         {
 
             var fileName = file.FileName;
@@ -149,6 +151,8 @@ namespace ask_read_data.Controllers
                             result.Add(lineNo.ToString());
                             break;
                         }
+                        string iDate = "2005-05-05";
+                        DateTime oDate = DateTime.Parse(iDate);
                         // 1件目(左分)
                         dataModel = new DataModel()
                         {
@@ -183,9 +187,9 @@ namespace ask_read_data.Controllers
                         // Dictionaryの更新
                         var BUBAN = Util.NullToBlank(line.Substring(62, 17));
                         var MEWISYO = Util.NullToBlank(line.Substring(95, 18));
-                        if (!dicts.ContainsKey(BUBAN))
+                        if (BUBAN != string.Empty)
                         {
-                            dicts.Add(BUBAN, MEWISYO);
+                            CheckBuMastar(BUBAN, MEWISYO, ref bu_Mastars);
                         }
 
                         // 2件目(右分)
@@ -223,9 +227,9 @@ namespace ask_read_data.Controllers
                         // Dictionaryの更新
                         BUBAN = Util.NullToBlank(line.Substring(173, 17));
                         MEWISYO = Util.NullToBlank(line.Substring(206, 18));
-                        if (!dicts.ContainsKey(BUBAN))
+                        if (BUBAN != string.Empty)
                         {
-                            dicts.Add(BUBAN, MEWISYO);
+                            CheckBuMastar(BUBAN, MEWISYO, ref bu_Mastars);
                         }
                     }
 
@@ -237,6 +241,37 @@ namespace ask_read_data.Controllers
             }
 
             return result;
+        }
+        private void CheckBuMastar(string buBan, string meWiSyo, ref List<Bu_MastarModel> bu_Mastars)
+        {
+            if(bu_Mastars == null)
+            {
+                throw new Exception("部品番号が存在しません");
+            }
+            //var result = bu_Mastars.First(s => s.BUBAN == buBan);
+            var item1 = (from item in bu_Mastars
+                        where item.BUBAN == buBan
+                        select item).FirstOrDefault();
+
+            StringComparison comp = StringComparison.OrdinalIgnoreCase;
+            bool check1 = meWiSyo.Contains("FLOOR ASSY", comp);
+            bool check2 = meWiSyo.Contains("FLAME ASSY", comp);
+            if (item1 == null)
+            {
+                if (check1)
+                {
+                    bu_Mastars.Add(new Bu_MastarModel() { BUBAN = buBan, MEWISYO = meWiSyo, Nyusu = 8 });
+                }
+                else if (check2)
+                {
+                    bu_Mastars.Add(new Bu_MastarModel() { BUBAN = buBan, MEWISYO = meWiSyo, Nyusu = 4 });
+                }
+                else
+                {
+                    bu_Mastars.Add(new Bu_MastarModel() { BUBAN = buBan, MEWISYO = meWiSyo, Nyusu = 8 });
+                }
+            }
+            return;
         }
     }
 }

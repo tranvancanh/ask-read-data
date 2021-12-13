@@ -22,6 +22,7 @@ using read_data.Areas.Admin.Servive;
 using ask_read_data.Repository;
 using ask_read_data.Servive;
 using ask_read_data.Models;
+using ask_read_data.Models.Entity;
 
 namespace ask_read_data
 {
@@ -111,7 +112,9 @@ namespace ask_read_data
             services.Add(new ServiceDescriptor(typeof(IRegisterService), typeof(RegisterService), ServiceLifetime.Transient)); 
             services.Add(new ServiceDescriptor(typeof(UserViewModel), typeof(UserViewModel), ServiceLifetime.Transient));
             services.Add(new ServiceDescriptor(typeof(IImportData), typeof(ImportDataService), ServiceLifetime.Transient));
-            services.Add(new ServiceDescriptor(typeof(DataModel), typeof(DataModel), ServiceLifetime.Transient));
+            services.Add(new ServiceDescriptor(typeof(DataModel), typeof(DataModel), ServiceLifetime.Transient)); 
+            services.Add(new ServiceDescriptor(typeof(Bu_MastarModel), typeof(Bu_MastarModel), ServiceLifetime.Transient));
+            services.Add(new ServiceDescriptor(typeof(IExportExcel), typeof(ExportExcelService), ServiceLifetime.Transient));
 
             services.AddRazorPages();
             services.AddAuthorization(options =>

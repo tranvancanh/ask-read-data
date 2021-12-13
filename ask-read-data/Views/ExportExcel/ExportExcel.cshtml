@@ -1,0 +1,157 @@
+﻿@model ask_read_data.Models.ExportExcelViewModel
+@{
+    ViewData["Title"] = "エクセル出力";
+}
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+<div class="container-fluid h4 mb-3 text-gray-800">
+    @ViewData["Title"]
+</div>
+<head>
+    <style>
+    </style>
+</head>
+<div>
+    <div class="container-fluid">
+       @using (Html.BeginForm("ExportExcel", "ExportExcel", FormMethod.Post))
+        {
+            <div class="container float-left">
+                <div class="row form-group form-inline">
+                    <div class="col-md-2">
+                        <input class="form-control text-center col-md-12 col-lg-12 col-xl-12 fw-normal" value="日付" disabled />
+                    </div>
+                    <div class="col-md-3 pl-3 pr-0">
+                        <input class="form-control col-md-12 border border-secondary" id="datetime" asp-for="@Model.Yotebi" type="date" style="width: 100%;" autocomplete="on" placeholder="取引先" />
+                    </div>
+                </div>
+                <div class="row form-group form-inline">
+                    <div class="col-md-4 col-lg-4 col-xl-4"></div>
+                    <button class="col-md-1 col-lg-1 col-xl-1 btn btn-primary btn-sm float-right" type="submit" margin-right>検索</button>
+                </div>
+            </div>
+        }
+    </div>
+    <br />
+    <br />
+    <div class="container-fluid">
+        <br />
+        <br />
+        <br />
+        <p class="h6 text-center text-success">
+            @TempData["okstatus"]
+            @TempData["CardboardAddOk"]
+            @TempData["statussucsess"]
+        </p>
+        <div class="h6 text-center text-danger">
+            @TempData["datacheckerror"]
+            @TempData["Exceptionerror"]
+            @TempData["CardboardAddregaiError"]
+            @TempData["statusfailed"]
+            @TempData["StatusMessageSQL"]
+
+        </div>
+        <div id="cardboardmastarregaiadd"></div>
+        <div id="cardboardmastarregaimodify"></div>
+        <div style="font-size: small">
+            <table id="exportexcel" class="table table-white table-striped table-bordered table-sm table-bordered">
+                <thead class="align-middle text-center thead-light">
+                    <tr class="form-group">
+                        <th style="width: 3%" class="align-middle">No</th>
+                        <th style="width: 8%" class="align-middle">
+                            @Html.DisplayNameFor(model => model.DataTableHeader.WAYMD)
+                        </th>
+                        <th style="width: 5%" class="align-middle">
+                            @Html.DisplayNameFor(model => model.DataTableHeader.SEQ)
+                        </th>
+                        <th style="width: 8%" class="align-middle">
+                            @Html.DisplayNameFor(model => model.DataTableHeader.KATASIKI)
+                        </th>
+                        <th style="width: 7%" class="align-middle">
+                            @Html.DisplayNameFor(model => model.DataTableHeader.JIKU)
+                        </th>
+                        <th style="width: 7%" class="align-middle">
+                            @Html.DisplayNameFor(model => model.DataTableHeader.BUBAN)
+                        </th>
+                        <th style="width: 10%" class="align-middle">
+                            @Html.DisplayNameFor(model => model.DataTableHeader.KIGO)
+                        </th>
+                        <th style="width: 5%" class="align-middle">
+                            @Html.DisplayNameFor(model => model.DataTableHeader.MAKR)
+                        </th>
+                        <th style="width: 12%" class="align-middle">
+                            @Html.DisplayNameFor(model => model.DataTableHeader.MEWISYO)
+                        </th>
+                        <th style="width: 8%" class="align-middle">
+                            @Html.DisplayNameFor(model => model.DataTableHeader.FYMD)
+                        </th>
+                        <th style="width: 8%" class="align-middle">
+                            <button class="btn btn-success text-white align-middle btn-sm" data-url="/ExportExcel/Create/" type="button" id="excelpageadd" data-toggle="mastarregaiadd">新規登録</button>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="align-middle text-center">
+                    @if (Model != null && Model.DataTableBody.Count > 0)
+                    {
+                        int Index = 1;
+                        @foreach (var item in Model.DataTableBody)
+                        {
+                            <tr class="form-group text-center align-middle text-center font-weight-normal">
+                                <td class="align-middle text-center">
+                                    @Index
+                                </td>
+                                <td class="align-middle text-center">
+                                    @Html.DisplayFor(modelItem => item.WAYMD)
+                                </td>
+                                <td class="align-middle text-center">
+                                    @Html.DisplayFor(modelItem => item.SEQ)
+                                </td>
+                                <td class="align-middle text-center">
+                                    @Html.DisplayFor(modelItem => item.KATASIKI)
+                                </td>
+                                <td class="align-middle text-center">
+                                    @Html.DisplayFor(modelItem => item.JIKU)
+                                </td>
+                                <td class="align-middle text-center">
+                                    @Html.DisplayFor(modelItem => item.BUBAN)
+                                </td>
+                                <td class="align-middle text-center">
+                                    @Html.DisplayFor(modelItem => item.KIGO)
+                                </td>
+                                <td class="align-middle text-center">
+                                    @Html.DisplayFor(modelItem => item.MAKR)
+                                </td>
+                                <td class="align-middle text-center">
+                                    @Html.DisplayFor(modelItem => item.MEWISYO)
+                                </td>
+                                <td class="align-middle text-center">
+                                    @Html.DisplayFor(modelItem => item.FYMD)
+                                </td>
+                                <td class="align-middle text-center">
+                                    <button class="btn btn-primary responsive-width btn-modal-class btn-sm" type="button" data-url="/ExportExcel/Details?hinban=@item.BUBAN" data-toggle="ajax-modal-mastarregai-modify" data-target="#addEmployee">詳細修正</button>
+                                </td>
+                            </tr>
+                            Index++;
+                        }
+                    }
+                    else
+                    {
+                        <p class="h6 text-center text-danger">0行が影響を受けるため, その他の条件で検索してください</p>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<br />
+<br />
+<br />
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#exportexcel').DataTable();
+        });
+    </script>
+}
