@@ -100,7 +100,8 @@ namespace ask_read_data.Controllers
             catch(Exception ex)
             {
                 var error = ex.Message;
-                TempData["error"] = "ダウンロードに失敗しました " + error;
+                //var GetType = ex.GetType;
+                TempData["error"] = "ダウンロードに失敗しました " + error + "Exception Type: " + ex.GetType().ToString();
                 return View();
             }
             
