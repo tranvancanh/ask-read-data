@@ -1,0 +1,63 @@
+﻿@model ask_read_data.Models.ViewModel.ExcelExportViewModel
+@{
+    ViewData["Title"] = "エクセル出力";
+}
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+<div class="container-fluid h4 mb-3 text-gray-800">
+    @ViewData["Title"]
+</div>
+<head>
+    <style>
+    </style>
+</head>
+<div>
+    <div class="container-fluid">
+        @using (Html.BeginForm("ExcelExport", "ExcelExport", FormMethod.Post))
+        {
+            <div class="container float-left">
+                <div class="row form-group form-inline">
+                    <div class="col-md-2">
+                        <input class="form-control text-center col-md-12 col-lg-12 col-xl-12 fw-normal" value="FLOOR ASSY" disabled />
+                    </div>
+                    <div class="col-md-2 pl-3 pr-0">
+                        <input class="form-control col-md-12 border border-secondary" id="datetimeFloor" asp-for="@Model.Floor_Assy" type="date" step="1" autocomplete="on" />
+                    </div>
+                    <div class="col-md-3">
+                        <button class="col-md-8 col-lg-8 col-xl-8 btn btn-primary btn-sm float-left" type="submit" name="floorassy" value="floorassy" margin-right>FLOOR ダウンロード</button>
+                    </div>
+                </div>
+                <div class="row form-group form-inline">
+                    <div class="col-md-2">
+                        <input class="form-control text-center col-md-12 col-lg-12 col-xl-12 fw-normal" value="FLAME ASSY" disabled />
+                    </div>
+                    <div class="col-md-2 pl-3 pr-0">
+                        <input class="form-control col-md-12 border border-secondary" id="datetimeFlame" asp-for="@Model.Flame_Assy" type="date" step="1" autocomplete="on" />
+                    </div>
+                    <div class="col-md-3">
+                        <button class="col-md-8 col-lg-8 col-xl-8 btn btn-primary btn-sm float-left" type="submit" name="flameassy" value="flameassy" margin-right>FLAME ダウンロード</button>
+                    </div>
+                </div>
+                <div class="row form-group form-inline">
+                    <p class="col-md-12 h6 text-center text-success">
+                        @TempData["statussucsess"]
+                    </p>
+                    <p class="col-md-12 h6 text-center text-danger">
+                        @TempData["error"]
+                    </p>
+                </div>
+            </div>
+        }
+    </div>
+    <br />
+    <br />
+    @*<div class="row form-group form-inline">
+        <p class="h6 text-center text-success">
+            @TempData["statussucsess"]
+        </p>
+        <p class="h6 text-center text-danger">
+            @TempData["error"]
+        </p>
+    </div>*@
+</div>

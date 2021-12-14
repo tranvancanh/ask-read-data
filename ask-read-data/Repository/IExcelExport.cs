@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using ask_read_data.Models;
 
 namespace ask_read_data.Repository
 {
-    public interface IExportExcel
+    public interface IExcelExport
     {
-        List<DataModel> GetAll2000DataImport();
-        List<DataModel> SearchDataImport(DateTime dateTime);
+        DataTable GetFloor_Flame_Assy(DateTime dateTime, string BubanType);
     }
 }

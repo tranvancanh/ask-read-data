@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace ask_read_data.Models
 {
-    public class ExportExcelViewModel
+    public class DataViewModel
     {
         // --------------------Page Header --------------------  ///////
         public DateTime Yotebi { get; set; }
@@ -14,7 +14,7 @@ namespace ask_read_data.Models
         public DataModel DataTableHeader { get; set; } 
         public List<DataModel> DataTableBody { get; set; }
 
-        public ExportExcelViewModel()
+        public DataViewModel()
         {
             Yotebi = DateTime.Today;
             DataTableHeader  = new DataModel();

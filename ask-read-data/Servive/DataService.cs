@@ -11,7 +11,7 @@ using ask_tzn_funamiKD.Commons;
 
 namespace ask_read_data.Servive
 {
-    public class ExportExcelService : IExportExcel
+    public class DataService : IData
     {
         public List<DataModel> GetAll2000DataImport()
         {
@@ -73,7 +73,7 @@ namespace ask_read_data.Servive
 
         }
 
-        public List<DataModel> SearchDataImport(DateTime dateTime)
+        public List<DataModel> SearchDataImport(DateTime dateTimeWAYMD)
         {
             var objList = new List<DataModel>();
             var ConnectionString = new GetConnectString().ConnectionString;
@@ -91,7 +91,14 @@ namespace ask_read_data.Servive
                                                             CommandType = CommandType.StoredProcedure
                                                         };
                     cmd.Parameters.Clear();
-
+                    SqlParameter WAYMD = new SqlParameter
+                                                            {
+                                                                ParameterName = "@WAYMD",
+                                                                SqlDbType = SqlDbType.DateTime,
+                                                                Value = dateTimeWAYMD,
+                                                                Direction = ParameterDirection.Input
+                                                            };
+                    cmd.Parameters.Add(WAYMD);
                     //SQL実行
                     reader = cmd.ExecuteReader();
                     while (reader.Read())
