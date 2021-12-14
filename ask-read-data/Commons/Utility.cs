@@ -966,6 +966,8 @@ namespace mclogi.common
                     // シート取得
                     using (ExcelWorksheet sheet = package.Workbook.Worksheets[sheetName])
                     {
+                        sheet.Cells.Style.Font.Size = 12; //Default font size for whole sheet
+                        sheet.Cells.Style.Font.Name = "游ゴシック"; //Default Font name for whole sheet  
                         // タイトル行が指定されているときは、タイトル行をセットする
                         if (titleRows != null && titleRows.Count > 0)
                         {
