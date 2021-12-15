@@ -26,7 +26,7 @@ namespace ask_read_data.Areas.Admin.Controllers
         private readonly ILoginViewModel _login;
         private readonly IRegisterService _registerService;
         //////////////////////     Inject Session  /////////////////////
-        private readonly ISession Session;
+        //private readonly ISession Session;
         private readonly IConfiguration _configuration;
         private UserViewModel userViewModel;
         public readonly IUser _user;

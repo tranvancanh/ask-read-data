@@ -18,6 +18,8 @@ namespace ask_read_data.Controllers
     {
         public const string FLOOR_ASSY = "FLOOR ASSY";
         public const string FLAME_ASSY = "FLAME ASSY";
+        public const int PALETNO_FLOOR_ASSY = 8;
+        public const int PALETNO_FLAME_ASSY = 4;
 
         private readonly IExportExcel _excelExport;
         public ExportExcelController(IExportExcel excelExport)
@@ -37,6 +39,7 @@ namespace ask_read_data.Controllers
             {
                 return RedirectToAction("ExcelExport", "ExcelExport");
             }
+            var Claims = User.Claims.ToList();
             var dt1 = new DataTable();
             var dt2 = new DataTable();
             var filename = string.Empty;
@@ -44,34 +47,44 @@ namespace ask_read_data.Controllers
             List<string> sheetName = new List<string>();
             /////////////////////////////////////////////////////////////////////////////////////////////////////
             string button = floorassy + flameassy;
-            switch (button)
+            try
             {
-                case "floorassy":
-                    {
-                        BubanMeiType = FLOOR_ASSY;
-                        var dt = _excelExport.GetFloor_Flame_Assy(modelRequset.Floor_Assy, FLOOR_ASSY);
-                        dt1 = dt.Item1;
-                        dt2 = dt.Item2;
-                        filename = "FloorAssy_";
-                        sheetName = new List<string>() { "FloorAssy_⓵Sheet1", "FloorAssy_⓶Sheet2" };
-                        break;
-                    }
-                case "flameassy":
-                    {
-                        BubanMeiType = FLAME_ASSY;
-                        var dt = _excelExport.GetFloor_Flame_Assy(modelRequset.Flame_Assy, FLAME_ASSY);
-                        dt1 = dt.Item1;
-                        dt2 = dt.Item2;
-                        filename = "Flame_Assy_";
-                        sheetName = new List<string>() { "Flame_Assy_⓵Sheet1", "Flame_Assy_⓶Sheet2" };
-                        break;
-                    }
-                default:
-                    {
-                        //dt = null;
-                        ViewData["error"] = "ボタンがおかしいです";
-                        return View();
-                    }
+                switch (button)
+                {
+                    case "floorassy":
+                        {
+                            BubanMeiType = FLOOR_ASSY;
+                            var dt = _excelExport.GetFloor_Flame_Assy(modelRequset.Floor_Assy, FLOOR_ASSY);
+                            dt1 = dt.Item1;
+                            dt2 = dt.Item2;
+                            filename = "FloorAssy_";
+                            sheetName = new List<string>() { "FloorAssy_⓵Sheet1", "FloorAssy_⓶Sheet2" };
+                            break;
+                        }
+                    case "flameassy":
+                        {
+                            BubanMeiType = FLAME_ASSY;
+                            var dt = _excelExport.GetFloor_Flame_Assy(modelRequset.Flame_Assy, FLAME_ASSY);
+                            dt1 = dt.Item1;
+                            dt2 = dt.Item2;
+                            filename = "Flame_Assy_";
+                            sheetName = new List<string>() { "Flame_Assy_⓵Sheet1", "Flame_Assy_⓶Sheet2" };
+                            break;
+                        }
+                    default:
+                        {
+                            //dt = null;
+                            ViewData["error"] = "ボタンがおかしいです";
+                            return View();
+                        }
+                }
+            }
+            catch(Exception ex)
+            {
+                var error = ex.Message;
+                //var GetType = ex.GetType;
+                TempData["error"] = "ダウンロードに失敗しました " + error + "| Exception Type: " + ex.GetType().ToString();
+                return View();
             }
             // 出力フォルダパス
             var rootPath = Directory.GetCurrentDirectory();
@@ -104,7 +117,12 @@ namespace ask_read_data.Controllers
 
                     // 出力に成功したら、ファイルダウンロード
                     var file = System.IO.File.ReadAllBytes(expPath);
-                    TempData["success"] = "ダウンロードに成功しました";
+                    if(_excelExport.RecordDownloadHistory(ref dt1, BubanMeiType, Claims) > 0)
+                    {
+                        TempData["success"] = "ダウンロードに成功しました";
+                        return File(file, System.Net.Mime.MediaTypeNames.Application.Octet, outputFilename);
+                    }
+                    TempData["error"] = "ダウンロードに失敗しました";
                     return File(file, System.Net.Mime.MediaTypeNames.Application.Octet, outputFilename);
                 }
                 else
