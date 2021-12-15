@@ -115,7 +115,7 @@ namespace ask_read_data
             services.Add(new ServiceDescriptor(typeof(DataModel), typeof(DataModel), ServiceLifetime.Transient)); 
             services.Add(new ServiceDescriptor(typeof(Bu_MastarModel), typeof(Bu_MastarModel), ServiceLifetime.Transient)); 
             services.Add(new ServiceDescriptor(typeof(IData), typeof(DataService), ServiceLifetime.Transient));
-            services.Add(new ServiceDescriptor(typeof(IExcelExport), typeof(ExcelExportService), ServiceLifetime.Transient));
+            services.Add(new ServiceDescriptor(typeof(IExportExcel), typeof(ExportExcelService), ServiceLifetime.Transient));
 
             services.AddRazorPages();
             services.AddAuthorization(options =>

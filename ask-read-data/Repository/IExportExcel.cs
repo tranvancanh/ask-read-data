@@ -7,8 +7,9 @@ using ask_read_data.Models;
 
 namespace ask_read_data.Repository
 {
-    public interface IExcelExport
+    public interface IExportExcel
     {
-        DataTable GetFloor_Flame_Assy(DateTime dateTime, string BubanType);
+        (DataTable, DataTable) GetFloor_Flame_Assy(DateTime dateTime, string bubanType);
+        int RecordDownloadHistory(DataTable dataTable);
     }
 }

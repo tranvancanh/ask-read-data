@@ -1,4 +1,4 @@
-﻿@model ask_read_data.Models.ViewModel.ExcelExportViewModel
+﻿@model ask_read_data.Models.ViewModel.ExportExcelViewModel
 @{
     ViewData["Title"] = "エクセル出力";
 }
@@ -14,7 +14,7 @@
 </head>
 <div>
     <div class="container-fluid">
-        @using (Html.BeginForm("ExcelExport", "ExcelExport", FormMethod.Post))
+        @using (Html.BeginForm("ExportExcel", "ExportExcel", FormMethod.Post))
         {
             <div class="container float-left">
                 <div class="row form-group form-inline">

@@ -1,4 +1,5 @@
 ﻿using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -377,7 +378,7 @@ namespace mclogi.common
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 // 読み込み失敗
                 errMessage = "Upload failed.";
@@ -605,7 +606,7 @@ namespace mclogi.common
                                 {
                                     moji2 = "Non Active";
                                 }
-                                else if(moji2.Contains("active", StringComparison.OrdinalIgnoreCase)) //大文字小文字を区別しない
+                                else if (moji2.Contains("active", StringComparison.OrdinalIgnoreCase)) //大文字小文字を区別しない
                                 {
                                     moji2 = "Active";
                                 }
@@ -889,7 +890,7 @@ namespace mclogi.common
                                 for (int i = 1; i < columNameList.Count; ++i)
                                 {
                                     var otherValue = Utility.NullToBlank(sheet.Cells[r, columNameList.Count - i].Value).Trim().Replace("\n", "");
-                                    if(otherValue != "")
+                                    if (otherValue != "")
                                     {
                                         isOtherValue = true;
                                         break;
@@ -921,18 +922,18 @@ namespace mclogi.common
         #endregion
 
         #region Excel出力
-        /// <summary>
-        /// Excel出力
-        /// </summary>
-        /// <param name="dt">出力データDataTable</param>
-        /// <param name="exportfileFullPath">出力パス(フルパス)</param>
-        /// <param name="titleRows">タイトル行情報</param>
-        /// <param name="dateTimeColumns">日付指定をする列番号</param>
-        /// <param name="sheetName">シート名</param>
-        public bool ExportExcel(DataTable dt, string exportfileFullPath, List<string> titleRows = null, List<int> dateTimeColumns = null, string sheetName = "Sheet1")
+        ///// <summary>
+        ///// Excel出力
+        ///// </summary>
+        ///// <param name="dt">出力データDataTable</param>
+        ///// <param name="exportfileFullPath">出力パス(フルパス)</param>
+        ///// <param name="titleRows">タイトル行情報</param>
+        ///// <param name="dateTimeColumns">日付指定をする列番号</param>
+        ///// <param name="sheetName">シート名</param>
+        public bool ExportExcel(DataTable dt1, DataTable dt2, string exportfileFullPath, List<string> titleRows, List<int> dateTimeColumns, List<string> sheetName)
         {
             // データがない時は中断
-            if (dt == null || dt.Rows.Count == 0)
+            if (dt1 == null || dt1.Rows.Count <= 0 || dt2 == null || dt2.Rows.Count <= 0)
             {
                 return false;
             }
@@ -958,53 +959,124 @@ namespace mclogi.common
                 FileInfo fileInfo = new FileInfo(exportfileFullPath);
                 var startIndex = 1;
                 var printHeader = true;
-
                 using (var package = new ExcelPackage(fileInfo))
                 {
                     // シート追加
-                    package.Workbook.Worksheets.Add(sheetName);
+                    //package.Workbook.Worksheets.Add(sheetName[0]);
                     // シート取得
-                    using (ExcelWorksheet sheet = package.Workbook.Worksheets[sheetName])
+                    // // 1シートずつ取得
+                    var sheet = package.Workbook.Worksheets.Add(sheetName[0]);
+                    //using (sheet = package.Workbook.Worksheets.Add(sheetName[0]))
+                    //{
+                    sheet.Cells.Style.Font.Size = 12; //Default font size for whole sheet
+                    sheet.Cells.Style.Font.Name = "游ゴシック"; //Default Font name for whole sheet  
+                    // タイトル行が指定されているときは、タイトル行をセットする
+                    // header clor
+                    //var colFromHex = System.Drawing.FromArgb.FromHtml("#FFFF00");
+                    sheet.Cells["A1:F1"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                    sheet.Cells["A1:F1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Yellow);
+                    if (titleRows != null && titleRows.Count > 0)
                     {
-                        sheet.Cells.Style.Font.Size = 12; //Default font size for whole sheet
-                        sheet.Cells.Style.Font.Name = "游ゴシック"; //Default Font name for whole sheet  
-                        // タイトル行が指定されているときは、タイトル行をセットする
-                        if (titleRows != null && titleRows.Count > 0)
+                        for (int i = 0; i < titleRows.Count; i++)
                         {
-                            for (int i = 0; i < titleRows.Count; i++)
-                            {
-                                sheet.Cells[1, i + 1].Value = titleRows[i];
-                            }
-                            // 開始行番号をセット
-                            startIndex = 2;
-                            // タイトル出力済なので、列名は出力しない
-                            printHeader = false;
+                            sheet.Cells[1, i + 1].Value = titleRows[i];
                         }
-
-                        // データセット
-                        sheet.Cells[startIndex, 1].LoadFromDataTable(dt, printHeader);
-
-                        // 日付指定をする列番号がある場合
-                        if (dateTimeColumns != null && dateTimeColumns.Count > 0)
-                        {
-                            for (int i = 0; i < dateTimeColumns.Count; i++)
-                            {
-                                sheet.Cells[startIndex, dateTimeColumns[i], sheet.Dimension.Rows, dateTimeColumns[i]].Style.Numberformat.Format = "yyyy/MM/dd";
-                            }
-                        }
-
-                        // Upload画面のとき（ファイル名最初の2文字が数字）だけ、最後の行に"END"を追加
-                        var fileHeadName = fileInfo.Name.Substring(0, 2);
-                        if(int.TryParse(fileHeadName, out int number))
-                        {
-                            var lastRowNo = sheet.Dimension.End.Row;
-                            sheet.InsertRow(lastRowNo + 1, 1);
-                            sheet.Cells[lastRowNo + 1, 1].Value = "END";
-                        };
-
-                        // 保管
-                        package.Save();
+                        // 開始行番号をセット
+                        startIndex = 2;
+                        // タイトル出力済なので、列名は出力しない
+                        printHeader = false;
                     }
+
+                    // データセット
+                    sheet.Cells[startIndex, 1].LoadFromDataTable(dt1, printHeader);
+
+                    // 日付指定をする列番号がある場合
+                    if (dateTimeColumns != null && dateTimeColumns.Count > 0)
+                    {
+                        for (int i = 0; i < dateTimeColumns.Count; i++)
+                        {
+                            sheet.Cells[startIndex, dateTimeColumns[i], sheet.Dimension.Rows, dateTimeColumns[i]].Style.Numberformat.Format = "yyyy/MM/dd";
+                        }
+                    }
+                    // センターアラインエクセル
+                    sheet.Cells["A1:F" + (dt1.Rows.Count + 1).ToString()].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    sheet.Cells["A1:F" + (dt1.Rows.Count + 1).ToString()].AutoFitColumns();
+
+                    sheet.Cells["A1:F" + (dt1.Rows.Count + 1).ToString()].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                    sheet.Cells["A1:F" + (dt1.Rows.Count + 1).ToString()].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                    sheet.Cells["A1:F" + (dt1.Rows.Count + 1).ToString()].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                    sheet.Cells["A1:F" + (dt1.Rows.Count + 1).ToString()].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+
+                    // Upload画面のとき（ファイル名最初の2文字が数字）だけ、最後の行に"END"を追加
+                    var fileHeadName = fileInfo.Name.Substring(0, 2);
+                    if (int.TryParse(fileHeadName, out int number))
+                    {
+                        var lastRowNo = sheet.Dimension.End.Row;
+                        sheet.InsertRow(lastRowNo + 1, 1);
+                        sheet.Cells[lastRowNo + 1, 1].Value = "END";
+                    };
+
+                    // 保管
+                    //package.Save();
+                    //}
+                    ///////////////////////////////////////// Sheet 2 /////////////////////////////////////////////////////////////////////////
+                    //using (sheet = package.Workbook.Worksheets.Add(sheetName[1]))
+                    //{
+                    //
+                    sheet = package.Workbook.Worksheets.Add(sheetName[1]);
+                    sheet.Cells.Style.Font.Size = 12; //Default font size for whole sheet
+                    sheet.Cells.Style.Font.Name = "游ゴシック"; //Default Font name for whole sheet
+                    // header clor
+                    //var colFromHex = System.Drawing.FromArgb.FromHtml("#FFFF00");
+                    sheet.Cells["A1:F1"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                    sheet.Cells["A1:F1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Yellow);
+                    // タイトル行が指定されているときは、タイトル行をセットする
+                    if (titleRows != null && titleRows.Count > 0)
+                    {
+                        for (int i = 0; i < titleRows.Count; i++)
+                        {
+                            sheet.Cells[1, i + 1].Value = titleRows[i];
+                            // センターアラインエクセル
+                            sheet.Cells["A1:F1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                            sheet.Cells["A1:F1"].AutoFitColumns();
+                        }
+                        // 開始行番号をセット
+                        startIndex = 2;
+                        // タイトル出力済なので、列名は出力しない
+                        printHeader = false;
+                    }
+
+                    // データセット
+                    sheet.Cells[startIndex, 1].LoadFromDataTable(dt2, printHeader);
+
+                    // 日付指定をする列番号がある場合
+                    if (dateTimeColumns != null && dateTimeColumns.Count > 0)
+                    {
+                        for (int i = 0; i < dateTimeColumns.Count; i++)
+                        {
+                            sheet.Cells[startIndex, dateTimeColumns[i], sheet.Dimension.Rows, dateTimeColumns[i]].Style.Numberformat.Format = "yyyy/MM/dd";
+                        }
+                    }
+                    // センターアラインエクセル
+                    sheet.Cells["A1:F" + (dt1.Rows.Count + 1).ToString()].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    sheet.Cells["A1:F" + (dt1.Rows.Count + 1).ToString()].AutoFitColumns();
+
+                    sheet.Cells["A1:F" + (dt1.Rows.Count + 1).ToString()].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                    sheet.Cells["A1:F" + (dt1.Rows.Count + 1).ToString()].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                    sheet.Cells["A1:F" + (dt1.Rows.Count + 1).ToString()].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                    sheet.Cells["A1:F" + (dt1.Rows.Count + 1).ToString()].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                    // Upload画面のとき（ファイル名最初の2文字が数字）だけ、最後の行に"END"を追加
+                    var fileHeadName1 = fileInfo.Name.Substring(0, 2);
+                    if (int.TryParse(fileHeadName1, out int number1))
+                    {
+                        var lastRowNo = sheet.Dimension.End.Row;
+                        sheet.InsertRow(lastRowNo + 1, 1);
+                        sheet.Cells[lastRowNo + 1, 1].Value = "END";
+                    };
+
+                    // 保管
+                    package.Save();
+                    //}
                 }
 
             }

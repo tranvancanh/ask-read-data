@@ -7,52 +7,68 @@ using System.Threading.Tasks;
 using ask_read_data.Models.ViewModel;
 using ask_read_data.Repository;
 using mclogi.common;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ask_read_data.Controllers
 {
-    public class ExcelExportController : Controller
+    [Authorize]
+    public class ExportExcelController : Controller
     {
-        private readonly IExcelExport _excelExport;
-        public ExcelExportController(IExcelExport excelExport)
+        public const string FLOOR_ASSY = "FLOOR ASSY";
+        public const string FLAME_ASSY = "FLAME ASSY";
+
+        private readonly IExportExcel _excelExport;
+        public ExportExcelController(IExportExcel excelExport)
         {
             this._excelExport = excelExport;
         }
         [HttpGet]
-        public IActionResult ExcelExport()
+        public IActionResult ExportExcel()
         {
-            return View(new ExcelExportViewModel());
+            return View(new ExportExcelViewModel());
         }
 
         [HttpPost]
-        public IActionResult ExcelExport(ExcelExportViewModel modelRequset, string floorassy, string flameassy)
+        public IActionResult ExportExcel(ExportExcelViewModel modelRequset, string floorassy, string flameassy)
         {
             if (!ModelState.IsValid)
             {
                 return RedirectToAction("ExcelExport", "ExcelExport");
             }
-            DataTable dt = null;
-            var filename = "";
+            var dt1 = new DataTable();
+            var dt2 = new DataTable();
+            var filename = string.Empty;
+            var BubanMeiType = string.Empty;
+            List<string> sheetName = new List<string>();
             /////////////////////////////////////////////////////////////////////////////////////////////////////
             string button = floorassy + flameassy;
             switch (button)
             {
                 case "floorassy":
                     {
-                        dt = _excelExport.GetFloor_Flame_Assy(modelRequset.Floor_Assy, "FLOOR ASSY");
+                        BubanMeiType = FLOOR_ASSY;
+                        var dt = _excelExport.GetFloor_Flame_Assy(modelRequset.Floor_Assy, FLOOR_ASSY);
+                        dt1 = dt.Item1;
+                        dt2 = dt.Item2;
                         filename = "FloorAssy_";
+                        sheetName = new List<string>() { "FloorAssy_⓵Sheet1", "FloorAssy_⓶Sheet2" };
                         break;
                     }
                 case "flameassy":
                     {
-                        dt = _excelExport.GetFloor_Flame_Assy(modelRequset.Flame_Assy, "FLAME ASSY");
-                        filename = "Flame_Assy";
+                        BubanMeiType = FLAME_ASSY;
+                        var dt = _excelExport.GetFloor_Flame_Assy(modelRequset.Flame_Assy, FLAME_ASSY);
+                        dt1 = dt.Item1;
+                        dt2 = dt.Item2;
+                        filename = "Flame_Assy_";
+                        sheetName = new List<string>() { "Flame_Assy_⓵Sheet1", "Flame_Assy_⓶Sheet2" };
                         break;
                     }
                 default:
                     {
-                        dt = null;
+                        //dt = null;
                         ViewData["error"] = "ボタンがおかしいです";
                         return View();
                     }
@@ -79,7 +95,7 @@ namespace ask_read_data.Controllers
             {
                 // Excelファイル生成
                 Utility util = new Utility();
-                if (util.ExportExcel(dt, expPath, null, null))
+                if (util.ExportExcel(dt1, dt2, expPath, null, null,sheetName))
                 {
 
                     // ダウンロード履歴登録
@@ -101,7 +117,7 @@ namespace ask_read_data.Controllers
             {
                 var error = ex.Message;
                 //var GetType = ex.GetType;
-                TempData["error"] = "ダウンロードに失敗しました " + error + "Exception Type: " + ex.GetType().ToString();
+                TempData["error"] = "ダウンロードに失敗しました " + error + "| Exception Type: " + ex.GetType().ToString();
                 return View();
             }
             

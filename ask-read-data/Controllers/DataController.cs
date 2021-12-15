@@ -4,10 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using ask_read_data.Models;
 using ask_read_data.Repository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ask_read_data.Controllers
 {
+    [Authorize]
     public class DataController : Controller
     {
         private readonly IData _exportExcel;

@@ -5,25 +5,26 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using ask_read_data.Commons;
+using ask_read_data.Controllers;
 using ask_read_data.Models;
 using ask_read_data.Repository;
 using ask_tzn_funamiKD.Commons;
 
 namespace ask_read_data.Servive
 {
-    public class ExcelExportService : IExcelExport
+    public class ExportExcelService : IExportExcel
     {
-        public DataTable GetFloor_Flame_Assy(DateTime dateTime, string bubanType)
+        public (DataTable, DataTable) GetFloor_Flame_Assy(DateTime dateTime, string bubanType)
         {
             dateTime = Convert.ToDateTime( new DateTime(dateTime.Year, dateTime.Month, dateTime.Day, 00, 00, 00).ToString("yyyy-MM-dd HH:mm:ss"));
 
             var MyDataTable = new DataTable();
-            MyDataTable.Columns.Add("PaletNo", typeof(int));
-            MyDataTable.Columns.Add("LineON", typeof(string));
+            MyDataTable.Columns.Add("パレットNo", typeof(int));
+            MyDataTable.Columns.Add("ラインON", typeof(string));
             MyDataTable.Columns.Add("SEQ", typeof(int));
-            MyDataTable.Columns.Add("BUBAN", typeof(string));
-            MyDataTable.Columns.Add("KIGO", typeof(string));
-            MyDataTable.Columns.Add("FYMD", typeof(string));
+            MyDataTable.Columns.Add("部品番号", typeof(string));
+            MyDataTable.Columns.Add("部品略式記号", typeof(string));
+            MyDataTable.Columns.Add("発送予定日", typeof(string));
 
             var ConnectionString = new GetConnectString().ConnectionString;
             using (var connection = new SqlConnection(ConnectionString))
@@ -66,16 +67,20 @@ namespace ask_read_data.Servive
                         var Row = MyDataTable.NewRow();
                         {
                             index++;
-                            Row["PaletNo"] = PaletNo;
-                            Row["LineON"] = Convert.ToDateTime(reader["WAYMD"].ToString()).Year.ToString() + Convert.ToDateTime(reader["WAYMD"].ToString()).Month.ToString() + Convert.ToDateTime(reader["WAYMD"].ToString()).Day.ToString();
+                            Row["パレットNo"] = PaletNo;
+                            Row["ラインON"] = Convert.ToDateTime(reader["WAYMD"].ToString()).Year.ToString() + Convert.ToDateTime(reader["WAYMD"].ToString()).Month.ToString() + Convert.ToDateTime(reader["WAYMD"].ToString()).Day.ToString();
                             Row["SEQ"] = Util.NullToBlank((object)reader["SEQ"]);
-                            Row["BUBAN"] = Util.NullToBlank(reader["BUBAN"].ToString());
-                            Row["KIGO"] = Util.NullToBlank(reader["KIGO"].ToString());
-                            Row["FYMD"] = Convert.ToDateTime(reader["FYMD"].ToString()).Year.ToString() + Convert.ToDateTime(reader["FYMD"].ToString()).Month.ToString() + Convert.ToDateTime(reader["FYMD"].ToString()).Day.ToString();
+                            Row["部品番号"] = Util.NullToBlank(reader["BUBAN"].ToString());
+                            Row["部品略式記号"] = Util.NullToBlank(reader["KIGO"].ToString());
+                            Row["発送予定日"] = (Convert.ToDateTime(reader["FYMD"].ToString()).Year.ToString() + Convert.ToDateTime(reader["FYMD"].ToString()).Month.ToString() + Convert.ToDateTime(reader["FYMD"].ToString()).Day.ToString()).ToString();
                         }
                         MyDataTable.Rows.Add(Row);
 
-                        if (index%8 == 0)
+                        if ((bubanType == ExportExcelController.FLOOR_ASSY) && (index % 8 == 0))
+                        {
+                            PaletNo++;
+                        }
+                        else if ((bubanType == ExportExcelController.FLAME_ASSY) && (index % 4 == 0))
                         {
                             PaletNo++;
                         }
@@ -97,16 +102,18 @@ namespace ask_read_data.Servive
                     }
                 }
             }
+            //  Reverse Rows
+            DataTable reversedDt = MyDataTable.Clone();
+            for (var row = MyDataTable.Rows.Count - 1; row >= 0; row--)
+                reversedDt.ImportRow(MyDataTable.Rows[row]);
 
-            return MyDataTable;
+            return (MyDataTable, reversedDt);
 
         }
 
-        public DataTable GetFlame_Assy(DateTime dateTime)
+        public int RecordDownloadHistory(DataTable dataTable)
         {
             throw new NotImplementedException();
         }
-
-        
     }
 }
