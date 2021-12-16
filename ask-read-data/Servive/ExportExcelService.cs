@@ -143,6 +143,9 @@ namespace ask_read_data.Servive
                         if (MyDataTable.Rows.Count < ExportExcelController.PALETNO_FLOOR_ASSY)
                         {
                             Position = 0;
+                            reversedDt = MyDataTable.Clone();
+                            for (var row = MyDataTable.Rows.Count - 1; row >= 0; row--)
+                                reversedDt.ImportRow(MyDataTable.Rows[row]);
                             break;
                         }
                         Balance = MyDataTable.Rows.Count % ExportExcelController.PALETNO_FLOOR_ASSY;
@@ -155,16 +158,13 @@ namespace ask_read_data.Servive
                             }
                         }
                         //////////////////////////////////////// Sheet2のデータ //////////////////////////
-                        reversedDt = MyDataTable.Clone();
-                        for (var row = MyDataTable.Rows.Count - 1; row >= 0; row--)
-                            reversedDt.ImportRow(MyDataTable.Rows[row]);
-                        // 反逆の場合は、明日以降の件を削除します
-                        for (int i = 0; i < Balance; i++)
-                        {
-                            DataRow row = reversedDt.Rows[0];
-                            if (row["パレットNo"].ToString() == ExportExcelController.ASHITA_IKO)
-                                row.Delete();
-                        }
+                        ///// 反逆の場合は、明日以降の件を削除します
+                        var table = MyDataTable.AsEnumerable()
+                                      .Where(r => r.Field<string>("パレットNo") != ExportExcelController.ASHITA_IKO)
+                                      .CopyToDataTable();
+                        reversedDt = table.Clone();
+                        for (var row = table.Rows.Count - 1; row >= 0; row--)
+                            reversedDt.ImportRow(table.Rows[row]);
                         break;
                     }
                 case ExportExcelController.FLAME_ASSY:
@@ -172,6 +172,9 @@ namespace ask_read_data.Servive
                         if (MyDataTable.Rows.Count < ExportExcelController.PALETNO_FLAME_ASSY)
                         {
                             Position = 0;
+                            reversedDt = MyDataTable.Clone();
+                            for (var row = MyDataTable.Rows.Count - 1; row >= 0; row--)
+                                reversedDt.ImportRow(MyDataTable.Rows[row]);
                             break;
                         }
                         Balance = MyDataTable.Rows.Count % ExportExcelController.PALETNO_FLAME_ASSY;
