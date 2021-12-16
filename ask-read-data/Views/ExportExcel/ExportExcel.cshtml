@@ -25,7 +25,7 @@
                         <input class="form-control col-md-12 border border-secondary" id="datetimeFloor" asp-for="@Model.Floor_Assy" type="date" step="1" autocomplete="on" />
                     </div>
                     <div class="col-md-3">
-                        <button class="col-md-8 col-lg-8 col-xl-8 btn btn-primary btn-sm float-left" type="submit" name="floorassy" value="floorassy" margin-right>FLOOR ダウンロード</button>
+                        <button class="col-md-8 col-lg-8 col-xl-8 btn btn-primary btn-sm float-left" type="submit" name="floorassy" value="floorassy" margin-right onclick="ResetTextFunction()">FLOOR ダウンロード</button>
                     </div>
                 </div>
                 <div class="row form-group form-inline">
@@ -36,14 +36,14 @@
                         <input class="form-control col-md-12 border border-secondary" id="datetimeFlame" asp-for="@Model.Flame_Assy" type="date" step="1" autocomplete="on" />
                     </div>
                     <div class="col-md-3">
-                        <button class="col-md-8 col-lg-8 col-xl-8 btn btn-primary btn-sm float-left" type="submit" name="flameassy" value="flameassy" margin-right>FLAME ダウンロード</button>
+                        <button class="col-md-8 col-lg-8 col-xl-8 btn btn-primary btn-sm float-left" type="submit" name="flameassy" value="flameassy" margin-right onclick="ResetTextFunction()">FLAME ダウンロード</button>
                     </div>
                 </div>
                 <div class="row form-group form-inline">
-                    <p class="col-md-12 h6 text-center text-success">
+                    <p class="col-md-12 h6 text-center text-success" id="statussucsess">
                         @TempData["statussucsess"]
                     </p>
-                    <p class="col-md-12 h6 text-center text-danger">
+                    <p class="col-md-12 h6 text-center text-danger" id="error">
                         @TempData["error"]
                     </p>
                 </div>
@@ -52,12 +52,15 @@
     </div>
     <br />
     <br />
-    @*<div class="row form-group form-inline">
-        <p class="h6 text-center text-success">
-            @TempData["statussucsess"]
-        </p>
-        <p class="h6 text-center text-danger">
-            @TempData["error"]
-        </p>
-    </div>*@
+
 </div>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script type="text/javascript">
+        function ResetTextFunction() {
+            document.getElementById("error").innerHTML = "";
+            document.getElementById("statussucsess").innerHTML = "";
+        }
+    </script>
+}

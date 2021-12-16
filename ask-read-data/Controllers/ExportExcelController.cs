@@ -107,6 +107,12 @@ namespace ask_read_data.Controllers
 
             try
             {
+                if(dt1.Rows.Count <= 0 || dt2.Rows.Count <=0)
+                {
+
+                    TempData["error"] = "その日付はデータが存在していませんのでダウンロードに失敗しました";
+                    return View();
+                }
                 // Excelファイル生成
                 Utility util = new Utility();
                 if (util.ExportExcel(dt1, dt2, expPath, null, null,sheetName))
@@ -120,6 +126,7 @@ namespace ask_read_data.Controllers
                     var file = System.IO.File.ReadAllBytes(expPath);
                     if(_excelExport.RecordDownloadHistory(ref dt1, BubanMeiType, Claims) > 0)
                     {
+                        TempData["error"] = null;
                         TempData["success"] = "ダウンロードに成功しました";
                         return File(file, System.Net.Mime.MediaTypeNames.Application.Octet, outputFilename);
                     }

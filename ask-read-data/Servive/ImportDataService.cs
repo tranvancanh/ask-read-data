@@ -22,7 +22,7 @@ namespace ask_read_data.Servive
                 DataModel item = (DataModel)data;
                 datas.Add(item);
             }
-
+            var listFileName = new List<string>();
             var respon = new ResponResult();
             int affectedRows = 0;
             var ConnectionString = new GetConnectString().ConnectionString;
@@ -54,6 +54,11 @@ namespace ask_read_data.Servive
                 { 
                     foreach(var data in datas)
                     {
+                        // Get all file name
+                        if(!listFileName.Contains(data.FileName))
+                        {
+                            listFileName.Add(data.FileName);
+                        }
                         lineNo = data.LineNumber;
                         //パラメータ初期化
                         cmd.Parameters.Clear();
@@ -334,8 +339,8 @@ namespace ask_read_data.Servive
                         int row = cmd.ExecuteNonQuery();
                         affectedRows = affectedRows + row;
                     }
-                    /////////////////////////////  BU_Mastarに対して　/////////////////////////////////////////////
-                    ///////////////////  SetParameter設定  /////////////////////////////////////////////////////
+ /////////////////////////////////////////////////////////////  BU_Mastarに対して　////////////////////////////////////////////////////
+ /////////////////////////////////////////////////////////////  SetParameter設定  /////////////////////////////////////////////////////
                     var statementType = "Insert";
                     foreach (var buBan in buMastars)
                     {
@@ -393,6 +398,77 @@ namespace ask_read_data.Servive
                         cmd1.Parameters.Add(StausCode);
 
                         int row = cmd1.ExecuteNonQuery();
+                    }
+                    /////////////////////////////////////////////////////////////  [File_Import_Log]に対して　////////////////////////////////////////////////////
+                    /////////////////////////////////////////////////////////////  SetParameter設定  /////////////////////////////////////////////////////
+                    SqlCommand cmd2 = new SqlCommand()
+                                                        {
+                                                            CommandText = "SP_File_Import_Log_Insert",
+                                                            Connection = connection,
+                                                            CommandType = CommandType.StoredProcedure,
+                                                            Transaction = transaction
+                                                        };
+                    statementType = "Insert";
+                    foreach (var file in listFileName)
+                    {
+                        var maxLineNumber = (from item in datas
+                                    where (item.FileName == file)
+                                    select item).ToList().Max(x => x.LineNumber);
+                        var maxPosition = (from item in datas
+                                             where (item.FileName == file)
+                                             select item).ToList().Max(x => x.Position);
+                        //パラメータ初期化
+                        cmd2.Parameters.Clear();
+                        //SqlParameter StatementType = new SqlParameter
+                        //                                                {
+                        //                                                    ParameterName = "@StatementType",
+                        //                                                    SqlDbType = SqlDbType.NVarChar,
+                        //                                                    Value = statementType,
+                        //                                                    Direction = ParameterDirection.Input
+                        //                                                };
+                        SqlParameter User = new SqlParameter
+                                                                        {
+                                                                            ParameterName = "@User",
+                                                                            SqlDbType = SqlDbType.NVarChar,
+                                                                            Value = UserName,
+                                                                            Direction = ParameterDirection.Input
+                                                                        };
+                        SqlParameter FileName = new SqlParameter
+                                                                        {
+                                                                            ParameterName = "@FileName",
+                                                                            SqlDbType = SqlDbType.NVarChar,
+                                                                            Value = file,
+                                                                            Direction = ParameterDirection.Input
+                                                                        };
+                        SqlParameter TotalLine = new SqlParameter
+                                                                        {
+                                                                            ParameterName = "@TotalLine",
+                                                                            SqlDbType = SqlDbType.Int,
+                                                                            Value = maxLineNumber,
+                                                                            Direction = ParameterDirection.Input
+                                                                        };
+                        SqlParameter MaxPosition = new SqlParameter
+                                                                        {
+                                                                            ParameterName = "@MaxPosition",
+                                                                            SqlDbType = SqlDbType.Int,
+                                                                            Value = maxPosition,
+                                                                            Direction = ParameterDirection.Input
+                                                                        };
+                        SqlParameter StausCode = new SqlParameter
+                                                                        {
+                                                                            ParameterName = "@StausCode",
+                                                                            SqlDbType = SqlDbType.Int,
+                                                                            Direction = ParameterDirection.Output
+                                                                        };
+
+                        //cmd2.Parameters.Add(StatementType);
+                        cmd2.Parameters.Add(User);
+                        cmd2.Parameters.Add(FileName);
+                        cmd2.Parameters.Add(TotalLine);
+                        cmd2.Parameters.Add(MaxPosition);
+                        cmd2.Parameters.Add(StausCode);
+
+                        int row = cmd2.ExecuteNonQuery();
                     }
 
                     transaction.Commit();
