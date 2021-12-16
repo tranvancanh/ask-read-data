@@ -15,7 +15,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>SB Admin 2 - ログイン</title>
+    <title>序列管理システム</title>
 
     <!-- Custom fonts for this template-->
     <link href="~/Assets/admin/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -41,7 +41,7 @@
                             <div class="col-lg-8">
                                 <div class="p-5">
                                     <div class="text-center">
-                                        <h1 class="h4 text-gray-900 mb-2">Welcome Back!</h1>
+                                        <h1 class="h4 text-gray-900 mb-2">序列管理システム</h1>
                                     </div>
                                     @if (ViewData["errormess"] != null)
                                     {
@@ -77,22 +77,15 @@
                                         <button class="btn btn-primary btn-user btn-block" type="submit">
                                             ログイン
                                         </button>
-                                        <hr>
-                                        <a href="index.html" class="btn btn-google btn-user btn-block">
-                                            <i class="fab fa-google fa-fw"></i> Googleでログインする
-                                        </a>
-                                        <a href="index.html" class="btn btn-facebook btn-user btn-block">
-                                            <i class="fab fa-facebook-f fa-fw"></i> Facebookでログインする
-                                        </a>
                                     }
                                     <hr>
-                                    <div class="text-center">
+                                    @*<div class="text-center">
                                         <a class="small" href="forgot-password.html">パスワードを忘れの方はこちら</a>
                                     </div>
                                     <div class="text-center">
                                         <label class="small">アカウントをお持ちでないですか?</label>
                                         <a class="small" href="register.html"> 登録する!</a>
-                                    </div>
+                                    </div>*@
                                 </div>
                             </div>
                             <div class="col-lg-2"></div>
