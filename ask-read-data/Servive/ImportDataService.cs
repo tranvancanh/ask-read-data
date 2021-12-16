@@ -473,14 +473,16 @@ namespace ask_read_data.Servive
 
                     transaction.Commit();
                     respon.Status = "OK";
-                    respon.Resmess = $@"ファイルのデータがデータベースに保存されました(追加: {affectedRows}件)";
+                    respon.Resmess = $@"ファイルのデータがデータベースに保存されました)
+                                     (追加: {affectedRows}件";
                 }
                 catch(Exception ex)
                 {
                     var error = ex.Message;
                     transaction.Rollback();
                     respon.Status = "NG";
-                    respon.Resmess = $@"ファイル読み込み中にエラーが発生しましたのでデータがデータベースに保存されていません! | Error LineNo : {lineNo} (追加: 0件)";
+                    respon.Resmess = $@"ファイル読み込み中にエラーが発生しましたのでデータがデータベースに保存されていません! | Error LineNo : {lineNo} (追加: 0件)
+                                     Message : {error}";
 
                     return respon;
                 }
