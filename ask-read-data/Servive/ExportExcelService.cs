@@ -163,8 +163,25 @@ namespace ask_read_data.Servive
                                       .Where(r => r.Field<string>("パレットNo") != ExportExcelController.ASHITA_IKO)
                                       .CopyToDataTable();
                         reversedDt = table.Clone();
-                        for (var row = table.Rows.Count - 1; row >= 0; row--)
-                            reversedDt.ImportRow(table.Rows[row]);
+                        for (int i = 0; i < table.Rows.Count; i += 8)
+                        {
+                            var row1 = table.Rows[i + 0];
+                            var row2 = table.Rows[i + 1];
+                            var row3 = table.Rows[i + 2];
+                            var row4 = table.Rows[i + 3];
+                            var row5 = table.Rows[i + 4];
+                            var row6 = table.Rows[i + 5];
+                            var row7 = table.Rows[i + 6];
+                            var row8 = table.Rows[i + 7];
+                            reversedDt.Rows.Add(row8.ItemArray);
+                            reversedDt.Rows.Add(row7.ItemArray);
+                            reversedDt.Rows.Add(row6.ItemArray);
+                            reversedDt.Rows.Add(row5.ItemArray);
+                            reversedDt.Rows.Add(row4.ItemArray);
+                            reversedDt.Rows.Add(row3.ItemArray);
+                            reversedDt.Rows.Add(row2.ItemArray);
+                            reversedDt.Rows.Add(row1.ItemArray);
+                        }
                         break;
                     }
                 case ExportExcelController.FLAME_ASSY:
