@@ -25,14 +25,24 @@ namespace ask_read_data.Servive
             var lastPosition = result.Item2;
             var position = new List<int>();
             var MyDataTable = new DataTable();
+            //DataColumn[] cols ={
+            //                      new DataColumn("No",typeof(string)),
+            //                      new DataColumn("MMC生産日",typeof(string)),
+            //                      new DataColumn("SEQ",typeof(string)),
+            //                      new DataColumn("パレットNo",typeof(string)),
+            //                      new DataColumn("部品番号",typeof(string)),
+            //                      new DataColumn("部品略式記号",typeof(string)),
+            //                      new DataColumn("",typeof(string))
+            //                  };
+
             DataColumn[] cols ={
-                                  new DataColumn("No",typeof(string)),
-                                  new DataColumn("MMC生産日",typeof(string)),
-                                  new DataColumn("SEQ",typeof(string)),
                                   new DataColumn("パレットNo",typeof(string)),
+                                  new DataColumn("ラインON",typeof(string)),
+                                  new DataColumn("SEQ",typeof(string)),
                                   new DataColumn("部品番号",typeof(string)),
                                   new DataColumn("部品略式記号",typeof(string)),
-                                  new DataColumn("",typeof(string))
+                                  new DataColumn("発送予定日",typeof(string))
+                                  //new DataColumn("",typeof(string))
                               };
             MyDataTable.Columns.AddRange(cols);
 
