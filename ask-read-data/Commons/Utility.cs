@@ -1058,13 +1058,13 @@ namespace mclogi.common
                         }
                     }
                     // センターアラインエクセル
-                    sheet.Cells["A1:F" + (dt1.Rows.Count + 1).ToString()].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                    sheet.Cells["A1:F" + (dt1.Rows.Count + 1).ToString()].AutoFitColumns();
+                    sheet.Cells["A1:F" + (dt2.Rows.Count + 1).ToString()].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    sheet.Cells["A1:F" + (dt2.Rows.Count + 1).ToString()].AutoFitColumns();
 
-                    sheet.Cells["A1:F" + (dt1.Rows.Count + 1).ToString()].Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    sheet.Cells["A1:F" + (dt1.Rows.Count + 1).ToString()].Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    sheet.Cells["A1:F" + (dt1.Rows.Count + 1).ToString()].Style.Border.Top.Style = ExcelBorderStyle.Thin;
-                    sheet.Cells["A1:F" + (dt1.Rows.Count + 1).ToString()].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                    sheet.Cells["A1:F" + (dt2.Rows.Count + 1).ToString()].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                    sheet.Cells["A1:F" + (dt2.Rows.Count + 1).ToString()].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                    sheet.Cells["A1:F" + (dt2.Rows.Count + 1).ToString()].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                    sheet.Cells["A1:F" + (dt2.Rows.Count + 1).ToString()].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
                     // Upload画面のとき（ファイル名最初の2文字が数字）だけ、最後の行に"END"を追加
                     var fileHeadName1 = fileInfo.Name.Substring(0, 2);
                     if (int.TryParse(fileHeadName1, out int number1))

@@ -20,6 +20,7 @@ namespace ask_read_data.Controllers
         public const string FLAME_ASSY = "FLAME ASSY";
         public const int PALETNO_FLOOR_ASSY = 8;
         public const int PALETNO_FLAME_ASSY = 4;
+        public const string ASHITA_IKO = "明日以降";
 
         private readonly IExportExcel _excelExport;
         public ExportExcelController(IExportExcel excelExport)
