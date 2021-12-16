@@ -27,6 +27,7 @@ namespace ask_read_data.Servive
             int affectedRows = 0;
             var ConnectionString = new GetConnectString().ConnectionString;
             var UserName = Claims.Where(c => c.Type == ClaimTypes.Name).First().Value;
+            DateTime insertDateTime = Convert.ToDateTime(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             using (var connection = new SqlConnection(ConnectionString))
             {
                 int lineNo = 0;
@@ -34,25 +35,17 @@ namespace ask_read_data.Servive
                  
                 connection.Open();
                 transaction = connection.BeginTransaction();
-                //Create the command object
-                SqlCommand cmd = new SqlCommand()
-                                                    {
-                                                        CommandText = "SP_DataImportInsert",
-                                                        Connection = connection,
-                                                        CommandType = CommandType.StoredProcedure,
-                                                        Transaction = transaction
-                                                    };
-
-                SqlCommand cmd1 = new SqlCommand()
-                                                    {
-                                                        CommandText = "SP_BU_Mastar_SelectInsertUpdateDelete",
-                                                        Connection = connection,
-                                                        CommandType = CommandType.StoredProcedure,
-                                                        Transaction = transaction
-                                                    };
                 try 
-                { 
-                    foreach(var data in datas)
+                {
+                    //Create the command object
+                    SqlCommand cmd = new SqlCommand()
+                                                        {
+                                                            CommandText = "SP_DataImportInsert",
+                                                            Connection = connection,
+                                                            CommandType = CommandType.StoredProcedure,
+                                                            Transaction = transaction
+                                                        };
+                    foreach (var data in datas)
                     {
                         // Get all file name
                         if(!listFileName.Contains(data.FileName))
@@ -307,6 +300,14 @@ namespace ask_read_data.Servive
                                                                     Value = UserName,
                                                                     Direction = ParameterDirection.Input
                                                                 };
+                        /////////////////// Create DateTime  //////////////////////////////////////////////////
+                        SqlParameter CurrentDate = new SqlParameter
+                                                                    {
+                                                                        ParameterName = "@CurrentDate",
+                                                                        SqlDbType = SqlDbType.DateTime,
+                                                                        Value = insertDateTime,
+                                                                        Direction = ParameterDirection.Input
+                                                                    };
 
                         cmd.Parameters.Add(WAYMD);
                         cmd.Parameters.Add(SEQ);
@@ -335,12 +336,20 @@ namespace ask_read_data.Servive
                         cmd.Parameters.Add(LineNumber);
                         cmd.Parameters.Add(Position);
                         cmd.Parameters.Add(CreateBy);
+                        cmd.Parameters.Add(CurrentDate);
 
                         int row = cmd.ExecuteNonQuery();
                         affectedRows = affectedRows + row;
                     }
- /////////////////////////////////////////////////////////////  BU_Mastarに対して　////////////////////////////////////////////////////
- /////////////////////////////////////////////////////////////  SetParameter設定  /////////////////////////////////////////////////////
+                    /////////////////////////////////////////////////////////////  BU_Mastarに対して　////////////////////////////////////////////////////
+                    /////////////////////////////////////////////////////////////  SetParameter設定  /////////////////////////////////////////////////////
+                    SqlCommand cmd1 = new SqlCommand()
+                                                        {
+                                                            CommandText = "SP_BU_Mastar_SelectInsertUpdateDelete",
+                                                            Connection = connection,
+                                                            CommandType = CommandType.StoredProcedure,
+                                                            Transaction = transaction
+                                                        };
                     var statementType = "Insert";
                     foreach (var buBan in buMastars)
                     {
@@ -368,6 +377,13 @@ namespace ask_read_data.Servive
                                                                     Value = buBan.BUBAN,
                                                                     Direction = ParameterDirection.Input
                                                                 };
+                        SqlParameter KIGO = new SqlParameter
+                                                                {
+                                                                    ParameterName = "@KIGO",
+                                                                    SqlDbType = SqlDbType.NVarChar,
+                                                                    Value = buBan.KIGO,
+                                                                    Direction = ParameterDirection.Input
+                                                                };
                         SqlParameter MEWISYO = new SqlParameter
                                                                 {
                                                                     ParameterName = "@MEWISYO",
@@ -382,6 +398,13 @@ namespace ask_read_data.Servive
                                                                     Value = buBan.Nyusu,
                                                                     Direction = ParameterDirection.Input
                                                                 };
+                        SqlParameter KatakanaName = new SqlParameter
+                                                                {
+                                                                    ParameterName = "@KatakanaName",
+                                                                    SqlDbType = SqlDbType.NVarChar,
+                                                                    Value = buBan.KatakanaName,
+                                                                    Direction = ParameterDirection.Input
+                                                                };
 
                         SqlParameter StausCode = new SqlParameter
                                                                 {
@@ -393,8 +416,10 @@ namespace ask_read_data.Servive
                         cmd1.Parameters.Add(User);
                         cmd1.Parameters.Add(StatementType);
                         cmd1.Parameters.Add(BUBAN);
+                        cmd1.Parameters.Add(KIGO);
                         cmd1.Parameters.Add(MEWISYO);
                         cmd1.Parameters.Add(Nyusu);
+                        cmd1.Parameters.Add(KatakanaName);
                         cmd1.Parameters.Add(StausCode);
 
                         int row = cmd1.ExecuteNonQuery();

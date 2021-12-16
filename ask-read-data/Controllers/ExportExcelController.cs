@@ -15,12 +15,23 @@ namespace ask_read_data.Controllers
 {
     [Authorize]
     public class ExportExcelController : Controller
-    {
+    {   
+        /****************************部番略式記号*************************************/
         public const string FLOOR_ASSY = "FL00R ASSY";
         public const string FLAME_ASSY = "FRAME ASSY";
+
+        /****************************入数*************************************/
         public const int PALETNO_FLOOR_ASSY = 8;
         public const int PALETNO_FLAME_ASSY = 4;
+
         public const string ASHITA_IKO = "明日以降";
+        /****************************シート名***********************************/
+        /****FLOOR ASSY****/
+        public const string FLOORASSY_SHEET1 = "フロアー出荷用";
+        public const string FLOORASSY_SHEET2 = "フロアー生産用";
+        /****FRAME ASSY****/
+        public const string FRAMEASSY_SHEET1 = "フレーム出荷用";
+        public const string FRAMEASSY_SHEET2 = "フレーム生産用";
 
         private readonly IExportExcel _excelExport;
         public ExportExcelController(IExportExcel excelExport)
@@ -58,8 +69,8 @@ namespace ask_read_data.Controllers
                             var dt = _excelExport.GetFloor_Flame_Assy(modelRequset.Floor_Assy, FLOOR_ASSY);
                             dt1 = dt.Item1;
                             dt2 = dt.Item2;
-                            filename = "FloorAssy_";
-                            sheetName = new List<string>() { "FloorAssy_⓵Sheet1", "FloorAssy_⓶Sheet2" };
+                            filename = "FLOOR_ASSY_" + modelRequset.Floor_Assy.Year.ToString().Substring(2,2) + modelRequset.Floor_Assy.Month.ToString() + modelRequset.Floor_Assy.Day.ToString() + "出荷分序列データー";
+                            sheetName = new List<string>() { FLOORASSY_SHEET1, FLOORASSY_SHEET2 };
                             break;
                         }
                     case "flameassy":
@@ -68,8 +79,8 @@ namespace ask_read_data.Controllers
                             var dt = _excelExport.GetFloor_Flame_Assy(modelRequset.Flame_Assy, FLAME_ASSY);
                             dt1 = dt.Item1;
                             dt2 = dt.Item2;
-                            filename = "Flame_Assy_";
-                            sheetName = new List<string>() { "Flame_Assy_⓵Sheet1", "Flame_Assy_⓶Sheet2" };
+                            filename = "FLAME_ASSY_" + modelRequset.Flame_Assy.Year.ToString().Substring(2, 2) + modelRequset.Flame_Assy.Month.ToString() + modelRequset.Flame_Assy.Day.ToString() + "出荷分序列データー";
+                            sheetName = new List<string>() { FRAMEASSY_SHEET1, FRAMEASSY_SHEET2 };
                             break;
                         }
                     default:

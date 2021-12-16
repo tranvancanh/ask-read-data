@@ -25,12 +25,16 @@ namespace ask_read_data.Servive
             var lastPosition = result.Item2;
             var position = new List<int>();
             var MyDataTable = new DataTable();
-            MyDataTable.Columns.Add("パレットNo", typeof(string));
-            MyDataTable.Columns.Add("ラインON", typeof(string));
-            MyDataTable.Columns.Add("SEQ", typeof(int));
-            MyDataTable.Columns.Add("部品番号", typeof(string));
-            MyDataTable.Columns.Add("部品略式記号", typeof(string));
-            MyDataTable.Columns.Add("発送予定日", typeof(string));
+            DataColumn[] cols ={
+                                  new DataColumn("No",typeof(string)),
+                                  new DataColumn("MMC生産日",typeof(string)),
+                                  new DataColumn("SEQ",typeof(string)),
+                                  new DataColumn("パレットNo",typeof(string)),
+                                  new DataColumn("部品番号",typeof(string)),
+                                  new DataColumn("部品略式記号",typeof(string)),
+                                  new DataColumn("",typeof(string))
+                              };
+            MyDataTable.Columns.AddRange(cols);
 
             var ConnectionString = new GetConnectString().ConnectionString;
             using (var connection = new SqlConnection(ConnectionString))
@@ -140,6 +144,7 @@ namespace ask_read_data.Servive
             {
                 case ExportExcelController.FLOOR_ASSY:
                     {
+                        // 件数 < ExportExcelController.PALETNO_FLOOR_ASSY の場合は、
                         if (MyDataTable.Rows.Count < ExportExcelController.PALETNO_FLOOR_ASSY)
                         {
                             Position = 0;
@@ -186,6 +191,7 @@ namespace ask_read_data.Servive
                     }
                 case ExportExcelController.FLAME_ASSY:
                     {
+                        // 件数 < ExportExcelController.PALETNO_FLAME_ASSY の場合は、
                         if (MyDataTable.Rows.Count < ExportExcelController.PALETNO_FLAME_ASSY)
                         {
                             Position = 0;
@@ -400,7 +406,6 @@ namespace ask_read_data.Servive
 
                 }
             }
-
 
             return (LastDownloadDateTime, lastPosition);
         }

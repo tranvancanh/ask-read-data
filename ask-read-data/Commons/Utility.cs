@@ -968,7 +968,7 @@ namespace mclogi.common
                     var sheet = package.Workbook.Worksheets.Add(sheetName[0]);
                     //using (sheet = package.Workbook.Worksheets.Add(sheetName[0]))
                     //{
-                    sheet.Cells.Style.Font.Size = 12; //Default font size for whole sheet
+                    sheet.Cells.Style.Font.Size = 11; //Default font size for whole sheet
                     sheet.Cells.Style.Font.Name = "游ゴシック"; //Default Font name for whole sheet  
                     // タイトル行が指定されているときは、タイトル行をセットする
                     // header clor
@@ -1024,7 +1024,7 @@ namespace mclogi.common
                     //{
                     //
                     sheet = package.Workbook.Worksheets.Add(sheetName[1]);
-                    sheet.Cells.Style.Font.Size = 12; //Default font size for whole sheet
+                    sheet.Cells.Style.Font.Size = 11; //Default font size for whole sheet
                     sheet.Cells.Style.Font.Name = "游ゴシック"; //Default Font name for whole sheet
                     // header clor
                     //var colFromHex = System.Drawing.FromArgb.FromHtml("#FFFF00");

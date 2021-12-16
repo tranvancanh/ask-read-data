@@ -18,6 +18,11 @@ namespace ask_read_data.Controllers
     [Authorize]
     public class ImportDataController : Controller
     {
+        /****************************カタカナ名略式記号*************************************/
+        private const string KATAKANA_NAME_FLOOR_ASSY = "フロアー";
+        private const string KATAKANA_NAME_FLAME_ASSY = "フレーム";
+        private const string KATAKANA_NAME_HOKANO = "他の品番名称";
+
         private readonly IImportData _importData;
         private DataModel dataModel;
         private Bu_MastarModel buMastar;
@@ -187,9 +192,10 @@ namespace ask_read_data.Controllers
                         // Dictionaryの更新
                         var BUBAN = Util.NullToBlank(line.Substring(62, 17));
                         var MEWISYO = Util.NullToBlank(line.Substring(95, 18));
+                        var KIGO = Util.NullToBlank(line.Substring(82, 4));
                         if (BUBAN != string.Empty)
                         {
-                            CheckBuMastar(BUBAN, MEWISYO, ref bu_Mastars);
+                            CheckBuMastar(BUBAN, MEWISYO, KIGO, ref bu_Mastars);
                         }
 
                         // 2件目(右分)
@@ -227,9 +233,10 @@ namespace ask_read_data.Controllers
                         // Dictionaryの更新
                         BUBAN = Util.NullToBlank(line.Substring(173, 17));
                         MEWISYO = Util.NullToBlank(line.Substring(206, 18));
+                        KIGO = Util.NullToBlank(line.Substring(193, 4));
                         if (BUBAN != string.Empty)
                         {
-                            CheckBuMastar(BUBAN, MEWISYO, ref bu_Mastars);
+                            CheckBuMastar(BUBAN, MEWISYO, KIGO, ref bu_Mastars);
                         }
                     }
 
@@ -242,7 +249,7 @@ namespace ask_read_data.Controllers
 
             return result;
         }
-        private void CheckBuMastar(string buBan, string meWiSyo, ref List<Bu_MastarModel> bu_Mastars)
+        private void CheckBuMastar(string buBan, string meWiSyo, string kigo, ref List<Bu_MastarModel> bu_Mastars)
         {
             if(bu_Mastars == null)
             {
@@ -254,21 +261,21 @@ namespace ask_read_data.Controllers
                         select item).FirstOrDefault();
 
             StringComparison comp = StringComparison.OrdinalIgnoreCase;
-            bool check1 = meWiSyo.Contains("FLOOR ASSY", comp);
-            bool check2 = meWiSyo.Contains("FLAME ASSY", comp);
+            bool check1 = meWiSyo.Contains(ExportExcelController.FLOOR_ASSY, comp);
+            bool check2 = meWiSyo.Contains(ExportExcelController.FLAME_ASSY, comp);
             if (item1 == null)
             {
                 if (check1)
                 {
-                    bu_Mastars.Add(new Bu_MastarModel() { BUBAN = buBan, MEWISYO = meWiSyo, Nyusu = 8 });
+                    bu_Mastars.Add(new Bu_MastarModel() { BUBAN = buBan, KIGO = kigo, MEWISYO = meWiSyo, Nyusu = ExportExcelController.PALETNO_FLOOR_ASSY, KatakanaName = KATAKANA_NAME_FLOOR_ASSY });
                 }
                 else if (check2)
                 {
-                    bu_Mastars.Add(new Bu_MastarModel() { BUBAN = buBan, MEWISYO = meWiSyo, Nyusu = 4 });
+                    bu_Mastars.Add(new Bu_MastarModel() { BUBAN = buBan, KIGO = kigo, MEWISYO = meWiSyo, Nyusu = ExportExcelController.PALETNO_FLAME_ASSY , KatakanaName = KATAKANA_NAME_FLAME_ASSY});
                 }
                 else
                 {
-                    bu_Mastars.Add(new Bu_MastarModel() { BUBAN = buBan, MEWISYO = meWiSyo, Nyusu = 8 });
+                    bu_Mastars.Add(new Bu_MastarModel() { BUBAN = buBan, KIGO = kigo, MEWISYO = meWiSyo, Nyusu = 9999, KatakanaName = KATAKANA_NAME_HOKANO });
                 }
             }
             return;

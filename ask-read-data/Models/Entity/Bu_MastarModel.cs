@@ -8,7 +8,9 @@ namespace ask_read_data.Models.Entity
     public class Bu_MastarModel
     {
         public string BUBAN { get; set; }
+        public string KIGO { get; set; }
         public string MEWISYO { get; set; }
+        public string KatakanaName { get; set; }
         public int Nyusu { get; set; }
 
     }
