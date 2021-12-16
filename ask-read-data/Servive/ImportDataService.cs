@@ -399,8 +399,8 @@ namespace ask_read_data.Servive
 
                         int row = cmd1.ExecuteNonQuery();
                     }
-                    /////////////////////////////////////////////////////////////  [File_Import_Log]に対して　////////////////////////////////////////////////////
-                    /////////////////////////////////////////////////////////////  SetParameter設定  /////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////  [File_Import_Log]に対して  /////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////  SetParameter設定  ////////////////////////////////////////////////////////////
                     SqlCommand cmd2 = new SqlCommand()
                                                         {
                                                             CommandText = "SP_File_Import_Log_Insert",
@@ -473,8 +473,8 @@ namespace ask_read_data.Servive
 
                     transaction.Commit();
                     respon.Status = "OK";
-                    respon.Resmess = $@"ファイルのデータがデータベースに保存されました)
-                                     (追加: {affectedRows}件";
+                    respon.Resmess = $@"ファイルのデータがデータベースに保存されました
+                                     (追加: {affectedRows}件)";
                 }
                 catch(Exception ex)
                 {
@@ -482,7 +482,7 @@ namespace ask_read_data.Servive
                     transaction.Rollback();
                     respon.Status = "NG";
                     respon.Resmess = $@"ファイル読み込み中にエラーが発生しましたのでデータがデータベースに保存されていません! | Error LineNo : {lineNo} (追加: 0件)
-                                     Message : {error}";
+                                     Error Message : {error}";
 
                     return respon;
                 }
