@@ -16,8 +16,8 @@ namespace ask_read_data.Controllers
     [Authorize]
     public class ExportExcelController : Controller
     {
-        public const string FLOOR_ASSY = "FLOOR ASSY";
-        public const string FLAME_ASSY = "FLAME ASSY";
+        public const string FLOOR_ASSY = "FL00R ASSY";
+        public const string FLAME_ASSY = "FRAME ASSY";
         public const int PALETNO_FLOOR_ASSY = 8;
         public const int PALETNO_FLAME_ASSY = 4;
         public const string ASHITA_IKO = "明日以降";
