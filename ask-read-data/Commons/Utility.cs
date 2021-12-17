@@ -1,4 +1,5 @@
-﻿using OfficeOpenXml;
+﻿using ask_read_data.Controllers;
+using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using System;
 using System.Collections.Generic;
@@ -930,7 +931,7 @@ namespace mclogi.common
         ///// <param name="titleRows">タイトル行情報</param>
         ///// <param name="dateTimeColumns">日付指定をする列番号</param>
         ///// <param name="sheetName">シート名</param>
-        public bool ExportExcel(DataTable dt1, DataTable dt2, string exportfileFullPath, List<string> titleRows, List<int> dateTimeColumns, List<string> sheetName)
+        public bool ExportExcel(DataTable dt1, DataTable dt2, string exportfileFullPath, string buBanType, List<string> titleRows, List<int> dateTimeColumns, List<string> sheetName)
         {
             // データがない時は中断
             if (dt1 == null || dt1.Rows.Count <= 0 || dt2 == null || dt2.Rows.Count <= 0)
@@ -957,7 +958,7 @@ namespace mclogi.common
             {
                 // 出力用ファイルを生成する
                 FileInfo fileInfo = new FileInfo(exportfileFullPath);
-                var startIndex = 1;
+                var startIndex = 3;
                 var printHeader = true;
                 using (var package = new ExcelPackage(fileInfo))
                 {
@@ -969,12 +970,20 @@ namespace mclogi.common
                     //using (sheet = package.Workbook.Worksheets.Add(sheetName[0]))
                     //{
                     sheet.Cells.Style.Font.Size = 11; //Default font size for whole sheet
-                    sheet.Cells.Style.Font.Name = "游ゴシック"; //Default Font name for whole sheet  
+                    sheet.Cells.Style.Font.Name = "游ゴシック"; //Default Font name for whole sheet
                     // タイトル行が指定されているときは、タイトル行をセットする
+                    if(buBanType == ExportExcelController.FLOOR_ASSY)
+                    {
+                        sheet.Cells[1, 1].Value = "【出荷確認用】FLOOR ASSY";
+                    }
+                    else if(buBanType == ExportExcelController.FLAME_ASSY)
+                    {
+                        sheet.Cells[1, 1].Value = "【出荷確認用】FLAME ASSY";
+                    }
                     // header clor
                     //var colFromHex = System.Drawing.FromArgb.FromHtml("#FFFF00");
-                    sheet.Cells["A1:F1"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    sheet.Cells["A1:F1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Yellow);
+                    sheet.Cells["A"+startIndex.ToString()+":F"+startIndex.ToString()].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                    sheet.Cells["A"+startIndex.ToString()+":F"+startIndex.ToString()].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Yellow);
                     if (titleRows != null && titleRows.Count > 0)
                     {
                         for (int i = 0; i < titleRows.Count; i++)
@@ -982,11 +991,12 @@ namespace mclogi.common
                             sheet.Cells[1, i + 1].Value = titleRows[i];
                         }
                         // 開始行番号をセット
-                        startIndex = 2;
+                        startIndex = 4;
                         // タイトル出力済なので、列名は出力しない
                         printHeader = false;
                     }
-
+                    // not diplay header
+                    printHeader = false;
                     // データセット
                     sheet.Cells[startIndex, 1].LoadFromDataTable(dt1, printHeader);
 
@@ -999,13 +1009,13 @@ namespace mclogi.common
                         }
                     }
                     // センターアラインエクセル
-                    sheet.Cells["A1:F" + (dt1.Rows.Count + 1).ToString()].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                    sheet.Cells["A1:F" + (dt1.Rows.Count + 1).ToString()].AutoFitColumns();
+                    sheet.Cells["A"+startIndex.ToString()+":F"+(startIndex + dt1.Rows.Count -1).ToString()].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    sheet.Cells["A"+startIndex.ToString()+":F"+(startIndex + dt1.Rows.Count -1).ToString()].AutoFitColumns();
 
-                    sheet.Cells["A1:F" + (dt1.Rows.Count + 1).ToString()].Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    sheet.Cells["A1:F" + (dt1.Rows.Count + 1).ToString()].Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    sheet.Cells["A1:F" + (dt1.Rows.Count + 1).ToString()].Style.Border.Top.Style = ExcelBorderStyle.Thin;
-                    sheet.Cells["A1:F" + (dt1.Rows.Count + 1).ToString()].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                    sheet.Cells["A"+startIndex.ToString()+":F"+(startIndex + dt1.Rows.Count -1).ToString()].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                    sheet.Cells["A"+startIndex.ToString()+":F"+(startIndex + dt1.Rows.Count -1).ToString()].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                    sheet.Cells["A"+startIndex.ToString()+":F"+(startIndex + dt1.Rows.Count -1).ToString()].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                    sheet.Cells["A"+startIndex.ToString()+":F"+(startIndex + dt1.Rows.Count -1).ToString()].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
 
                     // Upload画面のとき（ファイル名最初の2文字が数字）だけ、最後の行に"END"を追加
                     var fileHeadName = fileInfo.Name.Substring(0, 2);
@@ -1019,17 +1029,25 @@ namespace mclogi.common
                     // 保管
                     //package.Save();
                     //}
-                    ///////////////////////////////////////// Sheet 2 /////////////////////////////////////////////////////////////////////////
+                    ///////////////////////////////////////// Sheet 2 ////////////////////////////////////////////////////////////////////////////////////////////////////////
                     //using (sheet = package.Workbook.Worksheets.Add(sheetName[1]))
                     //{
-                    //
+                    startIndex = 3;
                     sheet = package.Workbook.Worksheets.Add(sheetName[1]);
                     sheet.Cells.Style.Font.Size = 11; //Default font size for whole sheet
                     sheet.Cells.Style.Font.Name = "游ゴシック"; //Default Font name for whole sheet
+                    if (buBanType == ExportExcelController.FLOOR_ASSY)
+                    {
+                        sheet.Cells[1, 1].Value = "【生産用】FLOOR ASSY";
+                    }
+                    else if (buBanType == ExportExcelController.FLAME_ASSY)
+                    {
+                        sheet.Cells[1, 1].Value = "【生産用】FLAME ASSY";
+                    }
                     // header clor
                     //var colFromHex = System.Drawing.FromArgb.FromHtml("#FFFF00");
-                    sheet.Cells["A1:F1"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    sheet.Cells["A1:F1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Yellow);
+                    sheet.Cells["A"+startIndex.ToString()+":F"+startIndex.ToString()].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                    sheet.Cells["A"+startIndex.ToString()+":F"+startIndex.ToString()].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Yellow);
                     // タイトル行が指定されているときは、タイトル行をセットする
                     if (titleRows != null && titleRows.Count > 0)
                     {
@@ -1037,15 +1055,16 @@ namespace mclogi.common
                         {
                             sheet.Cells[1, i + 1].Value = titleRows[i];
                             // センターアラインエクセル
-                            sheet.Cells["A1:F1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                            sheet.Cells["A1:F1"].AutoFitColumns();
+                            sheet.Cells["A"+startIndex.ToString()+":F"+startIndex.ToString()].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                            sheet.Cells["A"+startIndex.ToString()+":F"+startIndex.ToString()].AutoFitColumns();
                         }
                         // 開始行番号をセット
-                        startIndex = 2;
+                        startIndex = 4;
                         // タイトル出力済なので、列名は出力しない
                         printHeader = false;
                     }
-
+                    // not diplay header
+                    printHeader = false;
                     // データセット
                     sheet.Cells[startIndex, 1].LoadFromDataTable(dt2, printHeader);
 
@@ -1058,13 +1077,13 @@ namespace mclogi.common
                         }
                     }
                     // センターアラインエクセル
-                    sheet.Cells["A1:F" + (dt2.Rows.Count + 1).ToString()].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                    sheet.Cells["A1:F" + (dt2.Rows.Count + 1).ToString()].AutoFitColumns();
+                    sheet.Cells["A"+startIndex.ToString()+":F"+(startIndex + dt2.Rows.Count -1).ToString()].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    sheet.Cells["A"+startIndex.ToString()+":F"+(startIndex + dt2.Rows.Count -1).ToString()].AutoFitColumns();
 
-                    sheet.Cells["A1:F" + (dt2.Rows.Count + 1).ToString()].Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    sheet.Cells["A1:F" + (dt2.Rows.Count + 1).ToString()].Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    sheet.Cells["A1:F" + (dt2.Rows.Count + 1).ToString()].Style.Border.Top.Style = ExcelBorderStyle.Thin;
-                    sheet.Cells["A1:F" + (dt2.Rows.Count + 1).ToString()].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                    sheet.Cells["A"+startIndex.ToString()+":F"+(startIndex + dt2.Rows.Count -1).ToString()].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                    sheet.Cells["A"+startIndex.ToString()+":F"+(startIndex + dt2.Rows.Count -1).ToString()].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                    sheet.Cells["A"+startIndex.ToString()+":F"+(startIndex + dt2.Rows.Count -1).ToString()].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                    sheet.Cells["A"+startIndex.ToString()+":F"+(startIndex + dt2.Rows.Count -1).ToString()].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
                     // Upload画面のとき（ファイル名最初の2文字が数字）だけ、最後の行に"END"を追加
                     var fileHeadName1 = fileInfo.Name.Substring(0, 2);
                     if (int.TryParse(fileHeadName1, out int number1))

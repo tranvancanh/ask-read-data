@@ -20,30 +20,30 @@ namespace ask_read_data.Servive
         public (DataTable, DataTable) GetFloor_Flame_Assy(DateTime dateTime, string bubanType)
         {
             dateTime = Convert.ToDateTime(new DateTime(dateTime.Year, dateTime.Month, dateTime.Day, 00, 00, 00).ToString("yyyy-MM-dd HH:mm:ss"));
+            CreateDateTime = dateTime;
             var result = GetPosition(bubanType, dateTime);
             var lastDateTime = result.Item1;
             var lastPosition = result.Item2;
-            var position = new List<int>();
+            var position = new List<string>();
             var MyDataTable = new DataTable();
-            //DataColumn[] cols ={
-            //                      new DataColumn("No",typeof(string)),
-            //                      new DataColumn("MMC生産日",typeof(string)),
-            //                      new DataColumn("SEQ",typeof(string)),
-            //                      new DataColumn("パレットNo",typeof(string)),
-            //                      new DataColumn("部品番号",typeof(string)),
-            //                      new DataColumn("部品略式記号",typeof(string)),
-            //                      new DataColumn("",typeof(string))
-            //                  };
-
             DataColumn[] cols ={
                                   new DataColumn("パレットNo",typeof(string)),
                                   new DataColumn("ラインON",typeof(string)),
                                   new DataColumn("SEQ",typeof(string)),
                                   new DataColumn("部品番号",typeof(string)),
                                   new DataColumn("部品略式記号",typeof(string)),
-                                  new DataColumn("発送予定日",typeof(string))
-                                  //new DataColumn("",typeof(string))
+                                  new DataColumn(" ",typeof(string))
                               };
+
+            //DataColumn[] cols ={
+            //                      new DataColumn("パレットNo",typeof(string)),
+            //                      new DataColumn("ラインON",typeof(string)),
+            //                      new DataColumn("SEQ",typeof(string)),
+            //                      new DataColumn("部品番号",typeof(string)),
+            //                      new DataColumn("部品略式記号",typeof(string)),
+            //                      new DataColumn("発送予定日",typeof(string))
+            //                      //new DataColumn("",typeof(string))
+            //                  };
             MyDataTable.Columns.AddRange(cols);
 
             var ConnectionString = new GetConnectString().ConnectionString;
@@ -55,43 +55,43 @@ namespace ask_read_data.Servive
                     connection.Open();
                     //Create the command object
                     SqlCommand cmd = new SqlCommand()
-                    {
-                        CommandText = "SP_DataImport_Flame_AssyAndFloor_Assy",
-                        Connection = connection,
-                        CommandType = CommandType.StoredProcedure
-                    };
+                                                                {
+                                                                    CommandText = "SP_DataImport_Flame_AssyAndFloor_Assy",
+                                                                    Connection = connection,
+                                                                    CommandType = CommandType.StoredProcedure
+                                                                };
                     cmd.Parameters.Clear();
                     SqlParameter DateTime = new SqlParameter
-                    {
-                        ParameterName = "@DateTime",
-                        SqlDbType = SqlDbType.DateTime,
-                        Value = dateTime,
-                        Direction = ParameterDirection.Input
-                    };
+                                                                {
+                                                                    ParameterName = "@DateTime",
+                                                                    SqlDbType = SqlDbType.DateTime,
+                                                                    Value = dateTime,
+                                                                    Direction = ParameterDirection.Input
+                                                                };
                     SqlParameter BubanType = new SqlParameter
-                    {
-                        ParameterName = "@BubanType",
-                        SqlDbType = SqlDbType.NVarChar,
-                        Value = bubanType,
-                        Direction = ParameterDirection.Input
-                    };
+                                                                {
+                                                                    ParameterName = "@BubanType",
+                                                                    SqlDbType = SqlDbType.NVarChar,
+                                                                    Value = bubanType,
+                                                                    Direction = ParameterDirection.Input
+                                                                };
 
                     //////////////////////////////////////////////////////////  前回残りをチェック  /////////////////////////////////////////////////////////////
                     SqlParameter LastDateTime = new SqlParameter
-                    {
-                        ParameterName = "@LastDateTime",
-                        SqlDbType = SqlDbType.DateTime,
-                        Value = lastDateTime,
-                        Direction = ParameterDirection.Input
-                    };
+                                                                {
+                                                                    ParameterName = "@LastDateTime",
+                                                                    SqlDbType = SqlDbType.DateTime,
+                                                                    Value = lastDateTime,
+                                                                    Direction = ParameterDirection.Input
+                                                                };
 
                     SqlParameter LastPosition = new SqlParameter
-                    {
-                        ParameterName = "@LastPosition",
-                        SqlDbType = SqlDbType.Int,
-                        Value = lastPosition,
-                        Direction = ParameterDirection.Input
-                    };
+                                                                {
+                                                                    ParameterName = "@LastPosition",
+                                                                    SqlDbType = SqlDbType.Int,
+                                                                    Value = lastPosition,
+                                                                    Direction = ParameterDirection.Input
+                                                                };
 
                     cmd.Parameters.Add(DateTime);
                     cmd.Parameters.Add(BubanType);
@@ -105,7 +105,23 @@ namespace ask_read_data.Servive
 
                     while (reader.Read())
                     {
-                        if (index == 0) CreateDateTime = Convert.ToDateTime(reader["CreateDateTimeForMat"].ToString());
+                        if (index == 0)
+                        {
+                            // CreateDateTime = Convert.ToDateTime(reader["CreateDateTimeForMat"].ToString());
+                            /**********************中身のヘッダ*************************/
+                            var Row1 = MyDataTable.NewRow();
+                            {
+                                Row1["パレットNo"] = "パレットNo";
+                                Row1["ラインON"] = "ラインON";
+                                Row1["SEQ"] = "SEQ";
+                                Row1["部品番号"] = "部品番号";
+                                Row1["部品略式記号"] = "部品略式記号";
+                                Row1[" "] = "";
+                            }
+                            MyDataTable.Rows.Add(Row1);
+                            position.Add("Position");
+                        }
+                        /**********************中身の体*************************/
                         var Row = MyDataTable.NewRow();
                         {
                             index++;
@@ -113,18 +129,67 @@ namespace ask_read_data.Servive
                             Row["ラインON"] = Convert.ToDateTime(reader["WAYMD"].ToString()).Year.ToString() + Convert.ToDateTime(reader["WAYMD"].ToString()).Month.ToString() + Convert.ToDateTime(reader["WAYMD"].ToString()).Day.ToString();
                             Row["SEQ"] = Util.NullToBlank((object)reader["SEQ"]);
                             Row["部品番号"] = Util.NullToBlank(reader["BUBAN"].ToString());
-                            Row["部品略式記号"] = Util.NullToBlank(reader["KIGO"].ToString());
-                            Row["発送予定日"] = (Convert.ToDateTime(reader["FYMD"].ToString()).Year.ToString() + Convert.ToDateTime(reader["FYMD"].ToString()).Month.ToString() + Convert.ToDateTime(reader["FYMD"].ToString()).Day.ToString()).ToString();
+                            if(bubanType == ExportExcelController.FLOOR_ASSY)
+                            {
+                                if(Row["部品番号"].ToString() == ExportExcelController.BUHIN_FLOOR_74300WL20P)
+                                {
+                                    Row["部品略式記号"] = Util.NullToBlank(reader["KIGO"].ToString());
+                                    Row[" "] = "";
+                                }
+                                else if (Row["部品番号"].ToString() == ExportExcelController.BUHIN_FLOOR_74300WL30P)
+                                {
+                                    Row["部品略式記号"] = "";
+                                    Row[" "] = Util.NullToBlank(reader["KIGO"].ToString());
+                                }
+                            }
+                            else if(bubanType == ExportExcelController.FLAME_ASSY)
+                            {
+                                if(Row["部品番号"].ToString() == ExportExcelController.BUHIN_FLAME_743B2W000P)
+                                {
+                                    Row["部品略式記号"] = Util.NullToBlank(reader["KIGO"].ToString());
+                                    Row[" "] = "";
+                                }
+                                else if (Row["部品番号"].ToString() == ExportExcelController.BUHIN_FLAME_743B2W010P)
+                                {
+                                    Row["部品略式記号"] = "";
+                                    Row[" "] = Util.NullToBlank(reader["KIGO"].ToString());
+                                }
+                            }
+                           
                         }
-                        position.Add(Util.NullToBlank((object)reader["Position"]));
+                        position.Add(Util.NullToBlank(reader["Position"].ToString()));
                         MyDataTable.Rows.Add(Row);
 
                         if ((bubanType == ExportExcelController.FLOOR_ASSY) && (index % ExportExcelController.PALETNO_FLOOR_ASSY == 0))
                         {
+                            /**********************中身のヘッダ*************************/
+                            Row = MyDataTable.NewRow();
+                            {
+                                Row["パレットNo"] = "パレットNo";
+                                Row["ラインON"] = "ラインON";
+                                Row["SEQ"] = "SEQ";
+                                Row["部品番号"] = "部品番号";
+                                Row["部品略式記号"] = "部品略式記号";
+                                Row[" "] = "";
+                            }
+                            MyDataTable.Rows.Add(Row);
+                            position.Add("Position");
                             PaletNo++;
                         }
                         else if ((bubanType == ExportExcelController.FLAME_ASSY) && (index % ExportExcelController.PALETNO_FLAME_ASSY == 0))
                         {
+                            /**********************中身のヘッダ*************************/
+                            Row = MyDataTable.NewRow();
+                            {
+                                Row["パレットNo"] = "パレットNo";
+                                Row["ラインON"] = "ラインON";
+                                Row["SEQ"] = "SEQ";
+                                Row["部品番号"] = "部品番号";
+                                Row["部品略式記号"] = "部品略式記号";
+                                Row[" "] = "";
+                            }
+                            MyDataTable.Rows.Add(Row);
+                            position.Add("Position");
                             PaletNo++;
                         }
                     }
@@ -163,31 +228,74 @@ namespace ask_read_data.Servive
                                 reversedDt.ImportRow(MyDataTable.Rows[row]);
                             break;
                         }
-                        Balance = MyDataTable.Rows.Count % ExportExcelController.PALETNO_FLOOR_ASSY;
+                        Balance = MyDataTable.Rows.Count % (ExportExcelController.PALETNO_FLOOR_ASSY + 1);
                         if (Balance > 0)
                         {
-                            Position = Convert.ToInt32(position[MyDataTable.Rows.Count - Balance - 1]);
                             for (int i = MyDataTable.Rows.Count - Balance; i < MyDataTable.Rows.Count; i++)
                             {
-                                MyDataTable.Rows[i]["パレットNo"] = ExportExcelController.ASHITA_IKO;
+                                if(MyDataTable.Rows[i]["パレットNo"].ToString() != "パレットNo")
+                                {
+                                    MyDataTable.Rows[i]["パレットNo"] = ExportExcelController.ASHITA_IKO;
+                                }
                             }
                         }
-                        //////////////////////////////////////// Sheet2のデータ //////////////////////////
-                        ///// 反逆の場合は、明日以降の件を削除します
-                        var table = MyDataTable.AsEnumerable()
-                                      .Where(r => r.Field<string>("パレットNo") != ExportExcelController.ASHITA_IKO)
-                                      .CopyToDataTable();
-                        reversedDt = table.Clone();
-                        for (int i = 0; i < table.Rows.Count; i += 8)
+                        //  Get Position 
+                        try
                         {
-                            var row1 = table.Rows[i + 0];
-                            var row2 = table.Rows[i + 1];
-                            var row3 = table.Rows[i + 2];
-                            var row4 = table.Rows[i + 3];
-                            var row5 = table.Rows[i + 4];
-                            var row6 = table.Rows[i + 5];
-                            var row7 = table.Rows[i + 6];
-                            var row8 = table.Rows[i + 7];
+                            var value = Convert.ToInt32(position[MyDataTable.Rows.Count - Balance]);
+                            Position = value;
+                        }
+                        catch (FormatException)
+                        {
+                            var value = Convert.ToInt32(position[MyDataTable.Rows.Count - Balance - 1]);
+                            Position = value;
+                        }
+                        catch (Exception)
+                        {
+                            throw new Exception("Position値に問題がありました");
+                        }
+                        //  欠落している行のデータを追加します , 目的: 9倍数を到達する
+                        for (int i = 0; i < 9 - Balance; i++)
+                        {
+                            MyDataTable.Rows.Add("=", "=", "=", "=", "=", "=");
+                        }
+
+                        //////////////////////////////////////// Sheet2のデータを作る //////////////////////////
+                        ///// 反逆の場合は、明日以降の件を削除します
+                        //var table = MyDataTable.AsEnumerable()
+                        //              .Where(r => r.Field<string>("パレットNo") != ExportExcelController.ASHITA_IKO)
+                        //              .CopyToDataTable();
+                        var table = MyDataTable.Copy();
+                        //  明日以降を省略する
+                        foreach (DataRow dr in table.Rows) // search whole table
+                        {
+                            if (dr["パレットNo"].ToString() == ExportExcelController.ASHITA_IKO) // if id==2
+                            {
+                                dr["パレットNo"] = "";
+                                dr["ラインON"] = "";
+                                dr["SEQ"] = "";
+                                dr["部品番号"] = "";
+                                dr["部品略式記号"] = "";
+                                dr[" "] = "";
+                            }
+                        }
+                        reversedDt = table.Clone();
+                        for (int i = 0; i < table.Rows.Count; i += 9)
+                        {
+                            if (i % 9 == 0) 
+                            {
+                                var row0 = table.Rows[i];
+                                reversedDt.Rows.Add(row0.ItemArray);
+                                //continue;
+                            };
+                            var row1 = table.Rows[i + 1];
+                            var row2 = table.Rows[i + 2];
+                            var row3 = table.Rows[i + 3];
+                            var row4 = table.Rows[i + 4];
+                            var row5 = table.Rows[i + 5];
+                            var row6 = table.Rows[i + 6];
+                            var row7 = table.Rows[i + 7];
+                            var row8 = table.Rows[i + 8];
                             reversedDt.Rows.Add(row8.ItemArray);
                             reversedDt.Rows.Add(row7.ItemArray);
                             reversedDt.Rows.Add(row6.ItemArray);
@@ -210,26 +318,72 @@ namespace ask_read_data.Servive
                                 reversedDt.ImportRow(MyDataTable.Rows[row]);
                             break;
                         }
-                        Balance = MyDataTable.Rows.Count % ExportExcelController.PALETNO_FLAME_ASSY;
+                        Balance = MyDataTable.Rows.Count % (ExportExcelController.PALETNO_FLAME_ASSY + 1);
                         if (Balance > 0)
                         {
-                            Position = Convert.ToInt32(position[MyDataTable.Rows.Count - Balance - 1]);
+                            //Position = Convert.ToInt32(position[MyDataTable.Rows.Count - Balance - 1]);
                             for (int i = MyDataTable.Rows.Count - Balance; i < MyDataTable.Rows.Count; i++)
                             {
-                                MyDataTable.Rows[i]["パレットNo"] = ExportExcelController.ASHITA_IKO;
+                                if (MyDataTable.Rows[i]["パレットNo"].ToString() != "パレットNo")
+                                {
+                                    MyDataTable.Rows[i]["パレットNo"] = ExportExcelController.ASHITA_IKO;
+                                }
                             }
                         }
-                        //////////////////////////////////////// Sheet2のデータ //////////////////////////
-                        var table = MyDataTable.AsEnumerable()
-                                        .Where(r => r.Field<string>("パレットNo") != ExportExcelController.ASHITA_IKO)
-                                        .CopyToDataTable();
-                        reversedDt = table.Clone();
-                        for (int i = 0; i < table.Rows.Count; i += 4)
+                        //  Get Position 
+                        try
                         {
-                            var row1 = table.Rows[i + 0];
-                            var row2 = table.Rows[i + 1];
-                            var row3 = table.Rows[i + 2];
-                            var row4 = table.Rows[i + 3];
+                            var value = Convert.ToInt32(position[MyDataTable.Rows.Count - Balance]);
+                            Position = value;
+                        }
+                        catch (FormatException)
+                        {
+                            var value = Convert.ToInt32(position[MyDataTable.Rows.Count - Balance - 1]);
+                            Position = value;
+                        }
+                        catch (Exception)
+                        {
+                            throw new Exception("Position値に問題がありました");
+                        }
+                        //  欠落している行のデータを追加します , 目的: 9倍数を到達する
+                        for (int i = 0; i < 9 - Balance; i++)
+                        {
+                            if(i%4 == 0 && i != 0)
+                            {
+                                MyDataTable.Rows.Add("パレットNo", "ラインON", "SEQ", "部品番号", "部品略式記号", "");
+                            }
+                            MyDataTable.Rows.Add("=", "=", "=", "=", "=", "=");
+                        }
+                        //////////////////////////////////////// Sheet2のデータを作る //////////////////////////
+                        //var table = MyDataTable.AsEnumerable()
+                        //                .Where(r => r.Field<string>("パレットNo") != ExportExcelController.ASHITA_IKO)
+                        //                .CopyToDataTable();
+                        var table = MyDataTable.Copy();
+                        //  明日以降を省略する
+                        foreach (DataRow dr in table.Rows) // search whole table
+                        {
+                            if (dr["パレットNo"].ToString() == ExportExcelController.ASHITA_IKO) // if id==2
+                            {
+                                dr["パレットNo"] = "";
+                                dr["ラインON"] = "";
+                                dr["SEQ"] = "";
+                                dr["部品番号"] = "";
+                                dr["部品略式記号"] = "";
+                                dr[" "] = "";
+                            }
+                        }
+                        reversedDt = table.Clone();
+                        for (int i = 0; i < table.Rows.Count; i += 5)
+                        {
+                            if (i % 5 == 0)
+                            {
+                                var row0 = table.Rows[i];
+                                reversedDt.Rows.Add(row0.ItemArray);
+                            };
+                            var row1 = table.Rows[i + 1];
+                            var row2 = table.Rows[i + 2];
+                            var row3 = table.Rows[i + 3];
+                            var row4 = table.Rows[i + 4];
                             reversedDt.Rows.Add(row4.ItemArray);
                             reversedDt.Rows.Add(row3.ItemArray);
                             reversedDt.Rows.Add(row2.ItemArray);
@@ -245,8 +399,8 @@ namespace ask_read_data.Servive
             }
 
             ////  Reverse Rows
-            //DataTable reversedDt = MyDataTable.Clone();
-            //for (var row = MyDataTable.Rows.Count - 1; row >= 0; row--)
+            //   DataTable reversedDt = MyDataTable.Clone();
+            //   for (var row = MyDataTable.Rows.Count - 1; row >= 0; row--)
             //    reversedDt.ImportRow(MyDataTable.Rows[row]);
 
             return (MyDataTable, reversedDt);

@@ -15,7 +15,14 @@ namespace ask_read_data.Controllers
 {
     [Authorize]
     public class ExportExcelController : Controller
-    {   
+    {
+        /****************************部品番号*************************************/
+        public const string BUHIN_FLOOR_74300WL20P = "74300WL20P";
+        public const string BUHIN_FLOOR_74300WL30P = "74300WL30P";
+
+        public const string BUHIN_FLAME_743B2W000P = "743B2W000P";
+        public const string BUHIN_FLAME_743B2W010P = "743B2W010P";
+
         /****************************部番略式記号*************************************/
         public const string FLOOR_ASSY = "FL00R ASSY";
         public const string FLAME_ASSY = "FRAME ASSY";
@@ -126,7 +133,7 @@ namespace ask_read_data.Controllers
                 }
                 // Excelファイル生成
                 Utility util = new Utility();
-                if (util.ExportExcel(dt1, dt2, expPath, null, null,sheetName))
+                if (util.ExportExcel(dt1, dt2, expPath, BubanMeiType, null, null,sheetName))
                 {
 
                     // ダウンロード履歴登録
