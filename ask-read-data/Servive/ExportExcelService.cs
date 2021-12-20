@@ -17,13 +17,15 @@ namespace ask_read_data.Servive
     {
         private DateTime CreateDateTime;
         private int Position = 0;
+        private int ParetoRenban = 0;
         public (DataTable, DataTable) GetFloor_Flame_Assy(DateTime dateTime, string bubanType)
         {
             dateTime = Convert.ToDateTime(new DateTime(dateTime.Year, dateTime.Month, dateTime.Day, 00, 00, 00).ToString("yyyy-MM-dd HH:mm:ss"));
             CreateDateTime = dateTime;
-            var result = GetPosition(bubanType, dateTime);
+            var result = GetZenkaiDowloadInfor(bubanType, dateTime);
             var lastDateTime = result.Item1;
             var lastPosition = result.Item2;
+            var lastParetoRenban = result.Item3;
             var position = new List<string>();
             var MyDataTable = new DataTable();
             DataColumn[] cols ={
@@ -99,7 +101,7 @@ namespace ask_read_data.Servive
                     cmd.Parameters.Add(LastPosition);
                     //SQL実行
                     reader = cmd.ExecuteReader();
-                    int PaletNo = 1;
+                    int PaletNo = lastParetoRenban + 1;
                     int index = 0;
                     // check  Position
 
@@ -155,7 +157,7 @@ namespace ask_read_data.Servive
                                     Row[" "] = Util.NullToBlank(reader["KIGO"].ToString());
                                 }
                             }
-                           
+                            this.ParetoRenban = PaletNo;
                         }
                         position.Add(Util.NullToBlank(reader["Position"].ToString()));
                         MyDataTable.Rows.Add(Row);
@@ -257,7 +259,7 @@ namespace ask_read_data.Servive
                         //  欠落している行のデータを追加します , 目的: 9倍数を到達する
                         for (int i = 0; i < 9 - Balance; i++)
                         {
-                            MyDataTable.Rows.Add("=", "=", "=", "=", "=", "=");
+                            MyDataTable.Rows.Add("", "", "", "", "", "");
                         }
 
                         //////////////////////////////////////// Sheet2のデータを作る //////////////////////////
@@ -318,6 +320,7 @@ namespace ask_read_data.Servive
                                 reversedDt.ImportRow(MyDataTable.Rows[row]);
                             break;
                         }
+                        var ashitaiko = 0;
                         Balance = MyDataTable.Rows.Count % (ExportExcelController.PALETNO_FLAME_ASSY + 1);
                         if (Balance > 0)
                         {
@@ -327,6 +330,7 @@ namespace ask_read_data.Servive
                                 if (MyDataTable.Rows[i]["パレットNo"].ToString() != "パレットNo")
                                 {
                                     MyDataTable.Rows[i]["パレットNo"] = ExportExcelController.ASHITA_IKO;
+                                    ashitaiko++;
                                 }
                             }
                         }
@@ -346,13 +350,13 @@ namespace ask_read_data.Servive
                             throw new Exception("Position値に問題がありました");
                         }
                         //  欠落している行のデータを追加します , 目的: 9倍数を到達する
-                        for (int i = 0; i < 9 - Balance; i++)
+                        for (int i = ashitaiko; i < 10 - Balance; i++)
                         {
                             if(i%4 == 0 && i != 0)
                             {
                                 MyDataTable.Rows.Add("パレットNo", "ラインON", "SEQ", "部品番号", "部品略式記号", "");
                             }
-                            MyDataTable.Rows.Add("=", "=", "=", "=", "=", "=");
+                            MyDataTable.Rows.Add("", "", "", "", "", "");
                         }
                         //////////////////////////////////////// Sheet2のデータを作る //////////////////////////
                         //var table = MyDataTable.AsEnumerable()
@@ -412,6 +416,7 @@ namespace ask_read_data.Servive
             DateTime lastDownloadDateTime = CreateDateTime;
             var UserName = Claims.Where(c => c.Type == ClaimTypes.Name).First().Value;
             int Position = this.Position;
+            var paretoRenban = 0;
             int statusCode = 0;
             int affectedRows = 0;
             var ConnectionString = new GetConnectString().ConnectionString;
@@ -419,59 +424,77 @@ namespace ask_read_data.Servive
             {
                 try
                 {
+                    // パレット連番の取得
+                    for(int i = dataTable.Rows.Count -1; i >= 0; i--)
+                    {
+                        var value = dataTable.Rows[i]["パレットNo"].ToString();
+                        if(Util.NullToBlank(value) != string.Empty && value != "パレットNo" && value != ExportExcelController.ASHITA_IKO)
+                        {
+                            paretoRenban = Convert.ToInt32(value);
+                            break;
+                        }
+                    }
                     //Create the command object
                     SqlCommand cmd = new SqlCommand()
-                    {
-                        CommandText = "SP_File_Download_Log_Insert",
-                        Connection = connection,
-                        CommandType = CommandType.StoredProcedure
-                    };
+                                                        {
+                                                            CommandText = "SP_File_Download_Log_Insert",
+                                                            Connection = connection,
+                                                            CommandType = CommandType.StoredProcedure
+                                                        };
                     //パラメータ初期化
                     cmd.Parameters.Clear();
                     connection.Open();
                     //Set SqlParameter
                     ///////////////////  SetParameter UserName  ////////////////////////////////////////////
                     SqlParameter BubanMeiType = new SqlParameter
-                    {
-                        ParameterName = "@BubanMeiType",
-                        SqlDbType = SqlDbType.NVarChar,
-                        Value = bubanType,
-                        Direction = ParameterDirection.Input
-                    };
+                                                            {
+                                                                ParameterName = "@BubanMeiType",
+                                                                SqlDbType = SqlDbType.NVarChar,
+                                                                Value = bubanType,
+                                                                Direction = ParameterDirection.Input
+                                                            };
                     ///////////////////  SetParameter Password  ////////////////////////////////////////////
                     SqlParameter LastDownloadDateTime = new SqlParameter
-                    {
-                        ParameterName = "@LastDownloadDateTime",
-                        SqlDbType = SqlDbType.DateTime,
-                        Value = lastDownloadDateTime,
-                        Direction = ParameterDirection.Input
-                    };
+                                                            {
+                                                                ParameterName = "@LastDownloadDateTime",
+                                                                SqlDbType = SqlDbType.DateTime,
+                                                                Value = lastDownloadDateTime,
+                                                                Direction = ParameterDirection.Input
+                                                            };
                     SqlParameter Position1 = new SqlParameter
-                    {
-                        ParameterName = "@Position",
-                        SqlDbType = SqlDbType.Int,
-                        Value = Position,
-                        Direction = ParameterDirection.Input
-                    };
+                                                            {
+                                                                ParameterName = "@Position",
+                                                                SqlDbType = SqlDbType.Int,
+                                                                Value = Position,
+                                                                Direction = ParameterDirection.Input
+                                                            };
+                    SqlParameter ParetoRenban = new SqlParameter
+                                                            {
+                                                                ParameterName = "@ParetoRenban",
+                                                                SqlDbType = SqlDbType.Int,
+                                                                Value = paretoRenban,
+                                                                Direction = ParameterDirection.Input
+                                                            };
 
                     SqlParameter User = new SqlParameter
-                    {
-                        ParameterName = "@User",
-                        SqlDbType = SqlDbType.NVarChar,
-                        Value = UserName,
-                        Direction = ParameterDirection.Input
-                    };
+                                                            {
+                                                                ParameterName = "@User",
+                                                                SqlDbType = SqlDbType.NVarChar,
+                                                                Value = UserName,
+                                                                Direction = ParameterDirection.Input
+                                                            };
 
                     ///////////////////  SetParameter StausCode  ////////////////////////////////////////////
                     SqlParameter StausCode = new SqlParameter
-                    {
-                        ParameterName = "@StausCode",
-                        SqlDbType = SqlDbType.Int,
-                        Direction = ParameterDirection.Output
-                    };
+                                                            {
+                                                                ParameterName = "@StausCode",
+                                                                SqlDbType = SqlDbType.Int,
+                                                                Direction = ParameterDirection.Output
+                                                            };
                     cmd.Parameters.Add(BubanMeiType);
                     cmd.Parameters.Add(LastDownloadDateTime);
                     cmd.Parameters.Add(Position1);
+                    cmd.Parameters.Add(ParetoRenban);
                     cmd.Parameters.Add(User);
                     cmd.Parameters.Add(StausCode);
 
@@ -500,10 +523,11 @@ namespace ask_read_data.Servive
             else return -1;
         }
 
-        private (DateTime, int) GetPosition(string bubanMeiType, DateTime dateTime)
+        private (DateTime, int, int) GetZenkaiDowloadInfor(string bubanMeiType, DateTime dateTime)
         {
             var LastDownloadDateTime = new DateTime(1900, 01, 01, 00, 00, 00);
             int lastPosition = 0;
+            int lastParetoRenban = 0;
             var ConnectionString = new GetConnectString().ConnectionString;
             using (var connection = new SqlConnection(ConnectionString))
             {
@@ -512,31 +536,31 @@ namespace ask_read_data.Servive
                 {
                     //Create the command object
                     SqlCommand cmd = new SqlCommand()
-                    {
-                        CommandText = "SP_GetLastDowloadInfo",
-                        Connection = connection,
-                        CommandType = CommandType.StoredProcedure
-                    };
+                                                    {
+                                                        CommandText = "SP_GetLastDowloadInfo",
+                                                        Connection = connection,
+                                                        CommandType = CommandType.StoredProcedure
+                                                    };
                     //パラメータ初期化
                     cmd.Parameters.Clear();
                     connection.Open();
                     //Set SqlParameter
                     ///////////////////  SetParameter UserName  ////////////////////////////////////////////
                     SqlParameter BubanMeiType = new SqlParameter
-                    {
-                        ParameterName = "@BubanMeiType",
-                        SqlDbType = SqlDbType.NVarChar,
-                        Value = bubanMeiType,
-                        Direction = ParameterDirection.Input
-                    };
+                                                            {
+                                                                ParameterName = "@BubanMeiType",
+                                                                SqlDbType = SqlDbType.NVarChar,
+                                                                Value = bubanMeiType,
+                                                                Direction = ParameterDirection.Input
+                                                            };
                     ///////////////////  SetParameter Password  ////////////////////////////////////////////
                     SqlParameter DateTime = new SqlParameter
-                    {
-                        ParameterName = "@DateTime",
-                        SqlDbType = SqlDbType.DateTime,
-                        Value = dateTime,
-                        Direction = ParameterDirection.Input
-                    };
+                                                            {
+                                                                ParameterName = "@DateTime",
+                                                                SqlDbType = SqlDbType.DateTime,
+                                                                Value = dateTime,
+                                                                Direction = ParameterDirection.Input
+                                                            };
 
 
                     cmd.Parameters.Add(BubanMeiType);
@@ -547,6 +571,7 @@ namespace ask_read_data.Servive
                     {
                         LastDownloadDateTime = Convert.ToDateTime(reader["LastDownloadDateTime"].ToString());
                         lastPosition = Util.NullToBlank((object)reader["Position"]);
+                        lastParetoRenban  = Util.NullToBlank((object)reader["ParetoRenban"]);
                         break;
                     }
                 }
@@ -571,7 +596,7 @@ namespace ask_read_data.Servive
                 }
             }
 
-            return (LastDownloadDateTime, lastPosition);
+            return (LastDownloadDateTime, lastPosition, lastParetoRenban);
         }
     }
 }

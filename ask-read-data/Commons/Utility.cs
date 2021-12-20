@@ -931,10 +931,14 @@ namespace mclogi.common
         ///// <param name="titleRows">タイトル行情報</param>
         ///// <param name="dateTimeColumns">日付指定をする列番号</param>
         ///// <param name="sheetName">シート名</param>
-        public bool ExportExcel(DataTable dt1, DataTable dt2, string exportfileFullPath, string buBanType, List<string> titleRows, List<int> dateTimeColumns, List<string> sheetName)
+        public bool ExportExcel(DataTable dt1, DataTable dt2, string exportfileFullPath, string tempFileFullPath, string buBanType, List<string> titleRows, List<int> dateTimeColumns, List<string> sheetName)
         {
             // データがない時は中断
             if (dt1 == null || dt1.Rows.Count <= 0 || dt2 == null || dt2.Rows.Count <= 0)
+            {
+                return false;
+            }
+            if(sheetName.Count < 2)
             {
                 return false;
             }
@@ -957,141 +961,141 @@ namespace mclogi.common
             try
             {
                 // 出力用ファイルを生成する
-                FileInfo fileInfo = new FileInfo(exportfileFullPath);
+                //FileInfo fileInfo = new FileInfo(exportfileFullPath);
+                var newFile = new FileInfo(exportfileFullPath);
+                var tempFile = new FileInfo(tempFileFullPath);
+
                 var startIndex = 3;
                 var printHeader = true;
-                using (var package = new ExcelPackage(fileInfo))
+                using (var package = new ExcelPackage(newFile, tempFile))
                 {
-                    // シート追加
-                    //package.Workbook.Worksheets.Add(sheetName[0]);
-                    // シート取得
-                    // // 1シートずつ取得
-                    var sheet = package.Workbook.Worksheets.Add(sheetName[0]);
-                    //using (sheet = package.Workbook.Worksheets.Add(sheetName[0]))
-                    //{
-                    sheet.Cells.Style.Font.Size = 11; //Default font size for whole sheet
-                    sheet.Cells.Style.Font.Name = "游ゴシック"; //Default Font name for whole sheet
-                    // タイトル行が指定されているときは、タイトル行をセットする
-                    if(buBanType == ExportExcelController.FLOOR_ASSY)
+                    ///////////////////////////////////////// Sheet 1 ////////////////////////////////////////////////////////////////////////////////////////////////////////
+                    var sheet = package.Workbook.Worksheets.Where(s => s.Name == sheetName[0]).FirstOrDefault();
+                    if(sheet != null)
                     {
-                        sheet.Cells[1, 1].Value = "【出荷確認用】FLOOR ASSY";
-                    }
-                    else if(buBanType == ExportExcelController.FLAME_ASSY)
-                    {
-                        sheet.Cells[1, 1].Value = "【出荷確認用】FLAME ASSY";
-                    }
-                    // header clor
-                    //var colFromHex = System.Drawing.FromArgb.FromHtml("#FFFF00");
-                    sheet.Cells["A"+startIndex.ToString()+":F"+startIndex.ToString()].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    sheet.Cells["A"+startIndex.ToString()+":F"+startIndex.ToString()].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Yellow);
-                    if (titleRows != null && titleRows.Count > 0)
-                    {
-                        for (int i = 0; i < titleRows.Count; i++)
+                        // シート追加
+                        //package.Workbook.Worksheets.Add(sheetName[0]);
+                        // シート取得
+                        // // 1シートずつ取得
+                        //var sheet = package.Workbook.Worksheets.Add(sheetName[0]);
+                        //using (sheet = package.Workbook.Worksheets.Add(sheetName[0]))
+                        //{
+                        if (titleRows != null && titleRows.Count > 0)
                         {
-                            sheet.Cells[1, i + 1].Value = titleRows[i];
+                            for (int i = 0; i < titleRows.Count; i++)
+                            {
+                                sheet.Cells[1, i + 1].Value = titleRows[i];
+                            }
+                            // 開始行番号をセット
+                            startIndex = 4;
+                            // タイトル出力済なので、列名は出力しない
+                            printHeader = false;
                         }
-                        // 開始行番号をセット
-                        startIndex = 4;
-                        // タイトル出力済なので、列名は出力しない
+                        // not diplay header
                         printHeader = false;
-                    }
-                    // not diplay header
-                    printHeader = false;
-                    // データセット
-                    sheet.Cells[startIndex, 1].LoadFromDataTable(dt1, printHeader);
+                        // データセット
+                        // sheet.Cells[startIndex, 1].LoadFromDataTable(dt1, printHeader);
+                        LoadDataIntoTemplateExcel(ref sheet, dt1, buBanType, "sheet1");
 
-                    // 日付指定をする列番号がある場合
-                    if (dateTimeColumns != null && dateTimeColumns.Count > 0)
-                    {
-                        for (int i = 0; i < dateTimeColumns.Count; i++)
+                        // 日付指定をする列番号がある場合
+                        if (dateTimeColumns != null && dateTimeColumns.Count > 0)
                         {
-                            sheet.Cells[startIndex, dateTimeColumns[i], sheet.Dimension.Rows, dateTimeColumns[i]].Style.Numberformat.Format = "yyyy/MM/dd";
+                            for (int i = 0; i < dateTimeColumns.Count; i++)
+                            {
+                                sheet.Cells[startIndex, dateTimeColumns[i], sheet.Dimension.Rows, dateTimeColumns[i]].Style.Numberformat.Format = "yyyy/MM/dd";
+                            }
                         }
+                        // センターアラインエクセル
+                        //sheet.Cells["A" + startIndex.ToString() + ":F" + (startIndex + dt1.Rows.Count - 1).ToString()].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                        //sheet.Cells["A" + startIndex.ToString() + ":F" + (startIndex + dt1.Rows.Count - 1).ToString()].AutoFitColumns();
+
+                        //sheet.Cells["A" + startIndex.ToString() + ":F" + (startIndex + dt1.Rows.Count - 1).ToString()].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                        //sheet.Cells["A" + startIndex.ToString() + ":F" + (startIndex + dt1.Rows.Count - 1).ToString()].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                        //sheet.Cells["A" + startIndex.ToString() + ":F" + (startIndex + dt1.Rows.Count - 1).ToString()].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                        //sheet.Cells["A" + startIndex.ToString() + ":F" + (startIndex + dt1.Rows.Count - 1).ToString()].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+
+                        // Upload画面のとき（ファイル名最初の2文字が数字）だけ、最後の行に"END"を追加
+                        var fileHeadName = newFile.Name.Substring(0, 2);
+                        if (int.TryParse(fileHeadName, out int number))
+                        {
+                            var lastRowNo = sheet.Dimension.End.Row;
+                            sheet.InsertRow(lastRowNo + 1, 1);
+                            sheet.Cells[lastRowNo + 1, 1].Value = "END";
+                        };
+
+                        // 保管
+                        //package.Save();
+                        //}
                     }
-                    // センターアラインエクセル
-                    sheet.Cells["A"+startIndex.ToString()+":F"+(startIndex + dt1.Rows.Count -1).ToString()].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                    sheet.Cells["A"+startIndex.ToString()+":F"+(startIndex + dt1.Rows.Count -1).ToString()].AutoFitColumns();
-
-                    sheet.Cells["A"+startIndex.ToString()+":F"+(startIndex + dt1.Rows.Count -1).ToString()].Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    sheet.Cells["A"+startIndex.ToString()+":F"+(startIndex + dt1.Rows.Count -1).ToString()].Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    sheet.Cells["A"+startIndex.ToString()+":F"+(startIndex + dt1.Rows.Count -1).ToString()].Style.Border.Top.Style = ExcelBorderStyle.Thin;
-                    sheet.Cells["A"+startIndex.ToString()+":F"+(startIndex + dt1.Rows.Count -1).ToString()].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
-
-                    // Upload画面のとき（ファイル名最初の2文字が数字）だけ、最後の行に"END"を追加
-                    var fileHeadName = fileInfo.Name.Substring(0, 2);
-                    if (int.TryParse(fileHeadName, out int number))
-                    {
-                        var lastRowNo = sheet.Dimension.End.Row;
-                        sheet.InsertRow(lastRowNo + 1, 1);
-                        sheet.Cells[lastRowNo + 1, 1].Value = "END";
-                    };
-
-                    // 保管
-                    //package.Save();
-                    //}
+                    else { return false; }
                     ///////////////////////////////////////// Sheet 2 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-                    //using (sheet = package.Workbook.Worksheets.Add(sheetName[1]))
-                    //{
-                    startIndex = 3;
-                    sheet = package.Workbook.Worksheets.Add(sheetName[1]);
-                    sheet.Cells.Style.Font.Size = 11; //Default font size for whole sheet
-                    sheet.Cells.Style.Font.Name = "游ゴシック"; //Default Font name for whole sheet
-                    if (buBanType == ExportExcelController.FLOOR_ASSY)
+                    sheet = package.Workbook.Worksheets.Where(s => s.Name == sheetName[1]).FirstOrDefault();
+                    if(sheet != null)
                     {
-                        sheet.Cells[1, 1].Value = "【生産用】FLOOR ASSY";
-                    }
-                    else if (buBanType == ExportExcelController.FLAME_ASSY)
-                    {
-                        sheet.Cells[1, 1].Value = "【生産用】FLAME ASSY";
-                    }
-                    // header clor
-                    //var colFromHex = System.Drawing.FromArgb.FromHtml("#FFFF00");
-                    sheet.Cells["A"+startIndex.ToString()+":F"+startIndex.ToString()].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    sheet.Cells["A"+startIndex.ToString()+":F"+startIndex.ToString()].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Yellow);
-                    // タイトル行が指定されているときは、タイトル行をセットする
-                    if (titleRows != null && titleRows.Count > 0)
-                    {
-                        for (int i = 0; i < titleRows.Count; i++)
+                        //using (sheet = package.Workbook.Worksheets.Add(sheetName[1]))
+                        //{
+                        //startIndex = 3;
+                        //sheet = package.Workbook.Worksheets.Add(sheetName[1]);
+                        //sheet.Cells.Style.Font.Size = 11; //Default font size for whole sheet
+                        //sheet.Cells.Style.Font.Name = "游ゴシック"; //Default Font name for whole sheet
+                        //if (buBanType == ExportExcelController.FLOOR_ASSY)
+                        //{
+                        //    sheet.Cells[1, 1].Value = "【生産用】FLOOR ASSY";
+                        //}
+                        //else if (buBanType == ExportExcelController.FLAME_ASSY)
+                        //{
+                        //    sheet.Cells[1, 1].Value = "【生産用】FLAME ASSY";
+                        //}
+                        // header clor
+                        ////var colFromHex = System.Drawing.FromArgb.FromHtml("#FFFF00");
+                        //sheet.Cells["A" + startIndex.ToString() + ":F" + startIndex.ToString()].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                        //sheet.Cells["A" + startIndex.ToString() + ":F" + startIndex.ToString()].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Yellow);
+                        // タイトル行が指定されているときは、タイトル行をセットする
+                        if (titleRows != null && titleRows.Count > 0)
                         {
-                            sheet.Cells[1, i + 1].Value = titleRows[i];
-                            // センターアラインエクセル
-                            sheet.Cells["A"+startIndex.ToString()+":F"+startIndex.ToString()].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                            sheet.Cells["A"+startIndex.ToString()+":F"+startIndex.ToString()].AutoFitColumns();
+                            for (int i = 0; i < titleRows.Count; i++)
+                            {
+                                sheet.Cells[1, i + 1].Value = titleRows[i];
+                                // センターアラインエクセル
+                                sheet.Cells["A" + startIndex.ToString() + ":F" + startIndex.ToString()].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                                sheet.Cells["A" + startIndex.ToString() + ":F" + startIndex.ToString()].AutoFitColumns();
+                            }
+                            // 開始行番号をセット
+                            startIndex = 4;
+                            // タイトル出力済なので、列名は出力しない
+                            printHeader = false;
                         }
-                        // 開始行番号をセット
-                        startIndex = 4;
-                        // タイトル出力済なので、列名は出力しない
+                        // not diplay header
                         printHeader = false;
-                    }
-                    // not diplay header
-                    printHeader = false;
-                    // データセット
-                    sheet.Cells[startIndex, 1].LoadFromDataTable(dt2, printHeader);
-
-                    // 日付指定をする列番号がある場合
-                    if (dateTimeColumns != null && dateTimeColumns.Count > 0)
-                    {
-                        for (int i = 0; i < dateTimeColumns.Count; i++)
+                        // データセット
+                        // sheet.Cells[startIndex, 1].LoadFromDataTable(dt2, printHeader);
+                        LoadDataIntoTemplateExcel(ref sheet, dt2, buBanType, "sheet2");
+                        // 日付指定をする列番号がある場合
+                        if (dateTimeColumns != null && dateTimeColumns.Count > 0)
                         {
-                            sheet.Cells[startIndex, dateTimeColumns[i], sheet.Dimension.Rows, dateTimeColumns[i]].Style.Numberformat.Format = "yyyy/MM/dd";
+                            for (int i = 0; i < dateTimeColumns.Count; i++)
+                            {
+                                sheet.Cells[startIndex, dateTimeColumns[i], sheet.Dimension.Rows, dateTimeColumns[i]].Style.Numberformat.Format = "yyyy/MM/dd";
+                            }
                         }
-                    }
-                    // センターアラインエクセル
-                    sheet.Cells["A"+startIndex.ToString()+":F"+(startIndex + dt2.Rows.Count -1).ToString()].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                    sheet.Cells["A"+startIndex.ToString()+":F"+(startIndex + dt2.Rows.Count -1).ToString()].AutoFitColumns();
+                        // センターアラインエクセル
+                        //sheet.Cells["A" + startIndex.ToString() + ":F" + (startIndex + dt2.Rows.Count - 1).ToString()].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                        //sheet.Cells["A" + startIndex.ToString() + ":F" + (startIndex + dt2.Rows.Count - 1).ToString()].AutoFitColumns();
 
-                    sheet.Cells["A"+startIndex.ToString()+":F"+(startIndex + dt2.Rows.Count -1).ToString()].Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    sheet.Cells["A"+startIndex.ToString()+":F"+(startIndex + dt2.Rows.Count -1).ToString()].Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    sheet.Cells["A"+startIndex.ToString()+":F"+(startIndex + dt2.Rows.Count -1).ToString()].Style.Border.Top.Style = ExcelBorderStyle.Thin;
-                    sheet.Cells["A"+startIndex.ToString()+":F"+(startIndex + dt2.Rows.Count -1).ToString()].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
-                    // Upload画面のとき（ファイル名最初の2文字が数字）だけ、最後の行に"END"を追加
-                    var fileHeadName1 = fileInfo.Name.Substring(0, 2);
-                    if (int.TryParse(fileHeadName1, out int number1))
-                    {
-                        var lastRowNo = sheet.Dimension.End.Row;
-                        sheet.InsertRow(lastRowNo + 1, 1);
-                        sheet.Cells[lastRowNo + 1, 1].Value = "END";
-                    };
+                        //sheet.Cells["A" + startIndex.ToString() + ":F" + (startIndex + dt2.Rows.Count - 1).ToString()].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                        //sheet.Cells["A" + startIndex.ToString() + ":F" + (startIndex + dt2.Rows.Count - 1).ToString()].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                        //sheet.Cells["A" + startIndex.ToString() + ":F" + (startIndex + dt2.Rows.Count - 1).ToString()].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                        //sheet.Cells["A" + startIndex.ToString() + ":F" + (startIndex + dt2.Rows.Count - 1).ToString()].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                        // Upload画面のとき（ファイル名最初の2文字が数字）だけ、最後の行に"END"を追加
+                        var fileHeadName1 = newFile.Name.Substring(0, 2);
+                        if (int.TryParse(fileHeadName1, out int number1))
+                        {
+                            var lastRowNo = sheet.Dimension.End.Row;
+                            sheet.InsertRow(lastRowNo + 1, 1);
+                            sheet.Cells[lastRowNo + 1, 1].Value = "END";
+                        };
+                    }
+                    else { return false; }
 
                     // 保管
                     package.Save();
@@ -1115,6 +1119,385 @@ namespace mclogi.common
 
         #endregion
 
+        private bool LoadDataIntoTemplateExcel(ref ExcelWorksheet worksheet, DataTable data, string buBanType, string sheetNo)
+        {
+            if (data.Rows.Count <= 0) { return false; }
+            worksheet.Cells.Style.Font.Size = 11; //Default font size for whole sheet
+            worksheet.Cells.Style.Font.Color.SetColor(System.Drawing.Color.Black); // set color text
+            worksheet.Cells.Style.Font.Name = "游ゴシック"; //Default Font name for whole sheet
+
+            //int startIndex = 3;
+            //// header clor
+            try
+            {
+                switch(buBanType)
+                {
+                    case ExportExcelController.FLOOR_ASSY:
+                        {
+                            int maxRows = 0;
+                            int pageNo = Convert.ToInt32(Math.Ceiling((decimal)data.Rows.Count / 36));
+                            maxRows = pageNo * 36 + pageNo * 2;  // 倍数 : 38
+                            int startIndexOfPage = 0;
+                            int indexData = 0;
+                            // load data
+                            if (sheetNo == "sheet1")
+                            {
+                                worksheet.PrinterSettings.PrintArea = worksheet.Cells["A:1,A:" + maxRows.ToString()];
+                                for (int index = 1; index <= pageNo; index += 1)
+                                {
+                                    // index title
+                                    startIndexOfPage = (index - 1) * 38 + 1;
+                                    TitlePage(ref worksheet, buBanType, sheetNo, startIndexOfPage);
+                                    // body page
+                                    for (int i = 3; i <= 38; i++)
+                                    {
+                                        if (indexData < data.Rows.Count)
+                                        {
+                                            worksheet.Cells[startIndexOfPage + i - 1, 1].Value = data.Rows[indexData]["パレットNo"];
+                                            worksheet.Cells[startIndexOfPage + i - 1, 2].Value = data.Rows[indexData]["ラインON"];
+                                            worksheet.Cells[startIndexOfPage + i - 1, 3].Value = data.Rows[indexData]["SEQ"];
+                                            worksheet.Cells[startIndexOfPage + i - 1, 4].Value = data.Rows[indexData]["部品番号"];
+                                            worksheet.Cells[startIndexOfPage + i - 1, 5].Value = data.Rows[indexData]["部品略式記号"];
+                                            worksheet.Cells[startIndexOfPage + i - 1, 6].Value = data.Rows[indexData][" "];
+                                        }
+                                        else
+                                        {
+                                            var value = worksheet.Cells[startIndexOfPage + i - 1, 1].Value;
+                                            if ((i == 3 || i == 12 || i == 21 || i == 30) && (value == null || value.ToString() == ""))
+                                            {
+                                                worksheet.Cells[startIndexOfPage + i - 1, 1].Value = "パレットNo";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 2].Value = "ラインON";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 3].Value = "SEQ";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 4].Value = "部品番号";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 5].Value = "部品略式記号";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 6].Value = " ";
+                                            }
+                                            else
+                                            {
+                                                worksheet.Cells[startIndexOfPage + i - 1, 1].Value = "";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 2].Value = "";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 3].Value = "";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 4].Value = "";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 5].Value = "";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 6].Value = "";
+                                            }
+
+                                        }
+                                        if (i == 3 || i == 12 || i == 21 || i == 30)
+                                        {
+                                            worksheet.Cells[startIndexOfPage + i - 1, 1, startIndexOfPage + i - 1, 6].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                                            worksheet.Cells[startIndexOfPage + i - 1, 1, startIndexOfPage + i - 1, 6].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Yellow);
+                                            // merge cell 
+                                            if (!worksheet.Cells[startIndexOfPage + i - 1, 5, startIndexOfPage + i - 1, 6].Merge)
+                                            {
+                                                worksheet.Cells[startIndexOfPage + i - 1, 5, startIndexOfPage + i - 1, 6].Merge = true;
+                                            }
+                                        }
+                                        // border cells
+                                        {
+                                            worksheet.Cells[startIndexOfPage + i - 1, 1].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                                            worksheet.Cells[startIndexOfPage + i - 1, 2].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                                            worksheet.Cells[startIndexOfPage + i - 1, 3].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                                            worksheet.Cells[startIndexOfPage + i - 1, 4].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                                            worksheet.Cells[startIndexOfPage + i - 1, 5].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                                            worksheet.Cells[startIndexOfPage + i - 1, 6].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                                            worksheet.Cells[startIndexOfPage + i - 1, 7].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                                        }
+                                        indexData++;
+                                    }
+                                    // merge cells 
+                                    if (!worksheet.Cells[startIndexOfPage + 2, 7, startIndexOfPage + 37, 7].Merge)
+                                    {
+                                        worksheet.Cells[startIndexOfPage + 2, 7, startIndexOfPage + 37, 7].Merge = true;
+                                    }
+                                    // Alignment is center
+                                    worksheet.Cells[startIndexOfPage + 2, 1, startIndexOfPage + 37, 6].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                                    worksheet.Row(index * 38).PageBreak = true;
+                                }
+
+                            }
+                            else if (sheetNo == "sheet2")
+                            {
+                                worksheet.PrinterSettings.PrintArea = worksheet.Cells["A:1,A:" + maxRows.ToString()];
+                                for (int index = 1; index <= pageNo; index += 1)
+                                {
+                                    // index title
+                                    startIndexOfPage = (index - 1) * 38 + 1;
+                                    TitlePage(ref worksheet, buBanType, sheetNo, startIndexOfPage);
+                                    // body page
+                                    for (int i = 3; i <= 38; i++)
+                                    {
+                                        if (indexData < data.Rows.Count)
+                                        {
+                                            worksheet.Cells[startIndexOfPage + i - 1, 1].Value = data.Rows[indexData]["パレットNo"];
+                                            worksheet.Cells[startIndexOfPage + i - 1, 2].Value = data.Rows[indexData]["ラインON"];
+                                            worksheet.Cells[startIndexOfPage + i - 1, 3].Value = data.Rows[indexData]["SEQ"];
+                                            worksheet.Cells[startIndexOfPage + i - 1, 4].Value = data.Rows[indexData]["部品番号"];
+                                            worksheet.Cells[startIndexOfPage + i - 1, 5].Value = data.Rows[indexData]["部品略式記号"];
+                                            worksheet.Cells[startIndexOfPage + i - 1, 6].Value = data.Rows[indexData][" "];
+                                        }
+                                        else
+                                        {
+                                            var value = worksheet.Cells[startIndexOfPage + i - 1, 1].Value;
+                                            if ((i == 3 || i == 12 || i == 21 || i == 30) && (value == null || value.ToString() == ""))
+                                            {
+                                                worksheet.Cells[startIndexOfPage + i - 1, 1].Value = "パレットNo";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 2].Value = "ラインON";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 3].Value = "SEQ";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 4].Value = "部品番号";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 5].Value = "部品略式記号";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 6].Value = " ";
+                                            }
+                                            else
+                                            {
+                                                worksheet.Cells[startIndexOfPage + i - 1, 1].Value = "";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 2].Value = "";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 3].Value = "";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 4].Value = "";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 5].Value = "";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 6].Value = "";
+                                            }
+                                        }
+                                        if (i == 3 || i == 12 || i == 21 || i == 30)
+                                        {
+                                            var value = worksheet.Cells[startIndexOfPage + i - 1, 1].Value;
+
+                                            worksheet.Cells[startIndexOfPage + i - 1, 1, startIndexOfPage + i - 1, 6].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                                            worksheet.Cells[startIndexOfPage + i - 1, 1, startIndexOfPage + i - 1, 6].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Yellow);
+                                            // merge cell 
+                                            if (!worksheet.Cells[startIndexOfPage + i - 1, 5, startIndexOfPage + i - 1, 6].Merge)
+                                            {
+                                                worksheet.Cells[startIndexOfPage + i - 1, 5, startIndexOfPage + i - 1, 6].Merge = true;
+                                            }
+                                        }
+                                        // border cells
+                                        {
+                                            worksheet.Cells[startIndexOfPage + i - 1, 1].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                                            worksheet.Cells[startIndexOfPage + i - 1, 2].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                                            worksheet.Cells[startIndexOfPage + i - 1, 3].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                                            worksheet.Cells[startIndexOfPage + i - 1, 4].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                                            worksheet.Cells[startIndexOfPage + i - 1, 5].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                                            worksheet.Cells[startIndexOfPage + i - 1, 6].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                                            worksheet.Cells[startIndexOfPage + i - 1, 7].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                                        }
+                                        indexData++;
+                                    }
+                                    // merge cells 
+                                    if (!worksheet.Cells[startIndexOfPage + 2, 7, startIndexOfPage + 37, 7].Merge)
+                                    {
+                                        worksheet.Cells[startIndexOfPage + 2, 7, startIndexOfPage + 37, 7].Merge = true;
+                                    }
+                                    // Alignment is center
+                                    worksheet.Cells[startIndexOfPage + 2, 1, startIndexOfPage + 37, 6].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                                    worksheet.Row(index * 38).PageBreak = true;
+                                }
+                            }
+                            else
+                            {
+                                return false;
+                            }
+                            break;
+                        }
+                    case ExportExcelController.FLAME_ASSY:
+                        {
+                            int maxRows = 0;
+                            int pageNo = Convert.ToInt32(Math.Ceiling((decimal)data.Rows.Count / 35));
+                            maxRows = pageNo * 35 + pageNo * 2;  // 倍数 : 38
+                            int startIndexOfPage = 0;
+                            int indexData = 0;
+                            // load data
+                            if (sheetNo == "sheet1")
+                            {
+                                worksheet.PrinterSettings.PrintArea = worksheet.Cells["A:1,A:" + maxRows.ToString()];
+                                for (int index = 1; index <= pageNo; index += 1)
+                                {
+                                    // index title
+                                    startIndexOfPage = (index - 1) * 37 + 1;
+                                    TitlePage(ref worksheet, buBanType, sheetNo, startIndexOfPage);
+                                    // body page
+                                    for (int i = 3; i <= 37; i++)
+                                    {
+                                        if (indexData < data.Rows.Count)
+                                        {
+                                            worksheet.Cells[startIndexOfPage + i - 1, 1].Value = data.Rows[indexData]["パレットNo"];
+                                            worksheet.Cells[startIndexOfPage + i - 1, 2].Value = data.Rows[indexData]["ラインON"];
+                                            worksheet.Cells[startIndexOfPage + i - 1, 3].Value = data.Rows[indexData]["SEQ"];
+                                            worksheet.Cells[startIndexOfPage + i - 1, 4].Value = data.Rows[indexData]["部品番号"];
+                                            worksheet.Cells[startIndexOfPage + i - 1, 5].Value = data.Rows[indexData]["部品略式記号"];
+                                            worksheet.Cells[startIndexOfPage + i - 1, 6].Value = data.Rows[indexData][" "];
+                                        }
+                                        else
+                                        {
+                                            var value = worksheet.Cells[startIndexOfPage + i - 1, 1].Value;
+                                            if ((i == 3 || i == 8 || i == 13 || i == 18 || i == 23 || i == 28 || i == 33) && (value == null || value.ToString() == ""))
+                                            {
+                                                worksheet.Cells[startIndexOfPage + i - 1, 1].Value = "パレットNo";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 2].Value = "ラインON";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 3].Value = "SEQ";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 4].Value = "部品番号";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 5].Value = "部品略式記号";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 6].Value = " ";
+                                            }
+                                            else
+                                            {
+                                                worksheet.Cells[startIndexOfPage + i - 1, 1].Value = "";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 2].Value = "";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 3].Value = "";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 4].Value = "";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 5].Value = "";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 6].Value = "";
+                                            }
+                                        }
+                                        if (i == 3 || i == 8 || i == 13 || i == 18 || i == 23 || i == 28 || i == 33)
+                                        {
+                                            worksheet.Cells[startIndexOfPage + i - 1, 1, startIndexOfPage + i - 1, 6].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                                            worksheet.Cells[startIndexOfPage + i - 1, 1, startIndexOfPage + i - 1, 6].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Yellow);
+                                            // merge cell 
+                                            if (!worksheet.Cells[startIndexOfPage + i - 1, 5, startIndexOfPage + i - 1, 6].Merge)
+                                            {
+                                                worksheet.Cells[startIndexOfPage + i - 1, 5, startIndexOfPage + i - 1, 6].Merge = true;
+                                            }
+                                        }
+                                        // border cells
+                                        {
+                                            worksheet.Cells[startIndexOfPage + i - 1, 1].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                                            worksheet.Cells[startIndexOfPage + i - 1, 2].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                                            worksheet.Cells[startIndexOfPage + i - 1, 3].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                                            worksheet.Cells[startIndexOfPage + i - 1, 4].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                                            worksheet.Cells[startIndexOfPage + i - 1, 5].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                                            worksheet.Cells[startIndexOfPage + i - 1, 6].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                                            worksheet.Cells[startIndexOfPage + i - 1, 7].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                                        }
+                                        indexData++;
+                                    }
+                                    // merge cells 
+                                    if (!worksheet.Cells[startIndexOfPage + 2, 7, startIndexOfPage + 36, 7].Merge)
+                                    {
+                                        worksheet.Cells[startIndexOfPage + 2, 7, startIndexOfPage + 36, 7].Merge = true;
+                                    }
+                                    // Alignment is center
+                                    worksheet.Cells[startIndexOfPage + 2, 1, startIndexOfPage + 36, 6].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                                    worksheet.Row(index * 37).PageBreak = true;
+                                }
+                            }
+                            else if (sheetNo == "sheet2")
+                            {
+                                worksheet.PrinterSettings.PrintArea = worksheet.Cells["A:1,A:" + maxRows.ToString()];
+                                for (int index = 1; index <= pageNo; index += 1)
+                                {
+                                    // index title
+                                    startIndexOfPage = (index - 1) * 37 + 1;
+                                    TitlePage(ref worksheet, buBanType, sheetNo, startIndexOfPage);
+                                    // body page
+                                    for (int i = 3; i <= 37; i++)
+                                    {
+                                        if (indexData < data.Rows.Count)
+                                        {
+                                            worksheet.Cells[startIndexOfPage + i - 1, 1].Value = data.Rows[indexData]["パレットNo"];
+                                            worksheet.Cells[startIndexOfPage + i - 1, 2].Value = data.Rows[indexData]["ラインON"];
+                                            worksheet.Cells[startIndexOfPage + i - 1, 3].Value = data.Rows[indexData]["SEQ"];
+                                            worksheet.Cells[startIndexOfPage + i - 1, 4].Value = data.Rows[indexData]["部品番号"];
+                                            worksheet.Cells[startIndexOfPage + i - 1, 5].Value = data.Rows[indexData]["部品略式記号"];
+                                            worksheet.Cells[startIndexOfPage + i - 1, 6].Value = data.Rows[indexData][" "];
+                                        }
+                                        else
+                                        {
+                                            var value = worksheet.Cells[startIndexOfPage + i - 1, 1].Value;
+                                            if ((i == 3 || i == 8 || i == 13 || i == 18 || i == 23 || i == 28 || i == 33) && (value == null || value.ToString() == ""))
+                                            {
+                                                worksheet.Cells[startIndexOfPage + i - 1, 1].Value = "パレットNo";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 2].Value = "ラインON";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 3].Value = "SEQ";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 4].Value = "部品番号";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 5].Value = "部品略式記号";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 6].Value = " ";
+                                            }
+                                            else
+                                            {
+                                                worksheet.Cells[startIndexOfPage + i - 1, 1].Value = "";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 2].Value = "";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 3].Value = "";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 4].Value = "";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 5].Value = "";
+                                                worksheet.Cells[startIndexOfPage + i - 1, 6].Value = "";
+                                            }
+                                        }
+                                        if (i == 3 || i == 8 || i == 13 || i == 18 || i == 23 || i == 28 || i == 33)
+                                        {
+                                            var value = worksheet.Cells[startIndexOfPage + i - 1, 1].Value;
+
+                                            worksheet.Cells[startIndexOfPage + i - 1, 1, startIndexOfPage + i - 1, 6].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                                            worksheet.Cells[startIndexOfPage + i - 1, 1, startIndexOfPage + i - 1, 6].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Yellow);
+                                            // merge cell 
+                                            if (!worksheet.Cells[startIndexOfPage + i - 1, 5, startIndexOfPage + i - 1, 6].Merge)
+                                            {
+                                                worksheet.Cells[startIndexOfPage + i - 1, 5, startIndexOfPage + i - 1, 6].Merge = true;
+                                            }
+                                        }
+                                        // border cells
+                                        {
+                                            worksheet.Cells[startIndexOfPage + i - 1, 1].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                                            worksheet.Cells[startIndexOfPage + i - 1, 2].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                                            worksheet.Cells[startIndexOfPage + i - 1, 3].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                                            worksheet.Cells[startIndexOfPage + i - 1, 4].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                                            worksheet.Cells[startIndexOfPage + i - 1, 5].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                                            worksheet.Cells[startIndexOfPage + i - 1, 6].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                                            worksheet.Cells[startIndexOfPage + i - 1, 7].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                                        }
+                                        indexData++;
+                                    }
+                                    // merge cells 
+                                    if (!worksheet.Cells[startIndexOfPage + 2, 7, startIndexOfPage + 36, 7].Merge)
+                                    {
+                                        worksheet.Cells[startIndexOfPage + 2, 7, startIndexOfPage + 36, 7].Merge = true;
+                                    }
+                                    // Alignment is center
+                                    worksheet.Cells[startIndexOfPage + 2, 1, startIndexOfPage + 36, 6].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                                    worksheet.Row(index * 37).PageBreak = true;
+                                }
+                            }
+                            else
+                            {
+                                return false;
+                            }
+                            break;
+                        }
+                    default:
+                        {
+                            return false;
+                        }
+                }
+            }
+            catch
+            {
+                throw;
+            }
+            
+            return true;
+        }
+        private void TitlePage(ref ExcelWorksheet worksheet, string buBanType, string sheetNo, int index)
+        {
+            //worksheet.Cells.Style.Font.Size = 11; //Default font size for whole sheet
+            //worksheet.Cells.Style.Font.Name = "游ゴシック"; //Default Font name for whole sheet
+            
+            // タイトル行が指定されているときは、タイトル行をセットする
+            if (buBanType == ExportExcelController.FLOOR_ASSY && sheetNo == "sheet1")
+            {
+                worksheet.Cells[index, 1].Value = "【出荷確認用】FLOOR ASSY";
+            }
+            else if (buBanType == ExportExcelController.FLOOR_ASSY && sheetNo == "sheet2")
+            {
+                worksheet.Cells[index, 1].Value = "【生産用】FlOOR ASSY";
+            }
+            else if (buBanType == ExportExcelController.FLAME_ASSY && sheetNo == "sheet1")
+            {
+                worksheet.Cells[index, 1].Value = "【出荷確認用】FLAME ASSY";
+            }
+            else if (buBanType == ExportExcelController.FLAME_ASSY && sheetNo == "sheet2")
+            {
+                worksheet.Cells[index, 1].Value = "【生産用】FLAME  ASSY";
+            }
+        }
         #region CSV出力
         /// <summary>
         /// CSV出力
