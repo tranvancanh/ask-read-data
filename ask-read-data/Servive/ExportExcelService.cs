@@ -21,6 +21,10 @@ namespace ask_read_data.Servive
         public (DataTable, DataTable) GetFloor_Flame_Assy(DateTime dateTime, string bubanType)
         {
             dateTime = Convert.ToDateTime(new DateTime(dateTime.Year, dateTime.Month, dateTime.Day, 00, 00, 00).ToString("yyyy-MM-dd HH:mm:ss"));
+            if(!CheckDataExists(dateTime, bubanType))
+            {
+                return (new DataTable(), new DataTable());
+            }
             CreateDateTime = dateTime;
             var result = GetZenkaiDowloadInfor(bubanType, dateTime);
             var lastDateTime = result.Item1;
@@ -410,7 +414,80 @@ namespace ask_read_data.Servive
             return (MyDataTable, reversedDt);
 
         }
+        private bool CheckDataExists(DateTime dateTime, string bubanType)
+        {
+            bool isExists = false;
+            int statusCode = -500;
+            var ConnectionString = new GetConnectString().ConnectionString;
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                try
+                {
+                    //Create the command object
+                    SqlCommand cmd = new SqlCommand()
+                                                    {
+                                                        CommandText = "SP_DataImport_CheckData",
+                                                        Connection = connection,
+                                                        CommandType = CommandType.StoredProcedure
+                                                    };
+                    //パラメータ初期化
+                    cmd.Parameters.Clear();
+                    //Set SqlParameter
+                    ///////////////////  SetParameter CreateDateTime  ////////////////////////////////////////////
+                    SqlParameter CreateDateTime = new SqlParameter
+                                                                {
+                                                                    ParameterName = "@CreateDateTime",
+                                                                    SqlDbType = SqlDbType.DateTime,
+                                                                    Value = dateTime,
+                                                                    Direction = ParameterDirection.Input
+                                                                };
 
+                    SqlParameter BubanType = new SqlParameter
+                                                                {
+                                                                    ParameterName = "@BubanType",
+                                                                    SqlDbType = SqlDbType.NVarChar,
+                                                                    Value = bubanType,
+                                                                    Direction = ParameterDirection.Input
+                                                                };
+
+                    SqlParameter StausCode = new SqlParameter
+                                                            {
+                                                                ParameterName = "@StausCode",
+                                                                SqlDbType = SqlDbType.Int,
+                                                                Direction = ParameterDirection.Output
+                                                            };
+                    cmd.Parameters.Add(CreateDateTime);
+                    cmd.Parameters.Add(BubanType);
+                    cmd.Parameters.Add(StausCode);
+
+                    connection.Open();
+                    cmd.ExecuteNonQuery();
+                    statusCode = Convert.ToInt32(StausCode.Value);
+                }
+                catch
+                {
+                    throw;
+                }
+                finally
+                {
+                    //close connection
+                    connection.Close();
+                    // connection dispose
+                    connection.Dispose();
+                }
+            }
+
+            if (statusCode == 200)
+            {
+                isExists = true;
+            }
+            else
+            {
+                isExists = false;
+            }
+
+            return isExists;
+        }
         public int RecordDownloadHistory(ref DataTable dataTable, string bubanType, List<Claim> Claims)
         {
             DateTime lastDownloadDateTime = CreateDateTime;
