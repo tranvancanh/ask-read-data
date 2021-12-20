@@ -83,7 +83,7 @@ namespace ask_read_data.Controllers
                             dt2 = dt.Item2;
                             filename = "FLOOR_ASSY_" + modelRequset.Floor_Assy.Year.ToString().Substring(2,2) + modelRequset.Floor_Assy.Month.ToString() + modelRequset.Floor_Assy.Day.ToString() + "出荷分序列データー";
                             sheetName = new List<string>() { FLOORASSY_SHEET1, FLOORASSY_SHEET2 };
-                            tempFile = @"wwwroot\FormatFile\ASUKA_FL00R_ASSY_FORMAT_序列表.xlsx";
+                            tempFile = @"wwwroot\FormatFile\ASUKA_FL00R_ASSY_TEMPLATE_序列表.xlsx";
                             break;
                         }
                     case "flameassy":
@@ -94,7 +94,7 @@ namespace ask_read_data.Controllers
                             dt2 = dt.Item2;
                             filename = "FLAME_ASSY_" + modelRequset.Flame_Assy.Year.ToString().Substring(2, 2) + modelRequset.Flame_Assy.Month.ToString() + modelRequset.Flame_Assy.Day.ToString() + "出荷分序列データー";
                             sheetName = new List<string>() { FRAMEASSY_SHEET1, FRAMEASSY_SHEET2 };
-                            tempFile = @"wwwroot\FormatFile\ASUKA_FRAME_ASSY_FORMAT_序列表.xlsx";
+                            tempFile = @"wwwroot\FormatFile\ASUKA_FRAME_ASSY_TEMPLATE_序列表.xlsx";
                             break;
                         }
                     default:
