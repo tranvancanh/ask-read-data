@@ -18,6 +18,10 @@ namespace ask_read_data.Servive
         private DateTime CreateDateTime;
         private int Position = 0;
         private int ParetoRenban = 0;
+
+        private const int MAX_RENBAN_FLOOR_ASSY = 30;
+        private const int MAX_RENBAN_FRAME_ASSY = 60;
+
         public (DataTable, DataTable) GetFloor_Flame_Assy(DateTime dateTime, string bubanType)
         {
             dateTime = Convert.ToDateTime(new DateTime(dateTime.Year, dateTime.Month, dateTime.Day, 00, 00, 00).ToString("yyyy-MM-dd HH:mm:ss"));
@@ -30,6 +34,7 @@ namespace ask_read_data.Servive
             var lastDateTime = result.Item1;
             var lastPosition = result.Item2;
             var lastParetoRenban = result.Item3;
+            lastParetoRenban = CheckRenBan(lastParetoRenban, bubanType);
             var position = new List<string>();
             var MyDataTable = new DataTable();
             DataColumn[] cols ={
@@ -181,6 +186,10 @@ namespace ask_read_data.Servive
                             MyDataTable.Rows.Add(Row);
                             position.Add("Position");
                             PaletNo++;
+                            if(PaletNo > MAX_RENBAN_FLOOR_ASSY)
+                            {
+                                PaletNo = 1;
+                            }
                         }
                         else if ((bubanType == ExportExcelController.FLAME_ASSY) && (index % ExportExcelController.PALETNO_FLAME_ASSY == 0))
                         {
@@ -197,6 +206,10 @@ namespace ask_read_data.Servive
                             MyDataTable.Rows.Add(Row);
                             position.Add("Position");
                             PaletNo++;
+                            if (PaletNo > MAX_RENBAN_FRAME_ASSY)
+                            {
+                                PaletNo = 1;
+                            }
                         }
                     }
                 }
@@ -413,6 +426,34 @@ namespace ask_read_data.Servive
 
             return (MyDataTable, reversedDt);
 
+        }
+        private int CheckRenBan(int lastParetoRenban, string bubanType)
+        {
+            switch (bubanType)
+            {
+                case ExportExcelController.FLOOR_ASSY:
+                    {
+                        if (lastParetoRenban >= MAX_RENBAN_FLOOR_ASSY)
+                        {
+                            lastParetoRenban = 0;
+                        }
+                        break;
+                    }
+                case ExportExcelController.FLAME_ASSY:
+                    {
+                        if (lastParetoRenban >= MAX_RENBAN_FRAME_ASSY)
+                        {
+                            lastParetoRenban = 0;
+                        }
+                        break;
+                    }
+                default:
+                    {
+                        return -9999;
+                    }
+            }
+
+            return lastParetoRenban;
         }
         private bool CheckDataExists(DateTime dateTime, string bubanType)
         {
