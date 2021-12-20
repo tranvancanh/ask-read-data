@@ -20,14 +20,14 @@ namespace ask_read_data.Controllers
         [HttpGet]
         public IActionResult Data()
         {
-            var model = new DataViewModel() { Yotebi = DateTime.Today, DataTableBody = _exportExcel.SearchDataImport(DateTime.Today) };
+            var model = new DataViewModel() { ImportDate = DateTime.Today, DataTableBody = _exportExcel.SearchDataImport(DateTime.Today) };
             return View(model);
         }
 
         [HttpPost]
         public IActionResult Data(DataViewModel model)
         {
-            var resultSearch = new DataViewModel() { Yotebi = model.Yotebi, DataTableBody = _exportExcel.SearchDataImport(model.Yotebi) };
+            var resultSearch = new DataViewModel() { ImportDate = model.ImportDate, DataTableBody = _exportExcel.SearchDataImport(model.ImportDate) };
             return View(resultSearch);
         }
     }

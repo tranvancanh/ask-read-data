@@ -73,7 +73,7 @@ namespace ask_read_data.Servive
 
         }
 
-        public List<DataModel> SearchDataImport(DateTime dateTimeWAYMD)
+        public List<DataModel> SearchDataImport(DateTime importDate)
         {
             var objList = new List<DataModel>();
             var ConnectionString = new GetConnectString().ConnectionString;
@@ -91,14 +91,14 @@ namespace ask_read_data.Servive
                                                             CommandType = CommandType.StoredProcedure
                                                         };
                     cmd.Parameters.Clear();
-                    SqlParameter WAYMD = new SqlParameter
+                    SqlParameter CreateDateTime = new SqlParameter
                                                             {
-                                                                ParameterName = "@WAYMD",
+                                                                ParameterName = "@CreateDateTime",
                                                                 SqlDbType = SqlDbType.DateTime,
-                                                                Value = dateTimeWAYMD,
+                                                                Value = importDate,
                                                                 Direction = ParameterDirection.Input
                                                             };
-                    cmd.Parameters.Add(WAYMD);
+                    cmd.Parameters.Add(CreateDateTime);
                     //SQL実行
                     reader = cmd.ExecuteReader();
                     while (reader.Read())

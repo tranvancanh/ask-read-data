@@ -8,7 +8,7 @@ namespace ask_read_data.Models
     public class DataViewModel
     {
         // --------------------Page Header --------------------  ///////
-        public DateTime Yotebi { get; set; }
+        public DateTime ImportDate { get; set; }
 
         // -------------------- Table --------------------     ////////
         public DataModel DataTableHeader { get; set; } 
@@ -16,7 +16,7 @@ namespace ask_read_data.Models
 
         public DataViewModel()
         {
-            Yotebi = DateTime.Today;
+            ImportDate = DateTime.Today;
             DataTableHeader  = new DataModel();
             DataTableBody = new List<DataModel>();
         }

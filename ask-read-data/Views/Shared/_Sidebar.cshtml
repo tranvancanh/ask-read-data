@@ -44,7 +44,7 @@
         <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">ユーザー情報:</h6>
-                <a class="collapse-item" href="@Url.Action("Index", "UserInfo", new { id = "user" })">個人情報</a>
+                <a class="collapse-item" @*href="@Url.Action("Index", "UserInfo", new { id = "user" })" *@>個人情報</a>
                 <a class="collapse-item" href="cards.html">Cards</a>
             </div>
         </div>
@@ -71,8 +71,8 @@
     <!--<hr class="sidebar-divider">-->
     <!-- Heading -->
     @*<div class="sidebar-heading">
-        データ管理
-    </div>*@
+            データ管理
+        </div>*@
     <!--                               -->
     <!-- Nav Item - Read Data Menu -->
     <!--<li class="nav-item">
@@ -98,7 +98,7 @@
         <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">Data Screens:</h6>
-                <a class="collapse-item" href="@Url.Action("ImportData", "ImportData")">データ取り込み</a>
+                <a class="collapse-item" @* href="@Url.Action("ImportData", "ImportData")" *@>データ取り込み</a>
                 <a class="collapse-item" href="blank.html">データ出力</a>-->
     @*<a class="collapse-item" href="forgot-password.html">Forgot Password</a>
         <div class="collapse-divider"></div>
@@ -114,13 +114,13 @@
             <span>データ取込</span>
         </a>
     </li>
-    <li class="nav-item">        
+    <li class="nav-item">
         <a class="nav-link" href="@Url.Action("ExportExcel", "ExportExcel")">
             <i class="fas fa-fw fa-database"></i>
             <span>データ出力</span>
         </a>
     </li>
-    <li class="nav-item">        
+    <li class="nav-item">
         <a class="nav-link" href="@Url.Action("Data", "Data")">
             <i class="fas fa-fw fa-database"></i>
             <span>統計データ</span>
