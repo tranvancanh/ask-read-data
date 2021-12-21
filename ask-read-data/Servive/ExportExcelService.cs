@@ -367,9 +367,10 @@ namespace ask_read_data.Servive
                             throw new Exception("Position値に問題がありました");
                         }
                         //  欠落している行のデータを追加します , 目的: 9倍数を到達する
-                        for (int i = ashitaiko; i < 10 - Balance; i++)
+                        var ceiling = Convert.ToInt32(Math.Ceiling((decimal)MyDataTable.Rows.Count / 5)) * 5;
+                        for (int i = MyDataTable.Rows.Count; i < ceiling; i++)
                         {
-                            if(i%4 == 0 && i != 0)
+                            if(i%5 == 0 && i != 0)
                             {
                                 MyDataTable.Rows.Add("パレットNo", "ラインON", "SEQ", "部品番号", "部品略式記号", "");
                             }
