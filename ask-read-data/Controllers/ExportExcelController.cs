@@ -42,6 +42,10 @@ namespace ask_read_data.Controllers
         public const string FRAMEASSY_SHEET1 = "フレーム出荷用";
         public const string FRAMEASSY_SHEET2 = "フレーム生産用";
 
+        /****************************Template file***********************************/
+        private const string ASUKA_FL00R_ASSY_TEMPLATE = @"wwwroot\FormatFile\ASUKA_FL00R_ASSY_TEMPLATE_序列表.xlsx";
+        private const string ASUKA_FRAME_ASSY_TEMPLATE = @"wwwroot\FormatFile\ASUKA_FRAME_ASSY_TEMPLATE_序列表.xlsx";
+
         public const int STEP_PAGE = 38; 
 
         private readonly IExportExcel _excelExport;
@@ -81,9 +85,9 @@ namespace ask_read_data.Controllers
                             var dt = _excelExport.GetFloor_Flame_Assy(modelRequset.Floor_Assy, FLOOR_ASSY);
                             dt1 = dt.Item1;
                             dt2 = dt.Item2;
-                            filename = "FLOOR_ASSY_" + modelRequset.Floor_Assy.Year.ToString().Substring(2,2) + modelRequset.Floor_Assy.Month.ToString() + modelRequset.Floor_Assy.Day.ToString() + "出荷分序列データー";
+                            filename = "FLOOR_ASSY_出荷分序列データー_"+ modelRequset.Floor_Assy.Year.ToString().Substring(2,2) + modelRequset.Floor_Assy.Month.ToString() + modelRequset.Floor_Assy.Day.ToString();
                             sheetName = new List<string>() { FLOORASSY_SHEET1, FLOORASSY_SHEET2 };
-                            tempFile = @"wwwroot\FormatFile\ASUKA_FL00R_ASSY_TEMPLATE_序列表.xlsx";
+                            tempFile = ASUKA_FL00R_ASSY_TEMPLATE;
                             break;
                         }
                     case "flameassy":
@@ -92,9 +96,9 @@ namespace ask_read_data.Controllers
                             var dt = _excelExport.GetFloor_Flame_Assy(modelRequset.Flame_Assy, FLAME_ASSY);
                             dt1 = dt.Item1;
                             dt2 = dt.Item2;
-                            filename = "FLAME_ASSY_" + modelRequset.Flame_Assy.Year.ToString().Substring(2, 2) + modelRequset.Flame_Assy.Month.ToString() + modelRequset.Flame_Assy.Day.ToString() + "出荷分序列データー";
+                            filename = "FLAME_ASSY_出荷分序列データー_" + modelRequset.Flame_Assy.Year.ToString().Substring(2, 2) + modelRequset.Flame_Assy.Month.ToString() + modelRequset.Flame_Assy.Day.ToString();
                             sheetName = new List<string>() { FRAMEASSY_SHEET1, FRAMEASSY_SHEET2 };
-                            tempFile = @"wwwroot\FormatFile\ASUKA_FRAME_ASSY_TEMPLATE_序列表.xlsx";
+                            tempFile = ASUKA_FRAME_ASSY_TEMPLATE;
                             break;
                         }
                     default:
