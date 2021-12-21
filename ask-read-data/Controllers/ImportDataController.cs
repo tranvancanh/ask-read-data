@@ -156,8 +156,8 @@ namespace ask_read_data.Controllers
                             result.Add(lineNo.ToString());
                             break;
                         }
-                        string iDate = "2005-05-05";
-                        DateTime oDate = DateTime.Parse(iDate);
+                        //string iDate = "2005-05-05";
+                        //DateTime oDate = DateTime.Parse(iDate);
                         // 1件目(左分)
                         dataModel = new DataModel()
                         {
