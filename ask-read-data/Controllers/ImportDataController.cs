@@ -90,7 +90,8 @@ namespace ask_read_data.Controllers
                             var fileName = result[1];
                             var lineNo = result[3];
                             ViewData["successmess"] = null;
-                            ViewData["erroremess"] = fileName.ToString() + "： ファイル読み込み中にエラーが発生しました" + " | lineNo: " + lineNo.ToString();
+                            ViewData["erroremess"] = fileName.ToString() + $@"： ファイル読み込み中にエラーが発生しました
+                                            | lineNo: " + lineNo.ToString();
                             return View();
                         }
                     }
@@ -103,8 +104,18 @@ namespace ask_read_data.Controllers
                 ViewData["erroremess"] = ex.Message + $@" | file name: {fileNamee}";
                 return View();
             }
-            // go to service
-            ResponResult res = _importData.ImportDataDB(result, Claims, buMastars);
+            ResponResult res = null;
+            try
+            {
+                // go to service
+                res = _importData.ImportDataDB(result, Claims, buMastars);
+            }
+            catch (Exception ex)
+            {
+                ViewData["successmess"] = null;
+                ViewData["erroremess"] = ex.Message + $@" | file name: {fileNamee}";
+                return View();
+            }
             if (res.Status != "OK")
             {
                 ViewData["successmess"] = null;

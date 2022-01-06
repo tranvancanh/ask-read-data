@@ -85,7 +85,7 @@ namespace ask_read_data.Controllers
                             var dt = _excelExport.GetFloor_Flame_Assy(modelRequset.Floor_Assy, FLOOR_ASSY);
                             dt1 = dt.Item1;
                             dt2 = dt.Item2;
-                            filename = "FLOOR_ASSY_出荷分序列データー_"+ modelRequset.Floor_Assy.Year.ToString().Substring(2,2) + modelRequset.Floor_Assy.Month.ToString() + modelRequset.Floor_Assy.Day.ToString();
+                            filename = "FLOOR_ASSY_出荷分序列データー_"+ modelRequset.Floor_Assy.Year.ToString().Substring(2,2) + modelRequset.Floor_Assy.ToString("MM") + modelRequset.Floor_Assy.ToString("dd");
                             sheetName = new List<string>() { FLOORASSY_SHEET1, FLOORASSY_SHEET2 };
                             tempFile = ASUKA_FL00R_ASSY_TEMPLATE;
                             break;
@@ -96,7 +96,7 @@ namespace ask_read_data.Controllers
                             var dt = _excelExport.GetFloor_Flame_Assy(modelRequset.Flame_Assy, FLAME_ASSY);
                             dt1 = dt.Item1;
                             dt2 = dt.Item2;
-                            filename = "FLAME_ASSY_出荷分序列データー_" + modelRequset.Flame_Assy.Year.ToString().Substring(2, 2) + modelRequset.Flame_Assy.Month.ToString() + modelRequset.Flame_Assy.Day.ToString();
+                            filename = "FLAME_ASSY_出荷分序列データー_" + modelRequset.Flame_Assy.Year.ToString().Substring(2, 2) + modelRequset.Flame_Assy.ToString("MM") + modelRequset.Flame_Assy.ToString("dd");
                             sheetName = new List<string>() { FRAMEASSY_SHEET1, FRAMEASSY_SHEET2 };
                             tempFile = ASUKA_FRAME_ASSY_TEMPLATE;
                             break;

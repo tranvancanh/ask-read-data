@@ -18,6 +18,8 @@ namespace ask_read_data.Servive
         private DateTime CreateDateTime;
         private int Position = 0;
         private int ParetoRenban = 0;
+        private DateTime LastDateTime = new DateTime();
+        private bool isCheckDownload = false;
 
         private const int MAX_RENBAN_FLOOR_ASSY = 30;
         private const int MAX_RENBAN_FRAME_ASSY = 60;
@@ -234,19 +236,30 @@ namespace ask_read_data.Servive
             // Sheet1 と Sheet2は分けること
             // Positionの取得
             int Balance = 0;
+            this.isCheckDownload = true;
             switch (bubanType)
             {
                 case ExportExcelController.FLOOR_ASSY:
                     {
                         // 件数 < ExportExcelController.PALETNO_FLOOR_ASSY の場合は、
-                        if (MyDataTable.Rows.Count < ExportExcelController.PALETNO_FLOOR_ASSY)
+                        if (MyDataTable.Rows.Count < ExportExcelController.PALETNO_FLOOR_ASSY + 1)
                         {
-                            Position = 0;
+                            this.LastDateTime = lastDateTime;
+                            this.Position = lastPosition;
+                            this.ParetoRenban = lastParetoRenban;
+                            this.isCheckDownload = false;
+                            for (int i = MyDataTable.Rows.Count; i < ExportExcelController.PALETNO_FLOOR_ASSY + 1; i++)
+                            {
+                                MyDataTable.Rows.Add("", "", "", "", "", "");
+                            }
+                            /////////////////////////////////////////// Data Reverse //////////////////////////////////////////
                             reversedDt = MyDataTable.Clone();
-                            for (var row = MyDataTable.Rows.Count - 1; row >= 0; row--)
-                                reversedDt.ImportRow(MyDataTable.Rows[row]);
+                            reversedDt.ImportRow(MyDataTable.Rows[0]);
+                            for (var row = MyDataTable.Rows.Count - 1; row > 0; row--)
+                            { reversedDt.Rows.Add("", "", "", "", "", ""); }
                             break;
                         }
+                        this.isCheckDownload = true;
                         Balance = MyDataTable.Rows.Count % (ExportExcelController.PALETNO_FLOOR_ASSY + 1);
                         if (Balance > 0)
                         {
@@ -301,7 +314,7 @@ namespace ask_read_data.Servive
                         reversedDt = table.Clone();
                         for (int i = 0; i < table.Rows.Count; i += 9)
                         {
-                            if (i % 9 == 0) 
+                            if (i % (ExportExcelController.PALETNO_FLOOR_ASSY + 1) == 0) 
                             {
                                 var row0 = table.Rows[i];
                                 reversedDt.Rows.Add(row0.ItemArray);
@@ -329,15 +342,25 @@ namespace ask_read_data.Servive
                 case ExportExcelController.FLAME_ASSY:
                     {
                         // 件数 < ExportExcelController.PALETNO_FLAME_ASSY の場合は、
-                        if (MyDataTable.Rows.Count < ExportExcelController.PALETNO_FLAME_ASSY)
+                        if (MyDataTable.Rows.Count < ExportExcelController.PALETNO_FLAME_ASSY + 1)
                         {
-                            Position = 0;
+                            this.LastDateTime = lastDateTime;
+                            this.Position = lastPosition;
+                            this.ParetoRenban = lastParetoRenban;
+                            this.isCheckDownload = false;
+                            for (int i = MyDataTable.Rows.Count; i < ExportExcelController.PALETNO_FLAME_ASSY + 1; i++)
+                            {
+                                MyDataTable.Rows.Add("", "", "", "", "", "");
+                            }
+                            /////////////////////////////////////////// Data Reverse //////////////////////////////////////////
                             reversedDt = MyDataTable.Clone();
-                            for (var row = MyDataTable.Rows.Count - 1; row >= 0; row--)
-                                reversedDt.ImportRow(MyDataTable.Rows[row]);
+                            reversedDt.ImportRow(MyDataTable.Rows[0]);
+                            for (var row = MyDataTable.Rows.Count - 1; row > 0; row--)
+                            { reversedDt.Rows.Add("", "", "", "", "", ""); }
                             break;
                         }
                         var ashitaiko = 0;
+                        this.isCheckDownload = true;
                         Balance = MyDataTable.Rows.Count % (ExportExcelController.PALETNO_FLAME_ASSY + 1);
                         if (Balance > 0)
                         {
@@ -397,7 +420,7 @@ namespace ask_read_data.Servive
                         reversedDt = table.Clone();
                         for (int i = 0; i < table.Rows.Count; i += 5)
                         {
-                            if (i % 5 == 0)
+                            if (i % (ExportExcelController.PALETNO_FLAME_ASSY + 1) == 0)
                             {
                                 var row0 = table.Rows[i];
                                 reversedDt.Rows.Add(row0.ItemArray);
@@ -532,7 +555,15 @@ namespace ask_read_data.Servive
         }
         public int RecordDownloadHistory(ref DataTable dataTable, string bubanType, List<Claim> Claims)
         {
-            DateTime lastDownloadDateTime = CreateDateTime;
+            var lastDownloadDateTime = new DateTime();
+            if (isCheckDownload)
+            {
+                lastDownloadDateTime = CreateDateTime;
+            }
+            else
+            {
+                lastDownloadDateTime = this.LastDateTime;
+            }
             var UserName = Claims.Where(c => c.Type == ClaimTypes.Name).First().Value;
             int Position = this.Position;
             var paretoRenban = 0;
@@ -543,6 +574,7 @@ namespace ask_read_data.Servive
             {
                 try
                 {
+                    bool isCheckRenban = false;
                     // パレット連番の取得
                     for(int i = dataTable.Rows.Count -1; i >= 0; i--)
                     {
@@ -550,9 +582,11 @@ namespace ask_read_data.Servive
                         if(Util.NullToBlank(value) != string.Empty && value != "パレットNo" && value != ExportExcelController.ASHITA_IKO)
                         {
                             paretoRenban = Convert.ToInt32(value);
+                            isCheckRenban = true;
                             break;
                         }
                     }
+                    if(isCheckRenban != true) { paretoRenban = this.ParetoRenban; }
                     //Create the command object
                     SqlCommand cmd = new SqlCommand()
                                                         {

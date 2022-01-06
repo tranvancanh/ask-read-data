@@ -85,9 +85,9 @@
                         <th style="width: 8%" class="align-middle">
                             @Html.DisplayNameFor(model => model.DataTableHeader.FYMD)
                         </th>
-                        <th style="width: 8%" class="align-middle">
+                        @*<th style="width: 8%" class="align-middle">
                             <button class="btn btn-success text-white align-middle btn-sm" data-url="/ExportExcel/Create/" type="button" id="excelpageadd" data-toggle="mastarregaiadd">新規登録</button>
-                        </th>
+                        </th>*@
                     </tr>
                 </thead>
                 <tbody class="align-middle text-center">
@@ -127,9 +127,9 @@
                                 <td class="align-middle text-center">
                                     @Html.DisplayFor(modelItem => item.FYMD)
                                 </td>
-                                <td class="align-middle text-center">
+                                @*<td class="align-middle text-center">
                                     <button class="btn btn-primary responsive-width btn-modal-class btn-sm" type="button" data-url="/ExportExcel/Details?hinban=@item.BUBAN" data-toggle="ajax-modal-mastarregai-modify" data-target="#addEmployee">詳細修正</button>
-                                </td>
+                                </td>*@
                             </tr>
                             Index++;
                         }

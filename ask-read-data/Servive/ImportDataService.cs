@@ -9,6 +9,7 @@ using System.Data.SqlClient;
 using System.Data;
 using System.Security.Claims;
 using ask_read_data.Models.Entity;
+using ask_read_data.Dao;
 
 namespace ask_read_data.Servive
 {
@@ -28,6 +29,8 @@ namespace ask_read_data.Servive
             var ConnectionString = new GetConnectString().ConnectionString;
             var UserName = Claims.Where(c => c.Type == ClaimTypes.Name).First().Value;
             DateTime insertDateTime = Convert.ToDateTime(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+            // インポートの前に、Positionの値をチェックする
+            var position = ImportDataDao.DataImport_Before_CheckPosition(insertDateTime);
             using (var connection = new SqlConnection(ConnectionString))
             {
                 int lineNo = 0;
@@ -284,11 +287,12 @@ namespace ask_read_data.Servive
                                                                 };
 
                         ///////////////////  SetParameter LineNumber  ////////////////////////////////////////////   Position = Position++
+                        position = position + 1;
                         SqlParameter Position = new SqlParameter
                                                                 {
                                                                     ParameterName = "@Position",
                                                                     SqlDbType = SqlDbType.Int,
-                                                                    Value = data.Position,
+                                                                    Value = position,
                                                                     Direction = ParameterDirection.Input
                                                                 };
 

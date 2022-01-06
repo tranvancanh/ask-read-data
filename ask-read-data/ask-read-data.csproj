@@ -31,6 +31,7 @@
 
   <ItemGroup>
     <Folder Include="Areas\Admin\Data\" />
+    <Folder Include="Areas\Admin\Dao\" />
     <Folder Include="wwwroot\DownloadFiles\" />
   </ItemGroup>
 
