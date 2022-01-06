@@ -272,20 +272,24 @@ namespace ask_read_data.Servive
                             }
                         }
                         //  Get Position 
-                        try
+                        var index = MyDataTable.Rows.Count - Balance;
+                        bool isConvert = false;
+                        for(int i = index; i >= 0; i--)
                         {
-                            var value = Convert.ToInt32(position[MyDataTable.Rows.Count - Balance]);
-                            Position = value;
+                            var value = position[i];
+                            if(int.TryParse(value.ToString(), out int j))
+                            {
+                                this.Position = j;
+                                isConvert = true;
+                                break;
+                            }
                         }
-                        catch (FormatException)
-                        {
-                            var value = Convert.ToInt32(position[MyDataTable.Rows.Count - Balance - 1]);
-                            Position = value;
-                        }
-                        catch (Exception)
-                        {
+                        if(isConvert != true) 
+                        { 
+                            this.Position = -1;
                             throw new Exception("Position値に問題がありました");
                         }
+                       
                         //  欠落している行のデータを追加します , 目的: 9倍数を到達する
                         for (int i = 0; i < 9 - Balance; i++)
                         {
@@ -375,18 +379,21 @@ namespace ask_read_data.Servive
                             }
                         }
                         //  Get Position 
-                        try
+                        var index = MyDataTable.Rows.Count - Balance;
+                        bool isConvert = false;
+                        for (int i = index; i >= 0; i--)
                         {
-                            var value = Convert.ToInt32(position[MyDataTable.Rows.Count - Balance]);
-                            Position = value;
+                            var value = position[i];
+                            if (int.TryParse(value.ToString(), out int j))
+                            {
+                                this.Position = j;
+                                isConvert = true;
+                                break;
+                            }
                         }
-                        catch (FormatException)
+                        if (isConvert != true)
                         {
-                            var value = Convert.ToInt32(position[MyDataTable.Rows.Count - Balance - 1]);
-                            Position = value;
-                        }
-                        catch (Exception)
-                        {
+                            this.Position = -1;
                             throw new Exception("Position値に問題がありました");
                         }
                         //  欠落している行のデータを追加します , 目的: 9倍数を到達する
@@ -579,7 +586,7 @@ namespace ask_read_data.Servive
                     for(int i = dataTable.Rows.Count -1; i >= 0; i--)
                     {
                         var value = dataTable.Rows[i]["パレットNo"].ToString();
-                        if(Util.NullToBlank(value) != string.Empty && value != "パレットNo" && value != ExportExcelController.ASHITA_IKO)
+                        if(Util.NullToBlank(value) != string.Empty && value != "パレットNo" && value != ExportExcelController.ASHITA_IKO && isCheckDownload == true)
                         {
                             paretoRenban = Convert.ToInt32(value);
                             isCheckRenban = true;
