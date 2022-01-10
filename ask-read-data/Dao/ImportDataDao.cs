@@ -14,6 +14,7 @@ namespace ask_read_data.Dao
             int position = 0;
             //connection
             SqlConnection connection = null;
+            SqlCommand command = null;
             try
             {
                 var ConnectionString = new GetConnectString().ConnectionString;
@@ -27,7 +28,7 @@ namespace ask_read_data.Dao
                                         FROM [ask_datadb_test].[dbo].[DataImport]
                                         WHERE (1=1)
                                         AND FORMAT(CreateDateTime, 'yyyy-MM-dd') = FORMAT(@dateTime, 'yyyy-MM-dd')";
-                    SqlCommand command = new SqlCommand(commandText, connection);
+                    command = new SqlCommand(commandText, connection);
                     command.Parameters.Add("@dateTime", System.Data.SqlDbType.DateTime).Value = dateTime;
 
                     var positionStart = command.ExecuteScalar();
@@ -36,7 +37,7 @@ namespace ask_read_data.Dao
                          if(i >= 0) { position = i; }
                          else { position = 0; }
                     }
-                    else { throw new Exception("Positionが存在しません"); }
+                    else { position = 0; }
                 }
             }
             catch
@@ -46,6 +47,7 @@ namespace ask_read_data.Dao
             finally
             {
                 if(connection != null) { connection.Close(); }
+                if(command != null) { connection.Dispose(); }
             }
             return position;
         }

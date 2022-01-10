@@ -7,7 +7,9 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using ask_read_data.Commons;
 using ask_read_data.Controllers;
+using ask_read_data.Dao;
 using ask_read_data.Models;
+using ask_read_data.Models.ViewModel;
 using ask_read_data.Repository;
 using ask_tzn_funamiKD.Commons;
 
@@ -15,29 +17,47 @@ namespace ask_read_data.Servive
 {
     public class ExportExcelService : IExportExcel
     {
-        private DateTime CreateDateTime;
+        private DateTime DateTime = new DateTime();
+        private DateTime LastDownloadDateTime = new DateTime();
         private int Position = 0;
         private int ParetoRenban = 0;
-        private DateTime LastDateTime = new DateTime();
-        private bool isCheckDownload = false;
+        private bool isDownloadStatus = false;
 
         private const int MAX_RENBAN_FLOOR_ASSY = 30;
         private const int MAX_RENBAN_FRAME_ASSY = 60;
 
-        public (DataTable, DataTable) GetFloor_Flame_Assy(DateTime dateTime, string bubanType)
+        public (DataTable, DataTable) GetFloor_Flame_Assy(ExportExcelViewModel modelRequset, string bubanType)
         {
-            dateTime = Convert.ToDateTime(new DateTime(dateTime.Year, dateTime.Month, dateTime.Day, 00, 00, 00).ToString("yyyy-MM-dd HH:mm:ss"));
-            if(!CheckDataExists(dateTime, bubanType))
+            var dateStart = new DateTime();
+            var startPosition = 0;
+            var startParetoRenban = 0;
+            switch (bubanType)
             {
-                return (new DataTable(), new DataTable());
+                case ExportExcelController.FL00R_ASSY:
+                    {
+                        dateStart = Convert.ToDateTime(new DateTime(modelRequset.Floor_Assy.Year, modelRequset.Floor_Assy.Month, modelRequset.Floor_Assy.Day, 00, 00, 00).ToString("yyyy-MM-dd HH:mm:ss"));
+                        startPosition = modelRequset.Floor_Position;
+                        startParetoRenban = modelRequset.Floor_ParetoRenban;
+                        break;
+                    }
+                case ExportExcelController.FRAME_ASSY:
+                    {
+                        dateStart = Convert.ToDateTime(new DateTime(modelRequset.Flame_Assy.Year, modelRequset.Flame_Assy.Month, modelRequset.Flame_Assy.Day, 00, 00, 00).ToString("yyyy-MM-dd HH:mm:ss"));
+                        startPosition = modelRequset.Flame_Position;
+                        startParetoRenban = modelRequset.Flame_ParetoRenban;
+                        break;
+                    }
             }
-            CreateDateTime = dateTime;
-            var result = GetZenkaiDowloadInfor(bubanType, dateTime);
-            var lastDateTime = result.Item1;
-            var lastPosition = result.Item2;
-            var lastParetoRenban = result.Item3;
-            lastParetoRenban = CheckRenBan(lastParetoRenban, bubanType);
-            var position = new List<string>();
+            this.DateTime = dateStart;
+            //CreateDateTime = dateTime;
+            //var result = GetZenkaiDowloadInfor(bubanType, dateTime);
+            //var lastDateTime = result.Item1;
+            //var lastPosition = result.Item2;
+            //var lastParetoRenban = result.Item3;
+            //lastParetoRenban = CheckRenBan(lastParetoRenban, bubanType);
+            //var dateStart = dateTime;
+            //var position = new List<string>();
+            var temporaryData = new List<TemporaryData>();
             var MyDataTable = new DataTable();
             DataColumn[] cols ={
                                   new DataColumn("パレットNo",typeof(string)),
@@ -47,16 +67,6 @@ namespace ask_read_data.Servive
                                   new DataColumn("部品略式記号",typeof(string)),
                                   new DataColumn(" ",typeof(string))
                               };
-
-            //DataColumn[] cols ={
-            //                      new DataColumn("パレットNo",typeof(string)),
-            //                      new DataColumn("ラインON",typeof(string)),
-            //                      new DataColumn("SEQ",typeof(string)),
-            //                      new DataColumn("部品番号",typeof(string)),
-            //                      new DataColumn("部品略式記号",typeof(string)),
-            //                      new DataColumn("発送予定日",typeof(string))
-            //                      //new DataColumn("",typeof(string))
-            //                  };
             MyDataTable.Columns.AddRange(cols);
 
             var ConnectionString = new GetConnectString().ConnectionString;
@@ -74,13 +84,6 @@ namespace ask_read_data.Servive
                                                                     CommandType = CommandType.StoredProcedure
                                                                 };
                     cmd.Parameters.Clear();
-                    SqlParameter DateTime = new SqlParameter
-                                                                {
-                                                                    ParameterName = "@DateTime",
-                                                                    SqlDbType = SqlDbType.DateTime,
-                                                                    Value = dateTime,
-                                                                    Direction = ParameterDirection.Input
-                                                                };
                     SqlParameter BubanType = new SqlParameter
                                                                 {
                                                                     ParameterName = "@BubanType",
@@ -90,32 +93,33 @@ namespace ask_read_data.Servive
                                                                 };
 
                     //////////////////////////////////////////////////////////  前回残りをチェック  /////////////////////////////////////////////////////////////
-                    SqlParameter LastDateTime = new SqlParameter
+                    SqlParameter StartDateTime = new SqlParameter
                                                                 {
-                                                                    ParameterName = "@LastDateTime",
+                                                                    ParameterName = "@StartDateTime",
                                                                     SqlDbType = SqlDbType.DateTime,
-                                                                    Value = lastDateTime,
+                                                                    Value = dateStart,
                                                                     Direction = ParameterDirection.Input
                                                                 };
 
-                    SqlParameter LastPosition = new SqlParameter
+                    SqlParameter StartPosition = new SqlParameter
                                                                 {
-                                                                    ParameterName = "@LastPosition",
+                                                                    ParameterName = "@StartPosition",
                                                                     SqlDbType = SqlDbType.Int,
-                                                                    Value = lastPosition,
+                                                                    Value = startPosition,
                                                                     Direction = ParameterDirection.Input
                                                                 };
 
-                    cmd.Parameters.Add(DateTime);
                     cmd.Parameters.Add(BubanType);
-                    cmd.Parameters.Add(LastDateTime);
-                    cmd.Parameters.Add(LastPosition);
+                    cmd.Parameters.Add(StartDateTime);
+                    cmd.Parameters.Add(StartPosition);
                     //SQL実行
                     reader = cmd.ExecuteReader();
-                    int PaletNo = lastParetoRenban + 1;
+                    int PaletNo = startParetoRenban + 1;
                     int index = 0;
-                    // check  Position
-
+                    if (!reader.HasRows)
+                    {
+                        return (new DataTable(), new DataTable());
+                    }
                     while (reader.Read())
                     {
                         if (index == 0)
@@ -132,7 +136,7 @@ namespace ask_read_data.Servive
                                 Row1[" "] = "";
                             }
                             MyDataTable.Rows.Add(Row1);
-                            position.Add("Position");
+                            temporaryData.Add(new TemporaryData());
                         }
                         /**********************中身の体*************************/
                         var Row = MyDataTable.NewRow();
@@ -142,7 +146,7 @@ namespace ask_read_data.Servive
                             Row["ラインON"] = Convert.ToDateTime(reader["WAYMD"].ToString()).Year.ToString() + Convert.ToDateTime(reader["WAYMD"].ToString()).Month.ToString() + Convert.ToDateTime(reader["WAYMD"].ToString()).Day.ToString();
                             Row["SEQ"] = Util.NullToBlank((object)reader["SEQ"]);
                             Row["部品番号"] = Util.NullToBlank(reader["BUBAN"].ToString());
-                            if(bubanType == ExportExcelController.FLOOR_ASSY)
+                            if(bubanType == ExportExcelController.FL00R_ASSY)
                             {
                                 if(Row["部品番号"].ToString() == ExportExcelController.BUHIN_FLOOR_74300WL20P)
                                 {
@@ -155,7 +159,7 @@ namespace ask_read_data.Servive
                                     Row[" "] = Util.NullToBlank(reader["KIGO"].ToString());
                                 }
                             }
-                            else if(bubanType == ExportExcelController.FLAME_ASSY)
+                            else if(bubanType == ExportExcelController.FRAME_ASSY)
                             {
                                 if(Row["部品番号"].ToString() == ExportExcelController.BUHIN_FLAME_743B2W000P)
                                 {
@@ -170,10 +174,10 @@ namespace ask_read_data.Servive
                             }
                             this.ParetoRenban = PaletNo;
                         }
-                        position.Add(Util.NullToBlank(reader["Position"].ToString()));
+                        temporaryData.Add(new TemporaryData() { Position = Util.NullToBlank(reader["Position"].ToString()), CreateDateTime = Convert.ToDateTime(reader["CreateDateTime"].ToString()) });
                         MyDataTable.Rows.Add(Row);
 
-                        if ((bubanType == ExportExcelController.FLOOR_ASSY) && (index % ExportExcelController.PALETNO_FLOOR_ASSY == 0))
+                        if ((bubanType == ExportExcelController.FL00R_ASSY) && (index % ExportExcelController.PALETNO_FLOOR_ASSY == 0))
                         {
                             /**********************中身のヘッダ*************************/
                             Row = MyDataTable.NewRow();
@@ -186,14 +190,14 @@ namespace ask_read_data.Servive
                                 Row[" "] = "";
                             }
                             MyDataTable.Rows.Add(Row);
-                            position.Add("Position");
+                            temporaryData.Add(new TemporaryData());
                             PaletNo++;
                             if(PaletNo > MAX_RENBAN_FLOOR_ASSY)
                             {
                                 PaletNo = 1;
                             }
                         }
-                        else if ((bubanType == ExportExcelController.FLAME_ASSY) && (index % ExportExcelController.PALETNO_FLAME_ASSY == 0))
+                        else if ((bubanType == ExportExcelController.FRAME_ASSY) && (index % ExportExcelController.PALETNO_FLAME_ASSY == 0))
                         {
                             /**********************中身のヘッダ*************************/
                             Row = MyDataTable.NewRow();
@@ -206,7 +210,7 @@ namespace ask_read_data.Servive
                                 Row[" "] = "";
                             }
                             MyDataTable.Rows.Add(Row);
-                            position.Add("Position");
+                            temporaryData.Add(new TemporaryData());
                             PaletNo++;
                             if (PaletNo > MAX_RENBAN_FRAME_ASSY)
                             {
@@ -236,18 +240,17 @@ namespace ask_read_data.Servive
             // Sheet1 と Sheet2は分けること
             // Positionの取得
             int Balance = 0;
-            this.isCheckDownload = true;
+            this.isDownloadStatus = true;
             switch (bubanType)
             {
-                case ExportExcelController.FLOOR_ASSY:
+                case ExportExcelController.FL00R_ASSY:
                     {
                         // 件数 < ExportExcelController.PALETNO_FLOOR_ASSY の場合は、
                         if (MyDataTable.Rows.Count < ExportExcelController.PALETNO_FLOOR_ASSY + 1)
                         {
-                            this.LastDateTime = lastDateTime;
-                            this.Position = lastPosition;
-                            this.ParetoRenban = lastParetoRenban;
-                            this.isCheckDownload = false;
+                            this.Position = startPosition;
+                            this.ParetoRenban = startParetoRenban;
+                            this.isDownloadStatus = false;
                             for (int i = MyDataTable.Rows.Count; i < ExportExcelController.PALETNO_FLOOR_ASSY + 1; i++)
                             {
                                 MyDataTable.Rows.Add("", "", "", "", "", "");
@@ -259,7 +262,7 @@ namespace ask_read_data.Servive
                             { reversedDt.Rows.Add("", "", "", "", "", ""); }
                             break;
                         }
-                        this.isCheckDownload = true;
+                        this.isDownloadStatus = true;
                         Balance = MyDataTable.Rows.Count % (ExportExcelController.PALETNO_FLOOR_ASSY + 1);
                         if (Balance > 0)
                         {
@@ -276,10 +279,11 @@ namespace ask_read_data.Servive
                         bool isConvert = false;
                         for(int i = index; i >= 0; i--)
                         {
-                            var value = position[i];
-                            if(int.TryParse(value.ToString(), out int j))
+                            var value = temporaryData[i];
+                            if(int.TryParse(value.Position.ToString(), out int j))
                             {
                                 this.Position = j;
+                                this.LastDownloadDateTime = value.CreateDateTime;
                                 isConvert = true;
                                 break;
                             }
@@ -343,15 +347,14 @@ namespace ask_read_data.Servive
                         }
                         break;
                     }
-                case ExportExcelController.FLAME_ASSY:
+                case ExportExcelController.FRAME_ASSY:
                     {
                         // 件数 < ExportExcelController.PALETNO_FLAME_ASSY の場合は、
                         if (MyDataTable.Rows.Count < ExportExcelController.PALETNO_FLAME_ASSY + 1)
                         {
-                            this.LastDateTime = lastDateTime;
-                            this.Position = lastPosition;
-                            this.ParetoRenban = lastParetoRenban;
-                            this.isCheckDownload = false;
+                            this.Position = startPosition;
+                            this.ParetoRenban = startParetoRenban;
+                            this.isDownloadStatus = false;
                             for (int i = MyDataTable.Rows.Count; i < ExportExcelController.PALETNO_FLAME_ASSY + 1; i++)
                             {
                                 MyDataTable.Rows.Add("", "", "", "", "", "");
@@ -364,7 +367,7 @@ namespace ask_read_data.Servive
                             break;
                         }
                         var ashitaiko = 0;
-                        this.isCheckDownload = true;
+                        this.isDownloadStatus = true;
                         Balance = MyDataTable.Rows.Count % (ExportExcelController.PALETNO_FLAME_ASSY + 1);
                         if (Balance > 0)
                         {
@@ -383,10 +386,11 @@ namespace ask_read_data.Servive
                         bool isConvert = false;
                         for (int i = index; i >= 0; i--)
                         {
-                            var value = position[i];
-                            if (int.TryParse(value.ToString(), out int j))
+                            var value = temporaryData[i];
+                            if (int.TryParse(value.Position.ToString(), out int j))
                             {
                                 this.Position = j;
+                                this.LastDownloadDateTime = value.CreateDateTime;
                                 isConvert = true;
                                 break;
                             }
@@ -462,7 +466,7 @@ namespace ask_read_data.Servive
         {
             switch (bubanType)
             {
-                case ExportExcelController.FLOOR_ASSY:
+                case ExportExcelController.FL00R_ASSY:
                     {
                         if (lastParetoRenban >= MAX_RENBAN_FLOOR_ASSY)
                         {
@@ -470,7 +474,7 @@ namespace ask_read_data.Servive
                         }
                         break;
                     }
-                case ExportExcelController.FLAME_ASSY:
+                case ExportExcelController.FRAME_ASSY:
                     {
                         if (lastParetoRenban >= MAX_RENBAN_FRAME_ASSY)
                         {
@@ -548,7 +552,6 @@ namespace ask_read_data.Servive
                     connection.Dispose();
                 }
             }
-
             if (statusCode == 200)
             {
                 isExists = true;
@@ -562,18 +565,35 @@ namespace ask_read_data.Servive
         }
         public int RecordDownloadHistory(ref DataTable dataTable, string bubanType, List<Claim> Claims)
         {
+            var UserName = Claims.Where(c => c.Type == ClaimTypes.Name).First().Value;
             var lastDownloadDateTime = new DateTime();
-            if (isCheckDownload)
+            var position = 0;
+            var paretoRenban = 0;
+            if (this.isDownloadStatus)
             {
-                lastDownloadDateTime = CreateDateTime;
+                lastDownloadDateTime = this.LastDownloadDateTime;
+                position = this.Position;
+                bool isCheckRenban = false;
+                // パレット連番の取得
+                for (int i = dataTable.Rows.Count - 1; i >= 0; i--)
+                {
+                    var value = dataTable.Rows[i]["パレットNo"].ToString();
+                    if (Util.NullToBlank(value) != string.Empty && value != "パレットNo" && value != ExportExcelController.ASHITA_IKO)
+                    {
+                        paretoRenban = Convert.ToInt32(value);
+                        isCheckRenban = true;
+                        break;
+                    }
+                }
+                if (isCheckRenban != true) { throw new Exception("パレット連番がおかしいです"); }
             }
             else
             {
-                lastDownloadDateTime = this.LastDateTime;
+                var result = GetZenkaiDowloadInfor(bubanType, DateTime.Today);
+                lastDownloadDateTime = result.Item1;
+                position = result.Item2;
+                paretoRenban = result.Item3;
             }
-            var UserName = Claims.Where(c => c.Type == ClaimTypes.Name).First().Value;
-            int Position = this.Position;
-            var paretoRenban = 0;
             int statusCode = 0;
             int affectedRows = 0;
             var ConnectionString = new GetConnectString().ConnectionString;
@@ -581,19 +601,7 @@ namespace ask_read_data.Servive
             {
                 try
                 {
-                    bool isCheckRenban = false;
-                    // パレット連番の取得
-                    for(int i = dataTable.Rows.Count -1; i >= 0; i--)
-                    {
-                        var value = dataTable.Rows[i]["パレットNo"].ToString();
-                        if(Util.NullToBlank(value) != string.Empty && value != "パレットNo" && value != ExportExcelController.ASHITA_IKO && isCheckDownload == true)
-                        {
-                            paretoRenban = Convert.ToInt32(value);
-                            isCheckRenban = true;
-                            break;
-                        }
-                    }
-                    if(isCheckRenban != true) { paretoRenban = this.ParetoRenban; }
+                    
                     //Create the command object
                     SqlCommand cmd = new SqlCommand()
                                                         {
@@ -621,11 +629,11 @@ namespace ask_read_data.Servive
                                                                 Value = lastDownloadDateTime,
                                                                 Direction = ParameterDirection.Input
                                                             };
-                    SqlParameter Position1 = new SqlParameter
+                    SqlParameter Position = new SqlParameter
                                                             {
                                                                 ParameterName = "@Position",
                                                                 SqlDbType = SqlDbType.Int,
-                                                                Value = Position,
+                                                                Value = position,
                                                                 Direction = ParameterDirection.Input
                                                             };
                     SqlParameter ParetoRenban = new SqlParameter
@@ -653,7 +661,7 @@ namespace ask_read_data.Servive
                                                             };
                     cmd.Parameters.Add(BubanMeiType);
                     cmd.Parameters.Add(LastDownloadDateTime);
-                    cmd.Parameters.Add(Position1);
+                    cmd.Parameters.Add(Position);
                     cmd.Parameters.Add(ParetoRenban);
                     cmd.Parameters.Add(User);
                     cmd.Parameters.Add(StausCode);
@@ -757,6 +765,20 @@ namespace ask_read_data.Servive
             }
 
             return (LastDownloadDateTime, lastPosition, lastParetoRenban);
+        }
+
+        public Tuple<int, int> FindPositionParetoRenban(DateTime date, string bubanType)
+        {
+            var result = ExportExcelDao.GetPositonParetoRenban_Before_Download(date, bubanType);
+            var position = result.Item1;
+            var renban = result.Item2;
+
+            return result;
+        }
+
+        public List<DataModel> FindRemainingDataOfLastTime(string bubanType)
+        {
+            return ExportExcelDao.GetRemainingDataOfLastTime(bubanType);
         }
     }
 }

@@ -16,27 +16,66 @@
     <div class="container-fluid">
         @using (Html.BeginForm("ExportExcel", "ExportExcel", FormMethod.Post))
         {
-            <div class="container float-left">
+            <div class="container-fluid float-left">
                 <div class="row form-group form-inline">
                     <div class="col-md-2">
-                        <input class="form-control text-center col-md-12 col-lg-12 col-xl-12 fw-normal" value="FLOOR ASSY" disabled />
+                        <input class="form-control text-center col-md-10 col-lg-10 col-xl-10 fw-normal" value="FL00R ASSY" disabled />
                     </div>
                     <div class="col-md-2 pl-3 pr-0">
-                        <input class="form-control col-md-12 border border-secondary" id="datetimeFloor" asp-for="@Model.Floor_Assy" type="date" step="1" autocomplete="on" />
+                        <input class="form-control col-md-12 border border-secondary" id="datetimeFloor" asp-for="@Model.Floor_Assy" type="date" step="1" onchange="FloorAssyOnchange()" autocomplete="on" />
                     </div>
-                    <div class="col-md-3">
-                        <button class="col-md-8 col-lg-8 col-xl-8 btn btn-primary btn-sm float-left" type="submit" name="floorassy" value="floorassy" margin-right onclick="ResetTextFunction()">FLOOR ダウンロード</button>
+                    <div class="col-md-2 pr-0">
+                        <input class="form-control text-center col-md-6 col-lg-6 col-xl-6 fw-normal" value="Position" disabled />
+                        <input class="form-control col-md-5 border border-secondary" id="floor_assy_position" type="number" asp-for="@Model.Floor_Position" min="0" step="1" autocomplete="on" />
+                    </div>
+                    <div class="col-md-3 pr-0">
+                        <input class="form-control text-center col-md-6 col-lg-6 col-xl-6 fw-normal" value="パレット連番" disabled />
+                        <input class="form-control col-md-3 border border-secondary" id="floor_assy_paretorenban" type="number" asp-for="@Model.Floor_ParetoRenban" min="0" step="1" autocomplete="on" />
+                    </div>
+                    <div class="col-md-2">
+                        <button class="col-md-12 col-lg-12 col-xl-12 btn btn-primary btn-sm float-left" type="submit" name="floorassy" value="floorassy" margin-right onclick="ResetTextFunction()">FLOOR ダウンロード</button>
                     </div>
                 </div>
                 <div class="row form-group form-inline">
                     <div class="col-md-2">
-                        <input class="form-control text-center col-md-12 col-lg-12 col-xl-12 fw-normal" value="FLAME ASSY" disabled />
+                        <input class="form-control text-center col-md-10 col-lg-10 col-xl-10 fw-normal" value="FRAME ASSY" disabled />
                     </div>
                     <div class="col-md-2 pl-3 pr-0">
-                        <input class="form-control col-md-12 border border-secondary" id="datetimeFlame" asp-for="@Model.Flame_Assy" type="date" step="1" autocomplete="on" />
+                        <input class="form-control col-md-12 border border-secondary" id="datetimeFlame" asp-for="@Model.Flame_Assy" type="date" step="1" onchange="FlameAssyOnchange()" autocomplete="on" />
                     </div>
-                    <div class="col-md-3">
-                        <button class="col-md-8 col-lg-8 col-xl-8 btn btn-primary btn-sm float-left" type="submit" name="flameassy" value="flameassy" margin-right onclick="ResetTextFunction()">FLAME ダウンロード</button>
+                    <div class="col-md-2 pr-0">
+                        <input class="form-control text-center col-md-6 col-lg-6 col-xl-6 fw-normal" value="Position" disabled />
+                        <input class="form-control col-md-5 border border-secondary" id="flame_assy_position" type="number" asp-for="@Model.Flame_Position" min="0" step="1" autocomplete="on" />
+                    </div>
+                    <div class="col-md-3 pr-0">
+                        <input class="form-control text-center col-md-6 col-lg-6 col-xl-6 fw-normal" value="パレット連番" disabled />
+                        <input class="form-control col-md-3 border border-secondary" id="flame_assy_paretorenban" type="number" asp-for="@Model.Flame_ParetoRenban" min="0" step="1" autocomplete="on" />
+                    </div>
+                    <div class="col-md-2">
+                        <button class="col-md-12 col-lg-12 col-xl-12 btn btn-primary btn-sm float-left" type="submit" name="flameassy" value="flameassy" margin-right onclick="ResetTextFunction()">FLAME ダウンロード</button>
+                    </div>
+                </div>
+                <br />
+                @*/*///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/*@
+                <div class="row form-group form-inline">
+                    <div class="col-md-4">
+                        @if (Model.SelectList != null)
+                        {
+                            @Html.DropDownList("selectlist", Model.SelectList, "前回残りデータ", new { @class = "form-control col-md-12 border border-secondary", @id = "drop-typeflagname", @style = "width: 100%;" })
+                        }
+                    </div>
+                    <div class="col-md-2 pl-3 pr-0">
+                        <select class="form-control col-md-12 border border-secondary" style="width: 100%;" asp-for="@Model.BubanType" aria-label="Default select example">
+                            <option selected value="ALL">ALL</option>
+                            <option value="FL00R">FL00R ASSY</option>
+                            <option value="FRAME">FRAME ASSY</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 pl-3 pr-0">
+                        <input class="form-control col-md-12 border border-secondary" id="datetimeFlame" asp-for="@Model.SearchDate" type="date" step="1" autocomplete="on" />
+                    </div>
+                    <div class="col-md-2">
+                        <button class="col-md-12 col-lg-12 col-xl-12 btn btn-primary btn-sm float-left" type="submit" name="searchbtn" value="search" margin-right onclick="ResetTextFunction()">検索</button>
                     </div>
                 </div>
                 <div class="row form-group form-inline">
@@ -52,15 +91,77 @@
     </div>
     <br />
     <br />
-
+</div>
+<div>
+    <div class="container-fluid h4">
+        <p id="demo_FLOOR"></p>
+        <p id="demo_FLAME"></p>
+    </div>
+</div>
+<div>
+    @await Html.PartialAsync("_Data", Model.ListData)
 </div>
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-
     <script type="text/javascript">
+        $(document).ready(function () {
+            $('#exportexcelpartial').DataTable();
+            //FloorAssyOnchange();
+            //var delayInMilliseconds = 1000; //2 second
+            //setTimeout(function () {
+            //    //your code to be executed after 2 second
+            //    FlameAssyOnchange();
+            //}, delayInMilliseconds);
+        });
         function ResetTextFunction() {
             document.getElementById("error").innerHTML = "";
             document.getElementById("statussucsess").innerHTML = "";
+        }
+        function FloorAssyOnchange() {
+            let x = document.getElementById("datetimeFloor").value;
+            //document.getElementById("demo_FLOOR").innerHTML = "You selected floor: " + x;
+            GetPositionParetoRenbanAjax(x, "floorassy");
+        }
+        function FlameAssyOnchange() {
+            let x = document.getElementById("datetimeFlame").value;
+            //document.getElementById("demo_FLAME").innerHTML = "You selected flame: " + x;
+            GetPositionParetoRenbanAjax(x, "flameassy");
+        }
+        function GetPositionParetoRenbanAjax(x, bubantype) {
+            let date = x;
+            $.ajax({
+                url: '/ExportExcel/GetPositionParetoRenban',
+                type: "POST",
+                data: { date: date, bubantype: bubantype },
+                success: function (response) {
+                    ////success
+                    if (response.statusCode === true) {
+                        // alert(response.position + '====' + response.renban);
+                        switch (bubantype) {
+                            case "floorassy": {
+                                document.getElementById("floor_assy_position").value = response.position;
+                                document.getElementById("floor_assy_paretorenban").value = response.renban;
+                                break;
+                            }
+                            case "flameassy": {
+                                document.getElementById("flame_assy_position").value = response.position;
+                                document.getElementById("flame_assy_paretorenban").value = response.renban;
+                                break;
+                            }
+                            default: {
+                                //alert("button error");
+                                break;
+                            }
+                        }
+                    }
+                    else {
+                        //alert(response.statusCode);
+                    }
+                },
+                error: function (err) {
+                    //alert(err.statusCode);
+                }
+            });
         }
     </script>
 }

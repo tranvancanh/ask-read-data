@@ -1,0 +1,121 @@
+﻿
+@model ask_read_data.Models.ViewModel.DataViewModel
+
+<div>
+    <div class="container-fluid">
+        <br />
+        <br />
+        <div style="font-size: small">
+            <table id="exportexcelpartial" class="table table-white table-striped table-bordered table-sm table-bordered">
+                <thead class="align-middle text-center thead-light">
+                    <tr class="form-group">
+                        <th style="width: 2%" class="align-middle">No</th>
+                        <th style="width: 10%" class="align-middle">
+                            @Html.DisplayNameFor(model => model.DataTableHeader.WAYMD)
+                        </th>
+                        <th style="width: 3%" class="align-middle">
+                            @Html.DisplayNameFor(model => model.DataTableHeader.SEQ)
+                        </th>
+                        <th style="width: 8%" class="align-middle">
+                            @Html.DisplayNameFor(model => model.DataTableHeader.KATASIKI)
+                        </th>
+                        <th style="width: 7%" class="align-middle">
+                            @Html.DisplayNameFor(model => model.DataTableHeader.JIKU)
+                        </th>
+                        <th style="width: 8%" class="align-middle">
+                            @Html.DisplayNameFor(model => model.DataTableHeader.BUBAN)
+                        </th>
+                        <th style="width: 8%" class="align-middle">
+                            @Html.DisplayNameFor(model => model.DataTableHeader.KIGO)
+                        </th>
+                        <th style="width: 7%" class="align-middle">
+                            @Html.DisplayNameFor(model => model.DataTableHeader.MAKR)
+                        </th>
+                        <th style="width: 15%" class="align-middle">
+                            @Html.DisplayNameFor(model => model.DataTableHeader.MEWISYO)
+                        </th>
+                        <th style="width: 10%" class="align-middle">
+                            @Html.DisplayNameFor(model => model.DataTableHeader.FYMD)
+                        </th>
+                        <th style="width: 10%" class="align-middle">
+                            @Html.DisplayNameFor(model => model.DataTableHeader.FileName)
+                        </th>
+                        <th style="width: 4%" class="align-middle">
+                            @Html.DisplayNameFor(model => model.DataTableHeader.Position)
+                        </th>
+                        <th style="width: 10%" class="align-middle">
+                            @Html.DisplayNameFor(model => model.DataTableHeader.CreateDateTime)
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="align-middle text-center">
+                    @if (Model != null && Model.DataTableBody.Count > 0)
+                    {
+                        int Index = 1;
+                        @foreach (var item in Model.DataTableBody)
+                        {
+                    <tr class="form-group text-center align-middle text-center font-weight-normal">
+                        <td class="align-middle text-center">
+                            @Index
+                        </td>
+                        <td class="align-middle text-center">
+                            @Html.DisplayFor(modelItem => item.WAYMD)
+                        </td>
+                        <td class="align-middle text-center">
+                            @Html.DisplayFor(modelItem => item.SEQ)
+                        </td>
+                        <td class="align-middle text-center">
+                            @Html.DisplayFor(modelItem => item.KATASIKI)
+                        </td>
+                        <td class="align-middle text-center">
+                            @Html.DisplayFor(modelItem => item.JIKU)
+                        </td>
+                        <td class="align-middle text-center">
+                            @Html.DisplayFor(modelItem => item.BUBAN)
+                        </td>
+                        <td class="align-middle text-center">
+                            @Html.DisplayFor(modelItem => item.KIGO)
+                        </td>
+                        <td class="align-middle text-center">
+                            @Html.DisplayFor(modelItem => item.MAKR)
+                        </td>
+                        <td class="align-middle text-center">
+                            @Html.DisplayFor(modelItem => item.MEWISYO)
+                        </td>
+                        <td class="align-middle text-center">
+                            @Html.DisplayFor(modelItem => item.FYMD)
+                        </td>
+                        <td class="align-middle text-center">
+                            @Html.DisplayFor(modelItem => item.FileName)
+                        </td>
+                        <td class="align-middle text-center">
+                            @Html.DisplayFor(modelItem => item.Position)
+                        </td>
+                        <td class="align-middle text-center">
+                            @Html.DisplayFor(modelItem => item.CreateDateTime)
+                        </td>
+                    </tr>
+                            Index++;
+                        }
+                    }
+                    else
+                    {
+                        <p class="h6 text-center text-danger">0行が影響を受けるため, その他の条件で検索してください</p>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<br />
+<br />
+<br />
+@*@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#exportexcelpartial').DataTable();
+        });
+    </script>
+}*@

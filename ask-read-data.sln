@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31702.278
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ask-read-data", "ask-read-data\ask-read-data.csproj", "{C59E9D6D-D91F-487C-A6F6-BB28A04C60DF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ask-read-data", "ask-read-data\ask-read-data.csproj", "{C59E9D6D-D91F-487C-A6F6-BB28A04C60DF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

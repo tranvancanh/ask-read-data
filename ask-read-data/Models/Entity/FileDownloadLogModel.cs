@@ -21,7 +21,7 @@ namespace ask_read_data.Models.Entity
 
         public FileDownloadLogModel()
         {
-            BubanMeiType = Controllers.ExportExcelController.FLOOR_ASSY;
+            BubanMeiType = Controllers.ExportExcelController.FL00R_ASSY;
             LastImportDateTime = new DateTime(1900, 01, 01, 00, 00, 00);
             Position = 0;
             DownloadDateTime = new DateTime(1900, 01, 01, 00, 00, 00);

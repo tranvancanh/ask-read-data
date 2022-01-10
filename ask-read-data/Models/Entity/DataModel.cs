@@ -64,13 +64,19 @@ namespace ask_read_data.Models
 
         public string SEHINJNO { get; set; }
 
+        [Display(Name = "ファイル名")]
         public string FileName { get; set; }
 
         public int LineNumber { get; set; }
 
+        [Display(Name = "Position")]
         public int Position { get; set; }
 
         public string UpBy { get; set; }
+
+        [Display(Name = "作成時間")]
+        [DataType(DataType.DateTime)]
+        public DateTime CreateDateTime { get; set; }
 
         public string CreateBy { get; set; }
 
@@ -102,6 +108,7 @@ namespace ask_read_data.Models
             FileName = "tozan.abc";
             LineNumber = 0;
             UpBy = "";     //(new UserInfor()).UserInfo().UserName;
+            CreateDateTime = new DateTime(1900, 01, 01, 00, 00, 00);
             CreateBy = ""; // new UserInfor().UserInfo().UserName;
 
         }

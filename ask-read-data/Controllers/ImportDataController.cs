@@ -272,8 +272,8 @@ namespace ask_read_data.Controllers
                         select item).FirstOrDefault();
 
             StringComparison comp = StringComparison.OrdinalIgnoreCase;
-            bool check1 = meWiSyo.Contains(ExportExcelController.FLOOR_ASSY, comp);
-            bool check2 = meWiSyo.Contains(ExportExcelController.FLAME_ASSY, comp);
+            bool check1 = meWiSyo.Contains(ExportExcelController.FL00R_ASSY, comp);
+            bool check2 = meWiSyo.Contains(ExportExcelController.FRAME_ASSY, comp);
             if (item1 == null)
             {
                 if (check1)

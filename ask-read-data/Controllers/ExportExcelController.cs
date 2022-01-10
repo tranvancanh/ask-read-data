@@ -5,6 +5,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using ask_read_data.Commons;
 using ask_read_data.Models.ViewModel;
 using ask_read_data.Repository;
 using mclogi.common;
@@ -12,6 +13,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
+using System.Diagnostics;
+using Newtonsoft.Json;
 
 namespace ask_read_data.Controllers
 {
@@ -26,8 +29,8 @@ namespace ask_read_data.Controllers
         public const string BUHIN_FLAME_743B2W010P = "743B2W010P";
 
         /****************************部番略式記号*************************************/
-        public const string FLOOR_ASSY = "FL00R ASSY";
-        public const string FLAME_ASSY = "FRAME ASSY";
+        public const string FL00R_ASSY = "FL00R ASSY";
+        public const string FRAME_ASSY = "FRAME ASSY";
 
         /****************************入数*************************************/
         public const int PALETNO_FLOOR_ASSY = 8;
@@ -46,7 +49,7 @@ namespace ask_read_data.Controllers
         private const string ASUKA_FL00R_ASSY_TEMPLATE = @"wwwroot\FormatFile\ASUKA_FL00R_ASSY_TEMPLATE_序列表.xlsx";
         private const string ASUKA_FRAME_ASSY_TEMPLATE = @"wwwroot\FormatFile\ASUKA_FRAME_ASSY_TEMPLATE_序列表.xlsx";
 
-        public const int STEP_PAGE = 38; 
+        public const int STEP_PAGE = 38;
 
         private readonly IExportExcel _excelExport;
         public ExportExcelController(IExportExcel excelExport)
@@ -56,11 +59,23 @@ namespace ask_read_data.Controllers
         [HttpGet]
         public IActionResult ExportExcel()
         {
-            return View(new ExportExcelViewModel());
+            var viewModel = new ExportExcelViewModel();
+            var bubantype = "";
+            bubantype = FL00R_ASSY;
+            var result1 = _excelExport.FindPositionParetoRenban(viewModel.Floor_Assy, bubantype);
+            viewModel.Floor_Position = result1.Item1;
+            viewModel.Floor_ParetoRenban = result1.Item2;
+            bubantype = FRAME_ASSY;
+            var result2 = _excelExport.FindPositionParetoRenban(viewModel.Flame_Assy, bubantype);
+            viewModel.Flame_Position = result2.Item1;
+            viewModel.Flame_ParetoRenban = result2.Item2;
+            viewModel.ListData = new DataViewModel() { DataTableHeader = new Models.DataModel(), DataTableBody = _excelExport.FindRemainingDataOfLastTime("ALL")};
+             
+            return View(viewModel);
         }
 
         [HttpPost]
-        public IActionResult ExportExcel(ExportExcelViewModel modelRequset, string floorassy, string flameassy)
+        public IActionResult ExportExcel(ExportExcelViewModel modelRequset, string floorassy, string flameassy, string searchbtn)
         {
             if (!ModelState.IsValid)
             {
@@ -74,26 +89,26 @@ namespace ask_read_data.Controllers
             var tempFile = "";
             List<string> sheetName = new List<string>();
             /////////////////////////////////////////////////////////////////////////////////////////////////////
-            string button = floorassy + flameassy;
+            string button = floorassy + flameassy + searchbtn;
             try
             {
                 switch (button)
                 {
                     case "floorassy":
                         {
-                            BubanMeiType = FLOOR_ASSY;
-                            var dt = _excelExport.GetFloor_Flame_Assy(modelRequset.Floor_Assy, FLOOR_ASSY);
+                            BubanMeiType = FL00R_ASSY;
+                            var dt = _excelExport.GetFloor_Flame_Assy(modelRequset, FL00R_ASSY);
                             dt1 = dt.Item1;
                             dt2 = dt.Item2;
-                            filename = "FLOOR_ASSY_出荷分序列データー_"+ modelRequset.Floor_Assy.Year.ToString().Substring(2,2) + modelRequset.Floor_Assy.ToString("MM") + modelRequset.Floor_Assy.ToString("dd");
+                            filename = "FLOOR_ASSY_出荷分序列データー_" + modelRequset.Floor_Assy.Year.ToString().Substring(2, 2) + modelRequset.Floor_Assy.ToString("MM") + modelRequset.Floor_Assy.ToString("dd");
                             sheetName = new List<string>() { FLOORASSY_SHEET1, FLOORASSY_SHEET2 };
                             tempFile = ASUKA_FL00R_ASSY_TEMPLATE;
                             break;
                         }
                     case "flameassy":
                         {
-                            BubanMeiType = FLAME_ASSY;
-                            var dt = _excelExport.GetFloor_Flame_Assy(modelRequset.Flame_Assy, FLAME_ASSY);
+                            BubanMeiType = FRAME_ASSY;
+                            var dt = _excelExport.GetFloor_Flame_Assy(modelRequset, FRAME_ASSY);
                             dt1 = dt.Item1;
                             dt2 = dt.Item2;
                             filename = "FLAME_ASSY_出荷分序列データー_" + modelRequset.Flame_Assy.Year.ToString().Substring(2, 2) + modelRequset.Flame_Assy.ToString("MM") + modelRequset.Flame_Assy.ToString("dd");
@@ -101,20 +116,24 @@ namespace ask_read_data.Controllers
                             tempFile = ASUKA_FRAME_ASSY_TEMPLATE;
                             break;
                         }
+                    case "search":
+                        {
+                            return View(CopyExportExcelViewModel(modelRequset));
+                        }
                     default:
                         {
                             //dt = null;
                             ViewData["error"] = "ボタンがおかしいです";
-                            return View();
+                            return View(new ExportExcelViewModel());
                         }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 var error = ex.Message;
                 //var GetType = ex.GetType;
                 TempData["error"] = "ダウンロードに失敗しました " + error + "| Exception Type: " + ex.GetType().ToString();
-                return View();
+                return View(new ExportExcelViewModel());
             }
             // 出力フォルダパス
             var rootPath = Directory.GetCurrentDirectory();
@@ -136,11 +155,11 @@ namespace ask_read_data.Controllers
 
             try
             {
-                if(dt1.Rows.Count <= 0 || dt2.Rows.Count <=0)
+                if (dt1.Rows.Count <= 0 || dt2.Rows.Count <= 0)
                 {
 
-                    TempData["error"] = "その日付はデータが存在していませんのでダウンロードに失敗しました";
-                    return View();
+                    TempData["error"] = "データが存在していませんのでダウンロードに失敗しました";
+                    return View(new ExportExcelViewModel());
                 }
                 // Excelファイル生成
                 Utility util = new Utility();
@@ -191,30 +210,97 @@ namespace ask_read_data.Controllers
 
                     // 出力に成功したら、ファイルダウンロード
                     var file = System.IO.File.ReadAllBytes(expPath);
-                    if(_excelExport.RecordDownloadHistory(ref dt1, BubanMeiType, Claims) > 0)
+                    if (_excelExport.RecordDownloadHistory(ref dt1, BubanMeiType, Claims) > 0)
                     {
                         TempData["error"] = null;
                         TempData["success"] = "ダウンロードに成功しました";
-                        return File(file, System.Net.Mime.MediaTypeNames.Application.Octet, outputFilename);
+                        return File(file, System.Net.Mime.MediaTypeNames.Application.Octet, outputFilename, true);
                     }
                     TempData["error"] = "ダウンロードに失敗しました";
-                    return File(file, System.Net.Mime.MediaTypeNames.Application.Octet, outputFilename);
+                    return File(file, System.Net.Mime.MediaTypeNames.Application.Octet, outputFilename, true);
                 }
                 else
                 {
                     TempData["error"] = "ダウンロードに失敗しました";
-                    return View();
+                    return View(new ExportExcelViewModel());
                 }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+                //var GetType = ex.GetType;
+                TempData["error"] = "ダウンロードに失敗しました " + error + "| Exception Type: " + ex.GetType().ToString();
+                return View(new ExportExcelViewModel());
+            }
+
+            // return View(modelRequset);
+        }
+
+        public JsonResult GetPositionParetoRenban(DateTime date, string bubantype)
+        {
+            var position = 0;
+            var renban = 0;
+            var result = new Tuple <int,int>( 0, 0);
+            try
+            {
+                switch (bubantype)
+                {
+                    case "floorassy":
+                        {
+                            bubantype = FL00R_ASSY;
+                            result = _excelExport.FindPositionParetoRenban(date, bubantype);
+                            position = result.Item1;
+                            renban = result.Item2;
+                            break;
+                        }
+                    case "flameassy":
+                        {
+                            bubantype = FRAME_ASSY;
+                            result = _excelExport.FindPositionParetoRenban(date, bubantype);
+                            position = result.Item1;
+                            renban = result.Item2;
+                            break;
+                        }
+                    default:
+                        {
+                            ViewData["error"] = "ボタンがおかしいです";
+                            return Json(new { StatusCode = false, Mess = "error" });
+                        }
+                }
+            }
+            catch(Exception ex)
+            {
+                ErrorInfor.DebugWriteLineError(ex);
+                Debug.WriteLine("========================================================================================");
+                return Json(new { StatusCode = false, Mess = "error" });
+            }
+
+            return Json(new { StatusCode = true, position = position, renban = renban });
+        }
+        private ExportExcelViewModel CopyExportExcelViewModel(ExportExcelViewModel viewModel)
+        {
+            try
+            {
+                var result1 = _excelExport.FindPositionParetoRenban(viewModel.Floor_Assy, FL00R_ASSY);
+                viewModel.Floor_Position = result1.Item1;
+                viewModel.Floor_ParetoRenban = result1.Item2;
+
+                var result2 = _excelExport.FindPositionParetoRenban(viewModel.Flame_Assy, FRAME_ASSY);
+                viewModel.Flame_Position = result2.Item1;
+                viewModel.Flame_ParetoRenban = result2.Item2;
+
+                viewModel.ListData = new DataViewModel() { DataTableHeader = new Models.DataModel(), DataTableBody = _excelExport.FindRemainingDataOfLastTime(viewModel.BubanType) };
+
             }
             catch(Exception ex)
             {
                 var error = ex.Message;
                 //var GetType = ex.GetType;
-                TempData["error"] = "ダウンロードに失敗しました " + error + "| Exception Type: " + ex.GetType().ToString();
-                return View();
+                TempData["error"] = "途中にエラーが発生しました!";
+                return new ExportExcelViewModel();
             }
-            
-           // return View(modelRequset);
+           
+            return viewModel;
         }
     }
 }

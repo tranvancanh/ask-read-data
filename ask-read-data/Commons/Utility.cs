@@ -1132,7 +1132,7 @@ namespace mclogi.common
             {
                 switch(buBanType)
                 {
-                    case ExportExcelController.FLOOR_ASSY:
+                    case ExportExcelController.FL00R_ASSY:
                         {
                             int maxRows = 0;
                             int pageNo = Convert.ToInt32(Math.Ceiling((decimal)data.Rows.Count / 36));
@@ -1298,7 +1298,7 @@ namespace mclogi.common
                             }
                             break;
                         }
-                    case ExportExcelController.FLAME_ASSY:
+                    case ExportExcelController.FRAME_ASSY:
                         {
                             int maxRows = 0;
                             int pageNo = Convert.ToInt32(Math.Ceiling((decimal)data.Rows.Count / 35));
@@ -1481,19 +1481,19 @@ namespace mclogi.common
             //worksheet.Cells.Style.Font.Name = "游ゴシック"; //Default Font name for whole sheet
             
             // タイトル行が指定されているときは、タイトル行をセットする
-            if (buBanType == ExportExcelController.FLOOR_ASSY && sheetNo == "sheet1")
+            if (buBanType == ExportExcelController.FL00R_ASSY && sheetNo == "sheet1")
             {
                 worksheet.Cells[index, 1].Value = "【出荷確認用】FLOOR ASSY";
             }
-            else if (buBanType == ExportExcelController.FLOOR_ASSY && sheetNo == "sheet2")
+            else if (buBanType == ExportExcelController.FL00R_ASSY && sheetNo == "sheet2")
             {
                 worksheet.Cells[index, 1].Value = "【生産用】FlOOR ASSY";
             }
-            else if (buBanType == ExportExcelController.FLAME_ASSY && sheetNo == "sheet1")
+            else if (buBanType == ExportExcelController.FRAME_ASSY && sheetNo == "sheet1")
             {
                 worksheet.Cells[index, 1].Value = "【出荷確認用】FLAME ASSY";
             }
-            else if (buBanType == ExportExcelController.FLAME_ASSY && sheetNo == "sheet2")
+            else if (buBanType == ExportExcelController.FRAME_ASSY && sheetNo == "sheet2")
             {
                 worksheet.Cells[index, 1].Value = "【生産用】FLAME  ASSY";
             }
