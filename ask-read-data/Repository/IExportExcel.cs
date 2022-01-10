@@ -14,6 +14,7 @@ namespace ask_read_data.Repository
         (DataTable, DataTable) GetFloor_Flame_Assy(ExportExcelViewModel modelRequset, string bubanType);
         int RecordDownloadHistory(ref DataTable dataTable, string bubanType, List<Claim> Claims);
         Tuple<int, int> FindPositionParetoRenban(DateTime date, string bubanType);
-        List<DataModel> FindRemainingDataOfLastTime(string bubanType);
+        List<DataModel> FindRemainingDataOfLastTime(ExportExcelViewModel viewModel);
+        List<string> FindDropList(DateTime date);
     }
 }

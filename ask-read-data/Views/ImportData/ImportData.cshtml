@@ -4,10 +4,10 @@
 @{ ViewData["Title"] = "データ取り込み"; }
 <div class="row">
     <div class="col-lg-6 ml-2">
-        <div class="h4 mb-3 text-gray-800">
+        <div class="h4 text-gray-800">
             @ViewData["Title"]
         </div>
-        <div class="card shadow mb-4">
+        <div class="card shadow">
             @using (Html.BeginForm("ImportData", "ImportData", FormMethod.Post, new { enctype = "multipart/form-data", id = "data-upload-form", onsubmit = "return true" }))
             {
                 <div class="card-header text-gray-800">

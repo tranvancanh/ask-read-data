@@ -776,9 +776,15 @@ namespace ask_read_data.Servive
             return result;
         }
 
-        public List<DataModel> FindRemainingDataOfLastTime(string bubanType)
+        public List<DataModel> FindRemainingDataOfLastTime(ExportExcelViewModel viewModel)
         {
-            return ExportExcelDao.GetRemainingDataOfLastTime(bubanType);
+            var bubanType = viewModel.BubanType;
+            return ExportExcelDao.GetRemainingDataOfLastTime(viewModel);
+        }
+
+        public List<string> FindDropList(DateTime date)
+        {
+            return ExportExcelDao.GetDropListItems(date);
         }
     }
 }

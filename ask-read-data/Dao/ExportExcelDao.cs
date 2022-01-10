@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ask_read_data.Commons;
 using ask_read_data.Models;
+using ask_read_data.Models.ViewModel;
 using ask_tzn_funamiKD.Commons;
 
 namespace ask_read_data.Dao
@@ -58,7 +59,7 @@ namespace ask_read_data.Dao
             }
             finally
             {
-                if (connection != null) { connection.Close(); }
+                if (connection != null) { connection.Close(); connection.Dispose(); }
                 if(reader != null) { reader.Dispose(); }
             }
             var result = new Tuple<int, int>(Position, Renban);
@@ -66,8 +67,9 @@ namespace ask_read_data.Dao
             return result;
         }
 
-        public static List<DataModel> GetRemainingDataOfLastTime(string bubanType)
+        public static List<DataModel> GetRemainingDataOfLastTime(ExportExcelViewModel viewModel)
         {
+            var bubanType = viewModel.BubanType;
             var objList = new List<DataModel>();
             //connection
             SqlConnection connection = null;
@@ -121,7 +123,7 @@ namespace ask_read_data.Dao
                                 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                                 connection = new SqlConnection(ConnectionString);
                                 if (connection.State == System.Data.ConnectionState.Closed) { connection.Open(); }
-                                commandText = $@"SELECT TOP (100) *
+                                commandText = $@"SELECT TOP (2000) *
                                       FROM [ask_datadb_test].[dbo].[DataImport]
                                       where (1=1)
                                       AND MEWISYO LIKE 
@@ -132,6 +134,20 @@ namespace ask_read_data.Dao
                                       END
                                       AND FORMAT(CreateDateTime, 'yyyy-MM-dd') = FORMAT(CAST(@lastDownloadDateTime AS date), 'yyyy-MM-dd')
                                       AND Position > @position
+                                    
+                                    UNION ALL
+                                    
+                                    SELECT TOP (2000) *
+                                      FROM [ask_datadb_test].[dbo].[DataImport]
+                                      where (1=1)
+                                      AND MEWISYO LIKE 
+                                      CASE WHEN @BubanType = 'FL00R' THEN '%FL00R ASSY%' 
+                                           WHEN @BubanType = 'FRAME' THEN '%FRAME ASSY%' 
+                                      ELSE
+                                          '%ASSY%'
+                                      END
+                                      AND FORMAT(CreateDateTime, 'yyyy-MM-dd') > FORMAT(CAST(@lastDownloadDateTime AS date), 'yyyy-MM-dd')
+
                                       ORDER BY CreateDateTime DESC, Position DESC";
                                 command = new SqlCommand(commandText, connection);
                                 command.Parameters.Clear();
@@ -224,6 +240,13 @@ namespace ask_read_data.Dao
                                                   AND MEWISYO LIKE '%FL00R%' 
                                                   AND FORMAT(CreateDateTime, 'yyyy-MM-dd') = FORMAT(CAST(@lastDownloadDateTime1 AS date), 'yyyy-MM-dd')  
                                                   AND [Position] > @position1
+                                                
+                                                UNION ALL
+                                                
+                                                 SELECT * FROM [ask_datadb_test].[dbo].[DataImport]
+                                                  WHERE (1=1)
+                                                  AND MEWISYO LIKE '%FL00R%' 
+                                                  AND FORMAT(CreateDateTime, 'yyyy-MM-dd') > FORMAT(CAST(@lastDownloadDateTime1 AS date), 'yyyy-MM-dd')
 
                                                 UNION ALL 
                                                 ------------------------------------------------------ FRAME Data --------------------------------------
@@ -232,6 +255,14 @@ namespace ask_read_data.Dao
                                                   AND MEWISYO LIKE '%FRAME%' 
                                                   AND FORMAT(CreateDateTime, 'yyyy-MM-dd') = FORMAT(CAST(@lastDownloadDateTime2 AS date), 'yyyy-MM-dd')  
                                                   AND [Position] > @position2
+                                                
+                                                UNION ALL
+
+                                                SELECT * FROM [ask_datadb_test].[dbo].[DataImport]
+                                                  WHERE (1=1)
+                                                  AND MEWISYO LIKE '%FRAME%' 
+                                                  AND FORMAT(CreateDateTime, 'yyyy-MM-dd') > FORMAT(CAST(@lastDownloadDateTime2 AS date), 'yyyy-MM-dd')
+
                                                   ORDER BY MEWISYO ASC, CreateDateTime DESC, Position DESC";
                                 command = new SqlCommand(commandText, connection);
                                 command.Parameters.Clear();
@@ -278,6 +309,121 @@ namespace ask_read_data.Dao
             }
 
             return objList;
+        }
+
+        public static List<string> GetDropListItems(DateTime date)
+        {
+            var list = new List<string>();
+            //connection
+            SqlConnection connection = null;
+            SqlDataReader reader = null;
+            try
+            {
+                var ConnectionString = new GetConnectString().ConnectionString;
+                using (connection = new SqlConnection(ConnectionString))
+                {
+                    //open
+                    connection.Open();
+                    //commmand
+                    var commandText = $@"SELECT * FROM (
+                                       ------------------------------------------------------ FL00R Data -------------------------------------
+                                                        SELECT
+                                                        * FROM [ask_datadb_test].[dbo].[File_Download_Log]
+                        
+                                                          WHERE (1=1)
+                                                          AND BubanMeiType LIKE '%FL00R ASSY%' 
+                                                          AND FORMAT(LastDownloadDateTime, 'yyyy-MM-dd') < FORMAT(@date, 'yyyy-MM-dd')
+                        
+                                                          ORDER BY LastDownloadDateTime DESC, DownloadDateTime DESC
+                                                          OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY
+                                        ------------------------------------------------------ FRAME Data -------------------------------------
+                                                    UNION ALL
+
+                                                     SELECT
+                                                         * FROM [ask_datadb_test].[dbo].[File_Download_Log]
+                                
+                                                           WHERE (1=1)
+                                                           AND BubanMeiType LIKE '%FRAME ASSY%' 
+                                                           AND FORMAT(LastDownloadDateTime, 'yyyy-MM-dd') < FORMAT(@date, 'yyyy-MM-dd')
+                                
+                                                           ORDER BY LastDownloadDateTime DESC, DownloadDateTime DESC
+                                                           OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY
+                                                          ) NEWTABLE";
+
+                    SqlCommand command = new SqlCommand(commandText, connection);
+                    command.Parameters.Add("@date", System.Data.SqlDbType.DateTime).Value = date;
+
+                    reader = command.ExecuteReader();
+                    var BubanMeiType1 = "";
+                    var lastDownloadDateTime1 = new DateTime(1900, 01, 01, 00, 00, 00);
+                    var position1 = 0;
+
+                    var BubanMeiType2 = "";
+                    var lastDownloadDateTime2 = new DateTime(1900, 01, 01, 00, 00, 00);
+                    var position2 = 0;
+                    var str = "前回残りデータ :";
+                    if (reader.HasRows)
+                    {
+                        while (reader.Read())
+                        {
+                            if (Util.NullToBlank(reader["BubanMeiType"].ToString()).Contains("FL00R"))
+                            {
+                                BubanMeiType1 = "FL00R ASSY";
+                                lastDownloadDateTime1 = Convert.ToDateTime((object)reader["LastDownloadDateTime"]);
+                                position1 = Util.NullToBlank((object)reader["Position"]);
+                                str = str + $@"FL00R ASSY: {lastDownloadDateTime1.ToString("yyyy/MM/dd")}, Position: {position1}
+                                            ";
+                            }
+                            else if (Util.NullToBlank(reader["BubanMeiType"].ToString()).Contains("FRAME"))
+                            {
+                                BubanMeiType2 = "FRAME ASSY";
+                                lastDownloadDateTime2 = Convert.ToDateTime((object)reader["LastDownloadDateTime"]);
+                                position2 = Util.NullToBlank((object)reader["Position"]);
+                                str = str + $@"FRAME ASSY: {lastDownloadDateTime2.ToString("yyyy/MM/dd")}, Position: {position2}
+                                            ";
+                            }
+                        }
+                        list.Add(str);
+                    }
+                    else { return list = new List<string>(); }
+                    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                    connection = new SqlConnection(ConnectionString);
+                    if (connection.State == System.Data.ConnectionState.Closed) { connection.Open(); }
+                    commandText = $@"SELECT TOP(5) FORMAT(CreateDateTime, 'yyyy-MM-dd') AS CreateDateTime
+                                                  ,MAX(Position) AS MaxPosition
+                                            FROM [ask_datadb_test].[dbo].[DataImport]
+
+                                            WHERE FORMAT(CreateDateTime, 'yyyy-MM-dd') < FORMAT(CAST(@date AS date), 'yyyy-MM-dd')
+                                            GROUP BY FORMAT(CreateDateTime, 'yyyy-MM-dd')
+
+                                            ORDER BY CreateDateTime DESC , MaxPosition DESC";
+
+                    command = new SqlCommand(commandText, connection);
+                    command.Parameters.Clear();
+                    command.Parameters.Add("@date", System.Data.SqlDbType.DateTime).Value = date;
+
+                    reader = command.ExecuteReader();
+                    var i = 1;
+                    while (reader.Read())
+                    {
+                        var date1 = Convert.ToDateTime(reader["CreateDateTime"].ToString()).ToString("yyyy/MM/dd");
+                        var maxPosition = Util.NullToBlank((object)reader["MaxPosition"]);
+                        list.Add($@"前回{i} 作成時間: " + date1 + " MaxPosition: " + maxPosition.ToString());
+                        i++;
+                    }
+                }
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                if (connection != null) { connection.Close(); connection.Dispose(); }
+                if (reader != null) { reader.Dispose(); }
+            }
+
+            return list;
         }
     }
 }

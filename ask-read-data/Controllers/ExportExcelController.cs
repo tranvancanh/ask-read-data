@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
 using System.Diagnostics;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace ask_read_data.Controllers
 {
@@ -69,13 +70,17 @@ namespace ask_read_data.Controllers
             var result2 = _excelExport.FindPositionParetoRenban(viewModel.Flame_Assy, bubantype);
             viewModel.Flame_Position = result2.Item1;
             viewModel.Flame_ParetoRenban = result2.Item2;
-            viewModel.ListData = new DataViewModel() { DataTableHeader = new Models.DataModel(), DataTableBody = _excelExport.FindRemainingDataOfLastTime("ALL")};
+
+            //viewModel.SelectList = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(list);
+            viewModel.BubanType = "ALL";
+            viewModel.ListData = new DataViewModel() { DataTableHeader = new Models.DataModel(), DataTableBody = _excelExport.FindRemainingDataOfLastTime(viewModel) };
              
             return View(viewModel);
         }
 
         [HttpPost]
-        public IActionResult ExportExcel(ExportExcelViewModel modelRequset, string floorassy, string flameassy, string searchbtn)
+        [ValidateAntiForgeryToken]
+        public IActionResult ExportExcel(ExportExcelViewModel modelRequset, string floorassy = null, string flameassy = null, string searchbtn = null )
         {
             if (!ModelState.IsValid)
             {
@@ -236,6 +241,7 @@ namespace ask_read_data.Controllers
             // return View(modelRequset);
         }
 
+        [HttpPost]
         public JsonResult GetPositionParetoRenban(DateTime date, string bubantype)
         {
             var position = 0;
@@ -281,6 +287,7 @@ namespace ask_read_data.Controllers
         {
             try
             {
+                /*                                 固定分 Start                                              */
                 var result1 = _excelExport.FindPositionParetoRenban(viewModel.Floor_Assy, FL00R_ASSY);
                 viewModel.Floor_Position = result1.Item1;
                 viewModel.Floor_ParetoRenban = result1.Item2;
@@ -288,8 +295,9 @@ namespace ask_read_data.Controllers
                 var result2 = _excelExport.FindPositionParetoRenban(viewModel.Flame_Assy, FRAME_ASSY);
                 viewModel.Flame_Position = result2.Item1;
                 viewModel.Flame_ParetoRenban = result2.Item2;
+                /*                                 固定分 Stop                                              */
 
-                viewModel.ListData = new DataViewModel() { DataTableHeader = new Models.DataModel(), DataTableBody = _excelExport.FindRemainingDataOfLastTime(viewModel.BubanType) };
+                viewModel.ListData = new DataViewModel() { DataTableHeader = new Models.DataModel(), DataTableBody = _excelExport.FindRemainingDataOfLastTime(viewModel) };
 
             }
             catch(Exception ex)
@@ -301,6 +309,39 @@ namespace ask_read_data.Controllers
             }
            
             return viewModel;
+        }
+
+        [HttpPost]
+        public JsonResult GetDropListAjax(DateTime date)
+        {
+            var items = new List<string>();
+            List<SelectListItem> droplists = new List<SelectListItem>();
+            try
+            {
+                items = _excelExport.FindDropList(date);
+                var i = 0;
+                bool isSelected = true;
+                foreach (var item in items)
+                {
+                    if(i == 0) { isSelected = true; }
+                    else { isSelected = false; }
+                    droplists.Add(new SelectListItem()
+                    {
+                        Text = item,
+                        Value = i.ToString() ,
+                        Selected = isSelected
+                    }); 
+                    i++;
+                }
+            }
+            catch(Exception ex)
+            {
+                ErrorInfor.DebugWriteLineError(ex);
+                Debug.WriteLine("========================================================================================");
+                return Json(new { StatusCode = false, Mess = "error" });
+            }
+
+            return Json(new { StatusCode = true, droplists });
         }
     }
 }

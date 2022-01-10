@@ -22,7 +22,9 @@ namespace ask_read_data.Models.ViewModel
         public int Flame_ParetoRenban { get; set; }
 
         ///////////////////////////////////////////////////////////////////////////////////
-        public SelectList SelectList { get; set; }
+        public string SelectItem { get; set; }
+
+        public string ItemName { get; set; }
 
         public string BubanType { get; set; }
 
@@ -39,7 +41,7 @@ namespace ask_read_data.Models.ViewModel
             Flame_Assy = Convert.ToDateTime(DateTime.Today.ToString("yyyy-MM-dd 00:00:00"));
             Flame_Position = 0;
             Flame_ParetoRenban = 0;
-            SelectList = new SelectList("");
+            BubanType = "ALL";
             SearchDate = Convert.ToDateTime(DateTime.Today.ToString("yyyy-MM-dd 00:00:00"));
         }
     }
