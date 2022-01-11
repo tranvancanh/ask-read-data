@@ -20,7 +20,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 namespace ask_read_data.Controllers
 {
     [Authorize]
-    public class ImportDataController : Controller
+    public class ImportDataController : ReponseMessage
     {
         public static List<string> ListItems = new List<string>();
         /****************************カタカナ名略式記号*************************************/
@@ -191,16 +191,22 @@ namespace ask_read_data.Controllers
         {
             var viewModel = new ImportViewModel();
             var date = DateTime.Today;
-            if(_importData.DeleteData(date) > 0)
-            { 
+            var rowsAffected = _importData.DeleteData(date);
+            if (rowsAffected > 0)
+            {
+                ComShowSuccessMessage("削除が完了しました！");
+                return View("ImportData", ReturnDataView(viewModel));
+            }
+            else if(rowsAffected == 0)
+            {
+               ComShowErrorMessage("削除に失敗しました！");
                 return View("ImportData", ReturnDataView(viewModel));
             }
             else
             {
-
+                ComShowErrorMessage("本日はデータが存在していませんので削除に失敗しました！");
                 return View("ImportData", ReturnDataView(viewModel));
             }
-            
         }
         private List<object> ReaderData(IFormFile file, ref List<object> result, ref List<Bu_MastarModel> bu_Mastars)
         {

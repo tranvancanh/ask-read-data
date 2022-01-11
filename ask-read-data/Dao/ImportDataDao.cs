@@ -325,9 +325,13 @@ namespace ask_read_data.Dao
                 {
                     //open
                     connection.Open();
-                    var commandText = $@"DELETE FROM [ask_datadb_test].[dbo].[DataImport] 
-                                         WHERE (1=1)
-                                         AND FORMAT(CreateDateTime, 'yyyy-MM-dd') = FORMAT(@date, 'yyyy-MM-dd');";
+                    var commandText = $@"
+                                        if (EXISTS( select * from [ask_datadb_test].[dbo].[DataImport] WHERE FORMAT([CreateDateTime], 'yyyy-MM-dd') = FORMAT(@date, 'yyyy-MM-dd') ))
+	                                            Begin
+	                                            DELETE FROM [ask_datadb_test].[dbo].[DataImport] 
+                                                                                    WHERE (1=1)
+                                                                                    AND FORMAT(CreateDateTime, 'yyyy-MM-dd') = FORMAT(@date, 'yyyy-MM-dd')
+	                                            End;";
 
                     SqlCommand command = new SqlCommand(commandText, connection);
                     command.Parameters.Clear();

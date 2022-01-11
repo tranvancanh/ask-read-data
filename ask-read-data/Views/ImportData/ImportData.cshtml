@@ -61,12 +61,21 @@
                 <button class="col-md-12 col-lg-12 col-xl-12 btn btn-primary btn-sm float-left" type="submit" asp-action="SearchData" name="searchbtn" value="search" margin-right onclick="ResetTextFunction()">検索</button>
             </div>
         </div>
-
+        <div>
+            @if (TempData["ComShowSuccessMessage"] != null)
+            {
+                <p class="text-success text-center" style="font-size:13px">@TempData["ComShowSuccessMessage"]</p>
+            }
+            @if (TempData["ComShowErrorMessage"] != null)
+            {
+                <p class="text-danger text-center" style="font-size:13px">@TempData["ComShowErrorMessage"]</p>
+            }
+        </div>
         <div>
             @await Html.PartialAsync("/Views/ImportData/_Data.cshtml", Model.ListData)
         </div>
         <div class="container-fluid">
-            <button id="deletedata" class="btn btn-danger" type="submit" asp-action="DeleteData">アップロード</button>
+            <button id="deletedata" class="btn btn-danger" type="submit" asp-action="DeleteData">データ削除</button>
         </div>
     }
 </div>

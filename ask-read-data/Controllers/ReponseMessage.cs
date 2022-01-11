@@ -8,15 +8,22 @@ namespace ask_read_data.Commons
 {
     public class ReponseMessage : Controller
     {
-        public void ComShowErrorMessage(string msg)
-        {
-            ViewData["ComShowErrorMessage"] = msg;
-            return;
-        }
+        [TempData]
+        public string ComShowSuccessMessage1 { get; set; }
+
+        [TempData]
+        public string ComShowErrorMessage1 { get; set; }
+
         public void ComShowSuccessMessage(string msg)
         {
-            ViewData["ComShowSuccessMessage"] = msg;
+            TempData["ComShowSuccessMessage"] = msg;
             return;
         }
+        public void ComShowErrorMessage(string msg)
+        {
+            TempData["ComShowErrorMessage"] = msg;
+            return;
+        }
+
     }
 }
