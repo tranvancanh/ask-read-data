@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ask_read_data.Commons;
 using ask_read_data.Models;
+using ask_read_data.Models.Entity;
 using ask_read_data.Repository;
 using ask_tzn_funamiKD.Commons;
 

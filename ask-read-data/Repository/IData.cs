@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ask_read_data.Models;
+using ask_read_data.Models.Entity;
 
 namespace ask_read_data.Repository
 {

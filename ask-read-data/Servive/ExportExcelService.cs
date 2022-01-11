@@ -9,6 +9,7 @@ using ask_read_data.Commons;
 using ask_read_data.Controllers;
 using ask_read_data.Dao;
 using ask_read_data.Models;
+using ask_read_data.Models.Entity;
 using ask_read_data.Models.ViewModel;
 using ask_read_data.Repository;
 using ask_tzn_funamiKD.Commons;
@@ -283,7 +284,7 @@ namespace ask_read_data.Servive
                             if(int.TryParse(value.Position.ToString(), out int j))
                             {
                                 this.Position = j;
-                                this.LastDownloadDateTime = value.CreateDateTime;
+                                this.LastDownloadDateTime = Convert.ToDateTime(value.CreateDateTime.ToString("yyyy-MM-dd"));
                                 isConvert = true;
                                 break;
                             }
@@ -390,7 +391,7 @@ namespace ask_read_data.Servive
                             if (int.TryParse(value.Position.ToString(), out int j))
                             {
                                 this.Position = j;
-                                this.LastDownloadDateTime = value.CreateDateTime;
+                                this.LastDownloadDateTime = Convert.ToDateTime(value.CreateDateTime.ToString("yyyy-MM-dd"));
                                 isConvert = true;
                                 break;
                             }
@@ -737,7 +738,7 @@ namespace ask_read_data.Servive
                     reader = cmd.ExecuteReader();
                     while (reader.Read())
                     {
-                        LastDownloadDateTime = Convert.ToDateTime(reader["LastDownloadDateTime"].ToString());
+                        LastDownloadDateTime = Convert.ToDateTime(Convert.ToDateTime(reader["LastDownloadDateTime"].ToString()).ToString("yyyy-MM-dd"));
                         lastPosition = Util.NullToBlank((object)reader["Position"]);
                         lastParetoRenban  = Util.NullToBlank((object)reader["ParetoRenban"]);
                         break;
@@ -778,13 +779,13 @@ namespace ask_read_data.Servive
 
         public List<DataModel> FindRemainingDataOfLastTime(ExportExcelViewModel viewModel)
         {
-            var bubanType = viewModel.BubanType;
-            return ExportExcelDao.GetRemainingDataOfLastTime(viewModel);
+            return new List<DataModel>();
+            //return ExportExcelDao.GetRemainingDataOfLastTime(viewModel);
         }
 
-        public List<string> FindDropList(DateTime date)
+        public List<FileDownloadLogModel> FindDownloadHistory(DateTime date)
         {
-            return ExportExcelDao.GetDropListItems(date);
+            return ExportExcelDao.GetDownloadHistory(date);
         }
     }
 }

@@ -10,11 +10,13 @@ using System.Data;
 using System.Security.Claims;
 using ask_read_data.Models.Entity;
 using ask_read_data.Dao;
+using ask_read_data.Models.ViewModel;
 
 namespace ask_read_data.Servive
 {
     public class ImportDataService : IImportData
     {
+     
         public ResponResult ImportDataDB(List<object> datas1, List<Claim> Claims, List<Bu_MastarModel> buMastars)
         {
             List<DataModel> datas = new List<DataModel>();
@@ -527,6 +529,35 @@ namespace ask_read_data.Servive
                    
                 }
                 return respon;
+            }
+        }
+
+        public Tuple<List<string>, List<string>> FindDropList(DateTime date)
+        {
+            return ImportDataDao.GetDropListItems(date);
+        }
+
+        public List<DataModel> FindDataOfLastTime(ImportViewModel viewModel)
+        {
+            try
+            {
+                return ImportDataDao.GetDataOfLastTime(viewModel);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public List<DataModel> FindDataOfLastTimeInit(DateTime date)
+        {
+            try
+            {
+                return ImportDataDao.GetDataOfLastTimeInit(date);
+            }
+            catch
+            {
+                throw;
             }
         }
     }

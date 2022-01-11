@@ -72,8 +72,7 @@ namespace ask_read_data.Controllers
             viewModel.Flame_ParetoRenban = result2.Item2;
 
             //viewModel.SelectList = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(list);
-            viewModel.BubanType = "ALL";
-            viewModel.ListData = new DataViewModel() { DataTableHeader = new Models.DataModel(), DataTableBody = _excelExport.FindRemainingDataOfLastTime(viewModel) };
+            viewModel.ListData = new DownloadHistoryViewModel() { DataTableHeader = new Models.Entity.FileDownloadLogModel(), DataTableBody = _excelExport.FindDownloadHistory(viewModel.SearchDate) };
              
             return View(viewModel);
         }
@@ -297,7 +296,7 @@ namespace ask_read_data.Controllers
                 viewModel.Flame_ParetoRenban = result2.Item2;
                 /*                                 固定分 Stop                                              */
 
-                viewModel.ListData = new DataViewModel() { DataTableHeader = new Models.DataModel(), DataTableBody = _excelExport.FindRemainingDataOfLastTime(viewModel) };
+                viewModel.ListData = new DownloadHistoryViewModel() { DataTableHeader = new Models.Entity.FileDownloadLogModel(), DataTableBody = _excelExport.FindDownloadHistory(viewModel.SearchDate) };
 
             }
             catch(Exception ex)
@@ -311,37 +310,5 @@ namespace ask_read_data.Controllers
             return viewModel;
         }
 
-        [HttpPost]
-        public JsonResult GetDropListAjax(DateTime date)
-        {
-            var items = new List<string>();
-            List<SelectListItem> droplists = new List<SelectListItem>();
-            try
-            {
-                items = _excelExport.FindDropList(date);
-                var i = 0;
-                bool isSelected = true;
-                foreach (var item in items)
-                {
-                    if(i == 0) { isSelected = true; }
-                    else { isSelected = false; }
-                    droplists.Add(new SelectListItem()
-                    {
-                        Text = item,
-                        Value = i.ToString() ,
-                        Selected = isSelected
-                    }); 
-                    i++;
-                }
-            }
-            catch(Exception ex)
-            {
-                ErrorInfor.DebugWriteLineError(ex);
-                Debug.WriteLine("========================================================================================");
-                return Json(new { StatusCode = false, Mess = "error" });
-            }
-
-            return Json(new { StatusCode = true, droplists });
-        }
     }
 }

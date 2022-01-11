@@ -1,23 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using ask_read_data.Areas.Admin.Commons;
+using ask_read_data.Commons;
 using ask_read_data.Models;
 using ask_read_data.Models.Entity;
+using ask_read_data.Models.ViewModel;
 using ask_read_data.Repository;
 using ask_tzn_funamiKD.Commons;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace ask_read_data.Controllers
 {
     [Authorize]
     public class ImportDataController : Controller
     {
+        public static List<string> ListItems = new List<string>();
         /****************************カタカナ名略式記号*************************************/
         private const string KATAKANA_NAME_FLOOR_ASSY = "フロアー";
         private const string KATAKANA_NAME_FLAME_ASSY = "フレーム";
@@ -26,6 +31,9 @@ namespace ask_read_data.Controllers
         private readonly IImportData _importData;
         private DataModel dataModel;
         private Bu_MastarModel buMastar;
+
+        private DateTime DateMin = new DateTime(2000, 01, 01, 00, 00, 00);
+        private DateTime DateMax = new DateTime(2050, 01, 01, 00, 00, 00);
         public ImportDataController(IImportData importData, DataModel dataModel, Bu_MastarModel buMastar)
         {
             this._importData = importData;
@@ -34,9 +42,18 @@ namespace ask_read_data.Controllers
         }
 
         [HttpGet]
-        public IActionResult ImportData()
+        public IActionResult ImportData(ImportViewModel viewModel)
         {
-            return View();
+            try
+            {
+                viewModel.ListData = new DataViewModel() { DataTableHeader = new Models.Entity.DataModel(), DataTableBody = _importData.FindDataOfLastTimeInit(DateTime.Today) };
+            }
+            catch
+            {
+                return View(new ImportViewModel());
+            }
+            
+            return View(viewModel);
         }
 
         /// <summary>
@@ -45,7 +62,7 @@ namespace ask_read_data.Controllers
         /// <param name="FileUpload"></param>
         /// <returns></returns>
         [HttpPost]
-        public IActionResult ImportData(List<IFormFile> FileUpload)
+        public IActionResult ImportData(List<IFormFile> FileUpload, ImportViewModel viewModel)
         {
             /////////////////////////////////////////////////////////////////////////////
             //  Get Current User Claims
@@ -66,7 +83,7 @@ namespace ask_read_data.Controllers
             if (files == null || files.Count <= 0)
             {
                 ViewData["erroremess"] = "ファイル内にデータが存在しません";
-                return View();
+                return View(ReturnDataView(viewModel));
             }
             try
             {
@@ -79,7 +96,7 @@ namespace ask_read_data.Controllers
                         if (file.ContentType != "text/plain")
                         {
                             ViewData["erroremess"] = "ファイル形式が間違っているため、読み取ることができません";
-                            return View();
+                            return View(ReturnDataView(viewModel));
                         }
 
                         //1ファイルデータずつ読み取り
@@ -92,7 +109,7 @@ namespace ask_read_data.Controllers
                             ViewData["successmess"] = null;
                             ViewData["erroremess"] = fileName.ToString() + $@"： ファイル読み込み中にエラーが発生しました
                                             | lineNo: " + lineNo.ToString();
-                            return View();
+                            return View(ReturnDataView(viewModel));
                         }
                     }
 
@@ -102,7 +119,7 @@ namespace ask_read_data.Controllers
             {
                 ViewData["successmess"] = null;
                 ViewData["erroremess"] = ex.Message + $@" | file name: {fileNamee}";
-                return View();
+                return View(ReturnDataView(viewModel));
             }
             ResponResult res = null;
             try
@@ -114,22 +131,49 @@ namespace ask_read_data.Controllers
             {
                 ViewData["successmess"] = null;
                 ViewData["erroremess"] = ex.Message + $@" | file name: {fileNamee}";
-                return View();
+                return View(ReturnDataView(viewModel));
             }
             if (res.Status != "OK")
             {
                 ViewData["successmess"] = null;
                 ViewData["erroremess"] = res.Resmess;
-                return View();
+                return View(ReturnDataView(viewModel));
             }
 
             // ViewData["successmess"] = "ファイル内にデータが保存されました";
             ViewData["erroremess"] = null;
             ViewData["successmess"] = res.Resmess;
 
-            return View();
+            return View(ReturnDataView(viewModel));
         }
+        private ImportViewModel ReturnDataView(ImportViewModel vm)
+        {
+            vm.ListData = new DataViewModel() { DataTableHeader = new Models.Entity.DataModel(), DataTableBody = _importData.FindDataOfLastTimeInit(DateTime.Today) }; ;
+            return vm;
+        }
+        [HttpPost]
+        public IActionResult SearchData(ImportViewModel viewModel)
+        {
+            try
+            {
+                if (!DateTime.TryParse(viewModel.ItemValue, out DateTime dateValue))
+                {
+                    return View("ImportData", new ImportViewModel());
+                }
+                if(viewModel.SearchDate <= DateMin || viewModel.SearchDate >= DateMax)
+                {
+                    return View("ImportData", new ImportViewModel());
+                }
+                viewModel.ListData = new DataViewModel() { DataTableHeader = new Models.Entity.DataModel(), DataTableBody = _importData.FindDataOfLastTime(viewModel)};
+                
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("ImportData", new ImportViewModel());
+            }
 
+            return View("ImportData", viewModel);
+        }
         private List<object> ReaderData(IFormFile file, ref List<object> result, ref List<Bu_MastarModel> bu_Mastars)
         {
 
@@ -262,14 +306,14 @@ namespace ask_read_data.Controllers
         }
         private void CheckBuMastar(string buBan, string meWiSyo, string kigo, ref List<Bu_MastarModel> bu_Mastars)
         {
-            if(bu_Mastars == null)
+            if (bu_Mastars == null)
             {
                 throw new Exception("部品番号が存在しません");
             }
             //var result = bu_Mastars.First(s => s.BUBAN == buBan);
             var item1 = (from item in bu_Mastars
-                        where item.BUBAN == buBan
-                        select item).FirstOrDefault();
+                         where item.BUBAN == buBan
+                         select item).FirstOrDefault();
 
             StringComparison comp = StringComparison.OrdinalIgnoreCase;
             bool check1 = meWiSyo.Contains(ExportExcelController.FL00R_ASSY, comp);
@@ -282,7 +326,7 @@ namespace ask_read_data.Controllers
                 }
                 else if (check2)
                 {
-                    bu_Mastars.Add(new Bu_MastarModel() { BUBAN = buBan, KIGO = kigo, MEWISYO = meWiSyo, Nyusu = ExportExcelController.PALETNO_FLAME_ASSY , KatakanaName = KATAKANA_NAME_FLAME_ASSY});
+                    bu_Mastars.Add(new Bu_MastarModel() { BUBAN = buBan, KIGO = kigo, MEWISYO = meWiSyo, Nyusu = ExportExcelController.PALETNO_FLAME_ASSY, KatakanaName = KATAKANA_NAME_FLAME_ASSY });
                 }
                 else
                 {
@@ -290,6 +334,45 @@ namespace ask_read_data.Controllers
                 }
             }
             return;
+        }
+
+        [HttpPost]
+        public JsonResult GetDropListAjax(DateTime date)
+        {
+            var items = new Tuple<List<string>, List<string>>(new List<string>(), new List<string>());
+            List<SelectListItem> droplists = new List<SelectListItem>();
+            try
+            {
+                items = _importData.FindDropList(date);
+                var i = 0;
+                bool isSelected = true;
+                foreach (var item in items.Item1)
+                {
+                    if (i == 0) { isSelected = true; }
+                    else { isSelected = false; }
+                    droplists.Add(new SelectListItem()
+                    {
+                        Text = item,
+                        Value = i.ToString(),
+                        Selected = isSelected
+                    });
+                    i++;
+                }
+                for (int j = 0; j < droplists.Count; j++)
+                {
+                    droplists[j].Value = items.Item2[j];
+                }
+                // 更新処理
+                ListItems = items.Item2;
+            }
+            catch (Exception ex)
+            {
+                ErrorInfor.DebugWriteLineError(ex);
+                Debug.WriteLine("========================================================================================");
+                return Json(new { StatusCode = false, Mess = "error" });
+            }
+
+            return Json(new { StatusCode = true, droplists });
         }
     }
 }

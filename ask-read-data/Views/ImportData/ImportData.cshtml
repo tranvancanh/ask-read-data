@@ -1,53 +1,80 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿
+@model ask_read_data.Models.ViewModel.ImportViewModel
+
 @{ ViewData["Title"] = "データ取り込み"; }
-<div class="row">
-    <div class="col-lg-6 ml-2">
-        <div class="h4 text-gray-800">
-            @ViewData["Title"]
-        </div>
-        <div class="card shadow">
-            @using (Html.BeginForm("ImportData", "ImportData", FormMethod.Post, new { enctype = "multipart/form-data", id = "data-upload-form", onsubmit = "return true" }))
-            {
-                <div class="card-header text-gray-800">
-                    インポート
+<div class="container-fluid">
+    @using (Html.BeginForm("ImportData", "ImportData", FormMethod.Post, new { enctype = "multipart/form-data", id = "data-upload-form", onsubmit = "return true" }))
+    {
+        <div class="row form-group form-inline">
+            <div class="col-lg-6">
+                <div class="h4 mbtext-gray-800">
+                    @ViewData["Title"]
                 </div>
-                <div class="card-body">
-                    <div class="form-group col-sm-12">
-                        <div class="form-inline">
-                            <div id="file-select-form" style="display:none">
-                                <input name="FileUpload" type="file" accept="text/plain,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.csv" multiple="multiple" />
+                <div class="card shadow">
+                    <div class="card-header text-gray-800">
+                        インポート
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group col-sm-12">
+                            <div class="form-inline">
+                                <div id="file-select-form" style="display:none">
+                                    <input name="FileUpload" type="file" accept="text/plain,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.csv" multiple="multiple" />
+                                </div>
+                                <button id="file-select-button" class="btn btn-light shadow mr-2" type="button">
+                                    <i class="far fa-file-alt fa-fw"></i>Textファイル選択
+                                </button>
+                                <button id="file-upload" class="btn btn-primary" type="submit" asp-action="ImportData">アップロード</button>
                             </div>
-                            <button id="file-select-button" class="btn btn-light shadow mr-2" type="button">
-                                <i class="far fa-file-alt fa-fw"></i>Textファイル選択
-                            </button>
-                            <button id="file-upload" class="btn btn-primary" type="submit">
-                                アップロード
-                            </button>
+                        </div>
+                        <div class="form-group col-sm-12">
+                            <p id="import-res" class="mt-1" style="font-size:13px"></p>
+                            @if (ViewData["erroremess"] != null)
+                            {
+                                <p class="text-danger float-left mt-2" id="erroremess" style="font-size:13px">@ViewData["erroremess"]</p>
+                            }
+                            @if (ViewData["successmess"] != null)
+                            {
+                                <p class="text-success float-left mt-2" id="successmess" style="font-size:13px">@ViewData["successmess"]</p>
+                            }
                         </div>
                     </div>
-                    <div class="form-group col-sm-12">
-                        <p id="import-res" style="font-size:13px"></p>
-                        @if (ViewData["erroremess"] != null)
-                        {
-                            <p class="text-danger float-left" id="erroremess" style="font-size:13px">@ViewData["erroremess"]</p>
-                        }
-                        @if (ViewData["successmess"] != null)
-                        {
-                            <p class="text-success float-left" id="successmess" style="font-size:13px">@ViewData["successmess"]</p>
-                        }
-                    </div>
                 </div>
-            }
+            </div>
         </div>
-    </div>
+        <br />
+        <div class="row form-group form-inline">
+            <div class="col-md-4">
+                <select class="form-control col-md-12 border border-secondary" id="droplistitems" asp-for="@Model.ItemValue" style="width: 100%;" aria-label=".form-select-sm example">
+                </select>
+            </div>
+            <div class="col-md-2 pl-3 pr-0">
+                <select class="form-control col-md-12 border border-secondary" style="width: 100%;" asp-for="@Model.BubanType" aria-label="Default select example">
+                    <option selected value="ALL">ALL</option>
+                    <option value="FL00R">FL00R ASSY</option>
+                    <option value="FRAME">FRAME ASSY</option>
+                </select>
+            </div>
+            <div class="col-md-2 pl-3 pr-0">
+                <input class="form-control col-md-12 border border-secondary" id="datetimeSearch" asp-for="@Model.SearchDate" type="date" step="1" onchange="SearchDateOnchange()" asp-format="{0:yyyy-MM-dd}" min='2000-01-01' max='2050-01-01' autocomplete="on" />
+            </div>
+            <div class="col-md-2">
+                <button class="col-md-12 col-lg-12 col-xl-12 btn btn-primary btn-sm float-left" type="submit" asp-action="SearchData" name="searchbtn" value="search" margin-right onclick="ResetTextFunction()">検索</button>
+            </div>
+        </div>
+    }
+</div>
+<div>
+    @await Html.PartialAsync("/Views/ImportData/_Data.cshtml", Model.ListData)
 </div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-<script type="text/javascript">
+    <script type="text/javascript">
+        const MinDate = new Date('2000-01-01 00:00:00');
+        const MaxDate = new Date('2050-01-01 00:00:00');
         $(document).ready(function () {
+            SearchDateOnchange();
+            $('#exportexcelpartial').DataTable();
             //デフォルトのファイル選択UIを非表示にして、機能だけ使用する仕掛け
             $('#file-select-button').on('click', function (e) {
                 $('#file-select-form input').trigger('click');
@@ -115,6 +142,35 @@
                 alert("Invalid File"); return false;
             }
         }
-</script>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////
+        function SearchDateOnchange() {
+            let x = document.getElementById("datetimeSearch").value;
+            let date = new Date(x);
+            var droplist = $("#droplistitems");
+            if (date >= MinDate && date <= MaxDate) {
+                $.ajax({
+                    url: '/ImportData/GetDropListAjax',
+                    type: "POST",
+                    data: { date: x },
+                    success: function (response) {
+                        ////success
+                        if (response.statusCode === true) {
+                            //droplist.empty().append('<option selected="selected" value="99999">全てグループ</option>');
+                            droplist.empty();
+                            $.each(response.droplists, function () {
+                                droplist.append($("<option></option>").val(this['value']).html(this['text']));
+                            });
+                        }
+                        else {
+                            //alert(response.statusCode);
+                        }
+                    },
+                    error: function (err) {
+                        //alert(err.statusCode);
+                    }
+                });
+            }
+        }
+    </script>
 
 }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using ask_read_data.Models;
+using ask_read_data.Models.Entity;
 using ask_read_data.Models.ViewModel;
 
 namespace ask_read_data.Repository
@@ -15,6 +16,6 @@ namespace ask_read_data.Repository
         int RecordDownloadHistory(ref DataTable dataTable, string bubanType, List<Claim> Claims);
         Tuple<int, int> FindPositionParetoRenban(DateTime date, string bubanType);
         List<DataModel> FindRemainingDataOfLastTime(ExportExcelViewModel viewModel);
-        List<string> FindDropList(DateTime date);
+        List<FileDownloadLogModel> FindDownloadHistory(DateTime date);
     }
 }

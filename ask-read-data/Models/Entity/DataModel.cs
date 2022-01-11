@@ -6,7 +6,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using ask_read_data.Areas.Admin.Commons;
 
-namespace ask_read_data.Models
+namespace ask_read_data.Models.Entity
 {
     public class DataModel
     {
