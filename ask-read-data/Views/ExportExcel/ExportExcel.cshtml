@@ -55,7 +55,9 @@
                 <br />
                 @*/*///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/*@
                 <div class="row form-group form-inline">
-                    <div class="col-md-2"></div>
+                    <div class="col-md-2">
+                        <input class="form-control text-center col-md-10 col-lg-10 col-xl-10 fw-normal" value="最終ダウンロード" disabled />
+                    </div>
                     <div class="col-md-2 pl-3 pr-0">
                         <input class="form-control col-md-12 border border-secondary" id="datetimeSearch" asp-for="@Model.SearchDate" type="date" step="1" asp-format="{0:yyyy-MM-dd}" min='2000-01-01' max='2050-01-01' autocomplete="on" />
                     </div>

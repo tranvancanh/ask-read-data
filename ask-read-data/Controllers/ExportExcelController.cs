@@ -122,7 +122,7 @@ namespace ask_read_data.Controllers
                         }
                     case "search":
                         {
-                            return View(CopyExportExcelViewModel(modelRequset));
+                            return View(ReturnDataViewModel(modelRequset));
                         }
                     default:
                         {
@@ -137,7 +137,7 @@ namespace ask_read_data.Controllers
                 var error = ex.Message;
                 //var GetType = ex.GetType;
                 TempData["error"] = "ダウンロードに失敗しました " + error + "| Exception Type: " + ex.GetType().ToString();
-                return View(new ExportExcelViewModel());
+                return View(ReturnDataViewModel(modelRequset));
             }
             // 出力フォルダパス
             var rootPath = Directory.GetCurrentDirectory();
@@ -163,7 +163,7 @@ namespace ask_read_data.Controllers
                 {
 
                     TempData["error"] = "データが存在していませんのでダウンロードに失敗しました";
-                    return View(new ExportExcelViewModel());
+                    return View(ReturnDataViewModel(modelRequset));
                 }
                 // Excelファイル生成
                 Utility util = new Utility();
@@ -226,7 +226,7 @@ namespace ask_read_data.Controllers
                 else
                 {
                     TempData["error"] = "ダウンロードに失敗しました";
-                    return View(new ExportExcelViewModel());
+                    return View(ReturnDataViewModel(modelRequset));
                 }
             }
             catch (Exception ex)
@@ -234,7 +234,7 @@ namespace ask_read_data.Controllers
                 var error = ex.Message;
                 //var GetType = ex.GetType;
                 TempData["error"] = "ダウンロードに失敗しました " + error + "| Exception Type: " + ex.GetType().ToString();
-                return View(new ExportExcelViewModel());
+                return View(ReturnDataViewModel(modelRequset));
             }
 
             // return View(modelRequset);
@@ -282,7 +282,7 @@ namespace ask_read_data.Controllers
 
             return Json(new { StatusCode = true, position = position, renban = renban });
         }
-        private ExportExcelViewModel CopyExportExcelViewModel(ExportExcelViewModel viewModel)
+        private ExportExcelViewModel ReturnDataViewModel(ExportExcelViewModel viewModel)
         {
             try
             {
