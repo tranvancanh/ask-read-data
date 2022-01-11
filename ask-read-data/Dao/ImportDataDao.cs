@@ -312,5 +312,40 @@ namespace ask_read_data.Dao
 
             return objList;
         }
+
+        public static int DeleteDataOnToday(DateTime date)
+        {
+            var rowsAffected = 0;
+            //connection
+            SqlConnection connection = null;
+            try
+            {
+                var ConnectionString = new GetConnectString().ConnectionString;
+                using (connection = new SqlConnection(ConnectionString))
+                {
+                    //open
+                    connection.Open();
+                    var commandText = $@"DELETE FROM [ask_datadb_test].[dbo].[DataImport] 
+                                         WHERE (1=1)
+                                         AND FORMAT(CreateDateTime, 'yyyy-MM-dd') = FORMAT(@date, 'yyyy-MM-dd');";
+
+                    SqlCommand command = new SqlCommand(commandText, connection);
+                    command.Parameters.Clear();
+                    command.Parameters.Add("@date", System.Data.SqlDbType.DateTime).Value = date;
+
+                    rowsAffected = command.ExecuteNonQuery();
+                  
+                }
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                if (connection != null) { connection.Close(); connection.Dispose(); }
+            }
+            return rowsAffected;
+        }
     }
 }

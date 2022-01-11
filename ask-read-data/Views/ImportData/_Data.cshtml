@@ -54,47 +54,47 @@
                         int Index = 1;
                         @foreach (var item in Model.DataTableBody)
                         {
-                    <tr class="form-group text-center align-middle text-center font-weight-normal">
-                        <td class="align-middle text-center">
-                            @Index
-                        </td>
-                        <td class="align-middle text-center">
-                            @Html.DisplayFor(modelItem => item.WAYMD)
-                        </td>
-                        <td class="align-middle text-center">
-                            @Html.DisplayFor(modelItem => item.SEQ)
-                        </td>
-                        <td class="align-middle text-center">
-                            @Html.DisplayFor(modelItem => item.KATASIKI)
-                        </td>
-                        <td class="align-middle text-center">
-                            @Html.DisplayFor(modelItem => item.JIKU)
-                        </td>
-                        <td class="align-middle text-center">
-                            @Html.DisplayFor(modelItem => item.BUBAN)
-                        </td>
-                        <td class="align-middle text-center">
-                            @Html.DisplayFor(modelItem => item.KIGO)
-                        </td>
-                        <td class="align-middle text-center">
-                            @Html.DisplayFor(modelItem => item.MAKR)
-                        </td>
-                        <td class="align-middle text-center">
-                            @Html.DisplayFor(modelItem => item.MEWISYO)
-                        </td>
-                        <td class="align-middle text-center">
-                            @Html.DisplayFor(modelItem => item.FYMD)
-                        </td>
-                        <td class="align-middle text-center">
-                            @Html.DisplayFor(modelItem => item.FileName)
-                        </td>
-                        <td class="align-middle text-center">
-                            @Html.DisplayFor(modelItem => item.Position)
-                        </td>
-                        <td class="align-middle text-center">
-                            @Html.DisplayFor(modelItem => item.CreateDateTime)
-                        </td>
-                    </tr>
+                            <tr class="form-group text-center align-middle text-center font-weight-normal">
+                                <td class="align-middle text-center">
+                                    @Index
+                                </td>
+                                <td class="align-middle text-center">
+                                    @Html.DisplayFor(modelItem => item.WAYMD)
+                                </td>
+                                <td class="align-middle text-center">
+                                    @Html.DisplayFor(modelItem => item.SEQ)
+                                </td>
+                                <td class="align-middle text-center">
+                                    @Html.DisplayFor(modelItem => item.KATASIKI)
+                                </td>
+                                <td class="align-middle text-center">
+                                    @Html.DisplayFor(modelItem => item.JIKU)
+                                </td>
+                                <td class="align-middle text-center">
+                                    @Html.DisplayFor(modelItem => item.BUBAN)
+                                </td>
+                                <td class="align-middle text-center">
+                                    @Html.DisplayFor(modelItem => item.KIGO)
+                                </td>
+                                <td class="align-middle text-center">
+                                    @Html.DisplayFor(modelItem => item.MAKR)
+                                </td>
+                                <td class="align-middle text-center">
+                                    @Html.DisplayFor(modelItem => item.MEWISYO)
+                                </td>
+                                <td class="align-middle text-center">
+                                    @Html.DisplayFor(modelItem => item.FYMD)
+                                </td>
+                                <td class="align-middle text-center">
+                                    @Html.DisplayFor(modelItem => item.FileName)
+                                </td>
+                                <td class="align-middle text-center">
+                                    @Html.DisplayFor(modelItem => item.Position)
+                                </td>
+                                <td class="align-middle text-center">
+                                    @Html.DisplayFor(modelItem => item.CreateDateTime)
+                                </td>
+                            </tr>
                             Index++;
                         }
                     }
@@ -107,15 +107,3 @@
         </div>
     </div>
 </div>
-<br />
-<br />
-<br />
-@*@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $('#exportexcelpartial').DataTable();
-        });
-    </script>
-}*@

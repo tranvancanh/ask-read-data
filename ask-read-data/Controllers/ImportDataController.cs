@@ -148,7 +148,18 @@ namespace ask_read_data.Controllers
         }
         private ImportViewModel ReturnDataView(ImportViewModel vm)
         {
-            vm.ListData = new DataViewModel() { DataTableHeader = new Models.Entity.DataModel(), DataTableBody = _importData.FindDataOfLastTimeInit(DateTime.Today) }; ;
+            try
+            {
+                vm.ListData = new DataViewModel() { DataTableHeader = new Models.Entity.DataModel(), DataTableBody = _importData.FindDataOfLastTimeInit(DateTime.Today) }; ;
+            }
+            catch(Exception ex)
+            {
+                var error = ex.Message;
+                //var GetType = ex.GetType;
+                TempData["error"] = "途中にエラーが発生しました!";
+                return new ImportViewModel();
+            }
+            
             return vm;
         }
         [HttpPost]
@@ -173,6 +184,23 @@ namespace ask_read_data.Controllers
             }
 
             return View("ImportData", viewModel);
+        }
+
+        [HttpPost]
+        public IActionResult DeleteData()
+        {
+            var viewModel = new ImportViewModel();
+            var date = DateTime.Today;
+            if(_importData.DeleteData(date) > 0)
+            { 
+                return View("ImportData", ReturnDataView(viewModel));
+            }
+            else
+            {
+
+                return View("ImportData", ReturnDataView(viewModel));
+            }
+            
         }
         private List<object> ReaderData(IFormFile file, ref List<object> result, ref List<Bu_MastarModel> bu_Mastars)
         {

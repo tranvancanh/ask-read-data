@@ -560,5 +560,17 @@ namespace ask_read_data.Servive
                 throw;
             }
         }
+
+        public int DeleteData(DateTime date)
+        {
+            try
+            {
+                return ImportDataDao.DeleteDataOnToday(date);
+            }
+            catch
+            {
+                throw;
+            }
+        }
     }
 }

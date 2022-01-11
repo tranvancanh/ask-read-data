@@ -13,5 +13,6 @@ namespace ask_read_data.Repository
         Tuple<List<string>, List<string>> FindDropList(DateTime date);
         List<DataModel> FindDataOfLastTimeInit(DateTime date);
         List<DataModel> FindDataOfLastTime(ImportViewModel viewModel);
+        int DeleteData(DateTime date);
     }
 }

@@ -61,12 +61,15 @@
                 <button class="col-md-12 col-lg-12 col-xl-12 btn btn-primary btn-sm float-left" type="submit" asp-action="SearchData" name="searchbtn" value="search" margin-right onclick="ResetTextFunction()">検索</button>
             </div>
         </div>
+
+        <div>
+            @await Html.PartialAsync("/Views/ImportData/_Data.cshtml", Model.ListData)
+        </div>
+        <div class="container-fluid">
+            <button id="deletedata" class="btn btn-danger" type="submit" asp-action="DeleteData">アップロード</button>
+        </div>
     }
 </div>
-<div>
-    @await Html.PartialAsync("/Views/ImportData/_Data.cshtml", Model.ListData)
-</div>
-
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script type="text/javascript">
@@ -79,9 +82,11 @@
             $('#file-select-button').on('click', function (e) {
                 $('#file-select-form input').trigger('click');
             });
-            @*if ("@ViewData["erroremess"]" != null || "@ViewData["successmess"]" != null) {
-                $("#import-res").remove();
-            }*@
+            // confirm before delete data
+            $("#deletedata").on("click", function () {
+                return confirm("削除します。よろしいですか？");
+            });
+
             $('#data-upload-form').on('change', function () {
                 console.log('form change!');
 
