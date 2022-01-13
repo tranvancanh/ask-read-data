@@ -326,38 +326,43 @@ namespace ask_read_data.Dao
                     //open
                     connection.Open();
                     var commandText = $@"
-                                        if (EXISTS( select * from [ask_datadb_test].[dbo].[DataImport] WHERE FORMAT([CreateDateTime], 'yyyy-MM-dd') = FORMAT(@date, 'yyyy-MM-dd') ))
-	                                            Begin
-	                                            DELETE FROM [ask_datadb_test].[dbo].[DataImport] 
-                                                                                    WHERE (1=1)
-                                                                                    AND FORMAT(CreateDateTime, 'yyyy-MM-dd') = FORMAT(@date, 'yyyy-MM-dd')
-	                                            End;";
+                                          if (EXISTS( select * from [ask_datadb_test].[dbo].[DataImport] WHERE FORMAT([CreateDateTime], 'yyyy-MM-dd') = FORMAT(@date, 'yyyy-MM-dd') ))
+                                            Begin
+                                            DECLARE @datestart datetime
+                                            SET @datestart = GETDATE()
+
+                                             BEGIN TRY
+                                               BEGIN TRANSACTION MYTRAN;
+                                                 SET @datestart = (select FORMAT(CreateDateTime, 'yyyy-MM-dd HH:mm:ss')
+                                                     FROM [ask_datadb_test].[dbo].[DataImport]
+                                                     WHERE FORMAT(CreateDateTime, 'yyyy-MM-dd') = FORMAT(@date, 'yyyy-MM-dd')
+                                                     AND Position = 1);
+                                                 PRINT @datestart
+                                             ------------------------------------------------------ [dbo].[DataImport] ----------------------------------------------
+                                                  DELETE FROM [ask_datadb_test].[dbo].[DataImport] 
+                                                            WHERE (1=1)
+                                                            AND FORMAT(CreateDateTime, 'yyyy-MM-dd') = FORMAT(@date, 'yyyy-MM-dd');
+                                             ------------------------------------------------------ [dbo].[File_Download_Log] ---------------------------------------
+                                                 DELETE FROM [ask_datadb_test].[dbo].[File_Download_Log] 
+                                                 WHERE FORMAT([DownloadDateTime], 'yyyy-MM-dd') = FORMAT(@date, 'yyyy-MM-dd')
+                                                          AND [DownloadDateTime] >= @datestart;
+
+                                              ------------------------------------------------------ [dbo].[File_Import_Log] ----------------------------------------
+                                                DELETE FROM [ask_datadb_test].[dbo].[File_Import_Log]
+                                                WHERE FORMAT([CreateDateTime], 'yyyy-MM-dd') = FORMAT(@date, 'yyyy-MM-dd');
+
+                                                COMMIT TRANSACTION MYTRAN;
+                                              END TRY
+                                            BEGIN CATCH
+                                                ROLLBACK TRANSACTION MYTRAN; 
+                                                THROW
+                                            END CATCH
+                                         End;";
 
                     SqlCommand command = new SqlCommand(commandText, connection);
                     command.Parameters.Clear();
                     command.Parameters.Add("@date", System.Data.SqlDbType.DateTime).Value = date;
                     rowsAffected = command.ExecuteNonQuery();
-                    if(rowsAffected > 0)
-                    {
-                        //commmand
-                        connection = new SqlConnection(ConnectionString);
-                        if (connection.State != System.Data.ConnectionState.Open) { connection.Open(); }
-                        commandText = $@" 
-                                    ------------------------------------------------------ [dbo].[File_Download_Log] -------------------------------------
-                                           DELETE FROM [ask_datadb_test].[dbo].[File_Download_Log] 
-                                           WHERE FORMAT([LastDownloadDateTime], 'yyyy-MM-dd') = FORMAT(@date, 'yyyy-MM-dd');
-
-                                    ------------------------------------------------------ [dbo].[File_Import_Log] --------------------------------------
-                                            DELETE FROM [ask_datadb_test].[dbo].[File_Import_Log]
-                                            WHERE FORMAT([CreateDateTime], 'yyyy-MM-dd') = FORMAT(@date, 'yyyy-MM-dd');
-
-                                        ";
-
-                        command = new SqlCommand(commandText, connection);
-                        command.Parameters.Clear();
-                        command.Parameters.Add("@date", System.Data.SqlDbType.DateTime).Value = date;
-                        var rows = command.ExecuteNonQuery();
-                    }
                   
                 }
             }

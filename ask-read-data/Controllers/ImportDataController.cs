@@ -194,7 +194,7 @@ namespace ask_read_data.Controllers
             var rowsAffected = _importData.DeleteData(date);
             if (rowsAffected > 0)
             {
-                ComShowSuccessMessage("削除が完了しました！");
+                ComShowSuccessMessage("本日のデータは削除が完了しました！");
                 return View("ImportData", ReturnDataView(viewModel));
             }
             else if(rowsAffected == 0)
