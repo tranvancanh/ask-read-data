@@ -89,7 +89,7 @@ namespace ask_read_data.Dao
                     {
                         var date1 = Convert.ToDateTime(reader["CreateDateTime"].ToString()).ToString("yyyy/MM/dd");
                         var maxPosition = Util.NullToBlank((object)reader["MaxPosition"]);
-                        listItems.Add($@"前回{i} 作成時間: " + date1 + " MaxPosition: " + maxPosition.ToString());
+                        listItems.Add($@"前回{i} 取り込み日: " + date1 + " MaxPosition: " + maxPosition.ToString());
                         listDateTimes.Add(date1);
                         i++;
                     }
