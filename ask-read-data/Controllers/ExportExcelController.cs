@@ -78,7 +78,7 @@ namespace ask_read_data.Controllers
         }
 
         [HttpPost]
-        public IActionResult ExportExcel(DateTime Floor_Assy,  int Floor_Position = 0, int Floor_ParetoRenban = 0, DateTime Flame_Assy = new DateTime(), int Flame_Position = 0, int Flame_ParetoRenban = 0, DateTime SearchDate = new DateTime(), string clickbtn = "")
+        public IActionResult ExportExcel(DateTime Floor_Assy = new DateTime(),  int Floor_Position = 0, int Floor_ParetoRenban = 0, DateTime Flame_Assy = new DateTime(), int Flame_Position = 0, int Flame_ParetoRenban = 0, DateTime SearchDate = new DateTime(), string clickbtn = "")
         {
             var modelRequset = new ExportExcelViewModel() { 
                                                              Floor_Assy = Floor_Assy ,

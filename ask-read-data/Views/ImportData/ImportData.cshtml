@@ -82,7 +82,7 @@
 </div>
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    <script type="text/javascript">
+<script type="text/javascript">
         const MinDate = new Date('2000-01-01 00:00:00');
         const MaxDate = new Date('2050-01-01 00:00:00');
         $(document).ready(function () {
@@ -97,14 +97,30 @@
                 return confirm("本日のデータを削除します。よろしいですか？");
             });
 
+            $(document).bind("keydown", triggerReloadKeys);
+            function isF5(e) {
+                return e.which == 116;
+            }
+            function isCtrlR(e) {
+                return e.which == 82;
+            }
+
+            function triggerReloadKeys(e) {
+                if (isF5(e) || isCtrlR(e)) {
+                    //$('#reload').click();
+                    window.location.href = "@Url.RouteUrl(new { Controller = "ImportData", Action = "ImportData" })";
+                }
+            }
             $('#data-upload-form').on('change', function () {
                 console.log('form change!');
-
+                HandingFilesBeforeUpLoading();
+            });
+            function HandingFilesBeforeUpLoading() {
                 $('#import-res').empty;
-                if ($("#erroremess").length){
+                if ($("#erroremess").length) {
                     $("#erroremess").remove();
                 }
-                if ($("#successmess").length){
+                if ($("#successmess").length) {
                     $("#successmess").remove();
                 }
                 $('#import-res').removeClass('text-danger');
@@ -142,7 +158,7 @@
                         }
                     }
                 }
-            });
+            }
         });
         //  Client Side
         function GetExt() {
@@ -186,6 +202,6 @@
                 });
             }
         }
-    </script>
+</script>
 
 }
