@@ -41,6 +41,7 @@ namespace ask_read_data.Dao
                                   ORDER BY LastDownloadDateTime DESC, DownloadDateTime DESC";
 
                     SqlCommand command = new SqlCommand(commandText, connection);
+                    command.Parameters.Clear();
                     command.Parameters.Add("@date", System.Data.SqlDbType.DateTime).Value = date;
                     command.Parameters.Add("@bubanType", System.Data.SqlDbType.NVarChar).Value = '%' + bubanType + '%';
 
@@ -139,6 +140,64 @@ namespace ask_read_data.Dao
             }
 
             return objList;
+        }
+        public static Tuple<DateTime, int, int> GetPositionParetoRenbanLasttime(string bubanType)
+        {
+            var DateTime = new DateTime();
+            var Position = 0;
+            var Renban = 0;
+            //connection
+            SqlConnection connection = null;
+            SqlDataReader reader = null;
+            try
+            {
+                var ConnectionString = new GetConnectString().ConnectionString;
+                using (connection = new SqlConnection(ConnectionString))
+                {
+                    //open
+                    connection.Open();
+
+                    //commmand
+                    var commandText = $@"SELECT TOP (10) * 
+                                                      FROM [ask_datadb_test].[dbo].[File_Download_Log]
+                                                      WHERE (1=1)
+                                                      AND BubanMeiType like @bubanType
+                                                     ORDER BY LastDownloadDateTime DESC, DownloadDateTime DESC";
+
+                    SqlCommand command = new SqlCommand(commandText, connection);
+                    command.Parameters.Clear();
+                    command.Parameters.Add("@bubanType", System.Data.SqlDbType.NVarChar).Value = '%' + bubanType + '%';
+                    reader = command.ExecuteReader();
+                    if (reader.HasRows)
+                    {
+                        while (reader.Read())
+                        {
+                            DateTime = Convert.ToDateTime(reader["LastDownloadDateTime"].ToString());
+                            Position = Util.NullToBlank((object)reader["Position"]);
+                            Renban = Util.NullToBlank((object)reader["ParetoRenban"]);
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        DateTime = new DateTime();
+                        Position = 0;
+                        Renban = 0;
+                    }
+                }
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                if (connection != null) { connection.Close(); connection.Dispose(); }
+                if (reader != null) { reader.Dispose(); }
+            }
+            var result = new Tuple<DateTime, int, int>(DateTime, Position, Renban);
+
+            return result;
         }
     }
 }

@@ -770,22 +770,56 @@ namespace ask_read_data.Servive
 
         public Tuple<int, int> FindPositionParetoRenban(DateTime date, string bubanType)
         {
-            var result = ExportExcelDao.GetPositonParetoRenban_Before_Download(date, bubanType);
-            var position = result.Item1;
-            var renban = result.Item2;
+            try
+            {
+                var result = ExportExcelDao.GetPositonParetoRenban_Before_Download(date, bubanType);
+                var position = result.Item1;
+                var renban = result.Item2;
 
-            return result;
+                return result;
+            }
+            catch
+            {
+                throw;
+            }
+           
         }
 
         public List<DataModel> FindRemainingDataOfLastTime(ExportExcelViewModel viewModel)
         {
-            return new List<DataModel>();
-            //return ExportExcelDao.GetRemainingDataOfLastTime(viewModel);
+            try
+            {
+                return new List<DataModel>();
+                //return ExportExcelDao.GetRemainingDataOfLastTime(viewModel);
+            }
+            catch
+            {
+                throw;
+            }
         }
 
         public List<FileDownloadLogModel> FindDownloadHistory(DateTime date)
         {
-            return ExportExcelDao.GetDownloadHistory(date);
+            try
+            {
+                return ExportExcelDao.GetDownloadHistory(date);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public Tuple<DateTime, int, int> FindPositionParetoRenbanLasttime(string bubanType)
+        {
+            try
+            {
+                return ExportExcelDao.GetPositionParetoRenbanLasttime(bubanType);
+            }
+            catch
+            {
+                throw;
+            }
         }
     }
 }
