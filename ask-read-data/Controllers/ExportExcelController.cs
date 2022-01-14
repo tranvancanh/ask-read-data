@@ -214,9 +214,24 @@ namespace ask_read_data.Controllers
         }
 
         [HttpPost]
-        public ActionResult Search(ExportExcelViewModel modelRequset)
+        public ActionResult Search(ExportExcelViewModel viewModel)
         {
-            return View("ExportExcel", ReturnDataViewModel(modelRequset));
+            var bubantype = "";
+            bubantype = FL00R_ASSY;
+            var result1 = _excelExport.FindPositionParetoRenbanLasttime(bubantype);
+            viewModel.Floor_Assy = result1.Item1;
+            viewModel.Floor_Position = result1.Item2;
+            viewModel.Floor_ParetoRenban = result1.Item3;
+
+            bubantype = FRAME_ASSY;
+            var result2 = _excelExport.FindPositionParetoRenbanLasttime(bubantype);
+            viewModel.Flame_Assy = result2.Item1;
+            viewModel.Flame_Position = result2.Item2;
+            viewModel.Flame_ParetoRenban = result2.Item3;
+
+            viewModel.ListData = new DownloadHistoryViewModel() { DataTableHeader = new Models.Entity.FileDownloadLogModel(), DataTableBody = _excelExport.FindDownloadHistory(viewModel.SearchDate) };
+
+            return View("ExportExcel", viewModel);
         }
 
         [HttpGet]
@@ -287,7 +302,7 @@ namespace ask_read_data.Controllers
                 var result2 = _excelExport.FindPositionParetoRenban(viewModel.Flame_Assy, FRAME_ASSY);
                 viewModel.Flame_Position = result2.Item1;
                 viewModel.Flame_ParetoRenban = result2.Item2;
-                /*                                 固定分 Stop                                              */
+                /*                                 固定分 Stop                                               */
 
                 viewModel.ListData = new DownloadHistoryViewModel() { DataTableHeader = new Models.Entity.FileDownloadLogModel(), DataTableBody = _excelExport.FindDownloadHistory(viewModel.SearchDate) };
 
