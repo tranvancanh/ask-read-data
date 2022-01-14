@@ -351,9 +351,11 @@ namespace ask_read_data.Dao
                                                 DELETE FROM [ask_datadb_test].[dbo].[File_Import_Log]
                                                 WHERE FORMAT([CreateDateTime], 'yyyy-MM-dd') = FORMAT(@date, 'yyyy-MM-dd');
 
+                                                PRINT '>> COMMITING'
                                                 COMMIT TRANSACTION MYTRAN;
                                               END TRY
                                             BEGIN CATCH
+                                                PRINT '>> ROLLING BACK'
                                                 ROLLBACK TRANSACTION MYTRAN; 
                                                 THROW
                                             END CATCH

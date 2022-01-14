@@ -58,9 +58,9 @@ namespace ask_read_data.Controllers
             this._excelExport = excelExport;
         }
         [HttpGet]
-        public IActionResult ExportExcel()
+        public IActionResult ExportExcel(ExportExcelViewModel viewModel)
         {
-            var viewModel = new ExportExcelViewModel();
+            //var viewModel = new ExportExcelViewModel();
             var bubantype = "";
             bubantype = FL00R_ASSY;
             var result1 = _excelExport.FindPositionParetoRenban(viewModel.Floor_Assy, bubantype);
@@ -78,9 +78,17 @@ namespace ask_read_data.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult ExportExcel(ExportExcelViewModel modelRequset, string floorassy = null, string flameassy = null, string searchbtn = null )
+        public IActionResult ExportExcel(DateTime Floor_Assy,  int Floor_Position = 0, int Floor_ParetoRenban = 0, DateTime Flame_Assy = new DateTime(), int Flame_Position = 0, int Flame_ParetoRenban = 0, DateTime SearchDate = new DateTime(), string clickbtn = "")
         {
+            var modelRequset = new ExportExcelViewModel() { 
+                                                             Floor_Assy = Floor_Assy ,
+                                                             Floor_Position = Floor_Position,
+                                                             Floor_ParetoRenban = Floor_ParetoRenban,
+                                                             Flame_Assy = Flame_Assy,
+                                                             Flame_Position = Flame_Position,
+                                                             Flame_ParetoRenban = Flame_ParetoRenban,
+                                                             SearchDate = SearchDate
+                                                          };
             if (!ModelState.IsValid)
             {
                 return RedirectToAction("ExcelExport", "ExcelExport");
@@ -93,10 +101,9 @@ namespace ask_read_data.Controllers
             var tempFile = "";
             List<string> sheetName = new List<string>();
             /////////////////////////////////////////////////////////////////////////////////////////////////////
-            string button = floorassy + flameassy + searchbtn;
             try
             {
-                switch (button)
+                switch (clickbtn)
                 {
                     case "floorassy":
                         {
@@ -104,7 +111,7 @@ namespace ask_read_data.Controllers
                             var dt = _excelExport.GetFloor_Flame_Assy(modelRequset, FL00R_ASSY);
                             dt1 = dt.Item1;
                             dt2 = dt.Item2;
-                            filename = "FLOOR_ASSY_出荷分序列データー_" + modelRequset.Floor_Assy.Year.ToString().Substring(2, 2) + modelRequset.Floor_Assy.ToString("MM") + modelRequset.Floor_Assy.ToString("dd");
+                            filename = "FLOOR_ASSY_出荷分序列データー_" + modelRequset.Floor_Assy.Year.ToString() + modelRequset.Floor_Assy.ToString("MM") + modelRequset.Floor_Assy.ToString("dd") + "(" + modelRequset.Floor_Position.ToString() + ")(" + modelRequset.Floor_ParetoRenban.ToString() + ")";
                             sheetName = new List<string>() { FLOORASSY_SHEET1, FLOORASSY_SHEET2 };
                             tempFile = ASUKA_FL00R_ASSY_TEMPLATE;
                             break;
@@ -115,14 +122,10 @@ namespace ask_read_data.Controllers
                             var dt = _excelExport.GetFloor_Flame_Assy(modelRequset, FRAME_ASSY);
                             dt1 = dt.Item1;
                             dt2 = dt.Item2;
-                            filename = "FLAME_ASSY_出荷分序列データー_" + modelRequset.Flame_Assy.Year.ToString().Substring(2, 2) + modelRequset.Flame_Assy.ToString("MM") + modelRequset.Flame_Assy.ToString("dd");
+                            filename = "FLAME_ASSY_出荷分序列データー_" + modelRequset.Flame_Assy.Year.ToString() + modelRequset.Flame_Assy.ToString("MM") + modelRequset.Flame_Assy.ToString("dd") + "(" + modelRequset.Flame_Position.ToString() + ")(" + modelRequset.Flame_ParetoRenban.ToString() + ")";
                             sheetName = new List<string>() { FRAMEASSY_SHEET1, FRAMEASSY_SHEET2 };
                             tempFile = ASUKA_FRAME_ASSY_TEMPLATE;
                             break;
-                        }
-                    case "search":
-                        {
-                            return View(ReturnDataViewModel(modelRequset));
                         }
                     default:
                         {
@@ -142,7 +145,11 @@ namespace ask_read_data.Controllers
             // 出力フォルダパス
             var rootPath = Directory.GetCurrentDirectory();
             var path = Path.Combine(rootPath, @"wwwroot\DownloadFiles");
-
+            //Webサーバーのdownloadフォルダーがない場合は作成
+            if (!System.IO.Directory.Exists(path))
+            {
+                System.IO.Directory.CreateDirectory(path);
+            }
             /////////////////////////////////////////////////////////////////////////////////////////////////////
             // ファイル名
             var tmpFilename = string.Concat(filename,
@@ -163,70 +170,32 @@ namespace ask_read_data.Controllers
                 {
 
                     TempData["error"] = "データが存在していませんのでダウンロードに失敗しました";
-                    return View(ReturnDataViewModel(modelRequset));
+                    return Json(new { StatusCode = false, Mess = TempData["error"] });
                 }
                 // Excelファイル生成
                 Utility util = new Utility();
                 if (util.ExportExcel(dt1, dt2, expPath, tempPath, BubanMeiType, null, null, sheetName))
                 {
-                    //if (true) 
-                    //{
-                    //var newFile = new FileInfo(expPath);
-                    //var tempFile = new FileInfo(tempPath);
-                    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-                    //using (var package = new ExcelPackage(newFile, tempFile))
-                    //{
-                    //    //ExcelWorksheet worksheet = null;
-                    //    //acquisition of WorkSheet object. Because it FirstOrDefault (), it is better that originally was null check at a later stage. 
-                    //    var worksheet = package.Workbook.Worksheets.Where(s => s.Name == sheetName[0]).FirstOrDefault();
-                    //    //first dimension when specifying a cell in a two dimensional array Y direction, the second dimension is the X direction. 
-
-                    //    worksheet.Cells[1, 2].Value = "template of sample";
-                    //    worksheet.Cells[1, 2].Style.Font.Color.SetColor(Color.Red);
-                    //    for (int i = 0; i < 14; i++)
-                    //    {
-                    //        worksheet.Cells[4 + i, 1].Value = DateTime.Now.Hour;
-                    //        worksheet.Cells[4 + i, 2].Value = DateTime.Now.Minute;
-                    //        worksheet.Cells[4 + i, 3].Value = DateTime.Now.Second;
-                    //        worksheet.Cells[4 + i, 4].Value = DateTime.Now.Millisecond;
-                    //        if((4 + i)%4 == 0)
-                    //        {
-                    //            worksheet.Row(4 + i).PageBreak = true;
-                    //            // Insert a page break after the tenth row.
-                    //            // Insert a page break below the 14th row.
-                    //            //worksheet.HorizontalPageBreaks.Add(14);
-
-                    //            //workbook.Worksheets[0].HPageBreaks.Add(worksheet.Range["A7"]);
-                    //            //workbook.Worksheets[0].HPageBreaks.Add(worksheet.Range["A13"]);
-                    //            //workbook.Worksheets[0].ViewMode = ViewMode.Preview;
-                    //        }
-                    //    }
-                    //    worksheet.PrinterSettings.PrintArea = worksheet.Cells["A:1,A:15"];
-                    //    //ExcelWorksheet.PrinterSettings.PrintArea = ExcelWorksheet.Cells[1, 1, 20, 4];
-                    //    //save the Excel file 
-                    //    package.Save();
-                    //}
-
                     //////////////////////////////////////////////////////////////////////////////////////////////////////
-                    // ダウンロード履歴登録
                     var outputFilename = string.Concat(filename, Utility.EXTENSION_XLSX);
                     // InsertFile_Update_Log(UPDOWNKUBUN_DWN, outputFilename);
-
+                    // ダウンロード履歴登録
                     // 出力に成功したら、ファイルダウンロード
                     var file = System.IO.File.ReadAllBytes(expPath);
                     if (_excelExport.RecordDownloadHistory(ref dt1, BubanMeiType, Claims) > 0)
                     {
                         TempData["error"] = null;
                         TempData["success"] = "ダウンロードに成功しました";
-                        return File(file, System.Net.Mime.MediaTypeNames.Application.Octet, outputFilename, true);
+                        //return File(file, System.Net.Mime.MediaTypeNames.Application.Octet, outputFilename, true);
+                        return Json(new { StatusCode = true, fileName = tmpFilename, Mess = TempData["success"] });
                     }
                     TempData["error"] = "ダウンロードに失敗しました";
-                    return File(file, System.Net.Mime.MediaTypeNames.Application.Octet, outputFilename, true);
+                    return Json(new { StatusCode = false, Mess = TempData["error"] });
                 }
                 else
                 {
                     TempData["error"] = "ダウンロードに失敗しました";
-                    return View(ReturnDataViewModel(modelRequset));
+                    return Json(new { StatusCode = false, Mess = TempData["error"] });
                 }
             }
             catch (Exception ex)
@@ -234,10 +203,30 @@ namespace ask_read_data.Controllers
                 var error = ex.Message;
                 //var GetType = ex.GetType;
                 TempData["error"] = "ダウンロードに失敗しました " + error + "| Exception Type: " + ex.GetType().ToString();
-                return View(ReturnDataViewModel(modelRequset));
+                return Json(new { StatusCode = false, Mess = TempData["error"] });
             }
 
             // return View(modelRequset);
+        }
+
+        [HttpPost]
+        public ActionResult Search(ExportExcelViewModel modelRequset)
+        {
+            return View("ExportExcel", ReturnDataViewModel(modelRequset));
+        }
+
+        [HttpGet]
+        public ActionResult Download(string fileName)
+        {
+            //Get the temp folder and file path in server
+            // 出力フォルダパス
+            var rootPath = Directory.GetCurrentDirectory();
+            var path = Path.Combine(rootPath, @"wwwroot\DownloadFiles");
+
+            string fullPath = Path.Combine(path, fileName);
+            byte[] fileByteArray = System.IO.File.ReadAllBytes(fullPath);
+            //System.IO.File.Delete(fullPath);
+            return File(fileByteArray, "application/vnd.ms-excel", fileName);
         }
 
         [HttpPost]
