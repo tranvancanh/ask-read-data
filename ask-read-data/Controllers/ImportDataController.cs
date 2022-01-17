@@ -63,8 +63,9 @@ namespace ask_read_data.Controllers
         /// <param name="FileUpload"></param>
         /// <returns></returns>
         [HttpPost]
-        public IActionResult ImportData(List<IFormFile> FileUpload, ImportViewModel viewModel)
+        public IActionResult ImportData(List<IFormFile> FileUpload)
         {
+            ImportViewModel viewModel = new ImportViewModel();
             /////////////////////////////////////////////////////////////////////////////
             //  Get Current User Claims
             //  var abc = new UserInfor().UserInfo().UserName;
@@ -149,9 +150,11 @@ namespace ask_read_data.Controllers
         }
         private ImportViewModel ReturnDataView(ImportViewModel vm)
         {
+
             try
             {
-                vm.ListData = new DataViewModel() { DataTableHeader = new Models.Entity.DataModel(), DataTableBody = _importData.FindDataOfLastTimeInit(DateTime.Today) }; ;
+                vm.ListItem = CheckListItems(vm.SearchDate);
+                vm.ListData = new DataViewModel() { DataTableHeader = new Models.Entity.DataModel(), DataTableBody = _importData.FindDataOfLastTimeInit(vm.SearchDate) };
             }
             catch(Exception ex)
             {
