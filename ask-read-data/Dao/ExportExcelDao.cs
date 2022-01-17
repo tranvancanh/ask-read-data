@@ -13,6 +13,51 @@ namespace ask_read_data.Dao
 {
     public class ExportExcelDao
     {
+        public static bool SP_DataImport_CheckData(DateTime CreateDateTime, string bubanType)
+        {
+            var isCheck = false;
+            //connection
+            SqlConnection connection = null;
+            SqlDataReader reader = null;
+            try
+            {
+                var ConnectionString = new GetConnectString().ConnectionString;
+                using (connection = new SqlConnection(ConnectionString))
+                {
+                    //open
+                    connection.Open();
+
+                    //commmand
+                    var commandText = $@"select * from [ask_datadb_test].[dbo].[DataImport]
+                                           WHERE (1=1)
+	                                            AND FORMAT(CreateDateTime, 'yyyy-MM-dd') = FORMAT(@CreateDateTime, 'yyyy-MM-dd') 
+	                                            AND MEWISYO LIKE '%'+ @BubanType +'%'";
+
+                    SqlCommand command = new SqlCommand(commandText, connection);
+                    command.Parameters.Clear();
+                    command.Parameters.Add("@CreateDateTime", System.Data.SqlDbType.DateTime).Value = CreateDateTime;
+                    command.Parameters.Add("@bubanType", System.Data.SqlDbType.NVarChar).Value = '%' + bubanType + '%';
+
+                    reader = command.ExecuteReader();
+                    if (reader.HasRows)
+                    {
+                        isCheck = true;
+                    }
+                     else { isCheck = false; }
+                }
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                if (connection != null) { connection.Close(); connection.Dispose(); }
+                if (reader != null) { reader.Dispose(); }
+            }
+
+            return isCheck;
+        }
         public static Tuple<int, int> GetPositonParetoRenban_Before_Download(DateTime date, string bubanType)
         {
             var Position = 0;
