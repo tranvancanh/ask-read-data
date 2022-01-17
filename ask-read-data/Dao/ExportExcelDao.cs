@@ -13,6 +13,143 @@ namespace ask_read_data.Dao
 {
     public class ExportExcelDao
     {
+        public static string SP_File_Download_Log_Insert()
+        {
+            var commandText = $@" DECLARE @CurrentDate datetime;
+                                 SET @StausCode = 0
+                                 SET @CurrentDate = FORMAT(GETDATE(), 'yyyy/MM/dd HH:mm:ss');
+ 
+                              if (NOT EXISTS( select * from [ask_datadb_test].[dbo].[File_Download_Log] where 1=1 
+                                                AND BubanMeiType = @BubanMeiType 
+                                                AND LastDownloadDateTime = @LastDownloadDateTime
+                                                AND DownloadDateTime = @CurrentDate
+                                                AND udownload = @User))
+                                   Begin
+                                   INSERT INTO [ask_datadb_test].[dbo].[File_Download_Log] 
+                                          (BubanMeiType, 
+                                           LastDownloadDateTime, 
+                                           Position, 
+                                           ParetoRenban, 
+                                           DownloadDateTime,
+                                           udownload)
+                                   VALUES (@BubanMeiType, 
+                                           @LastDownloadDateTime, 
+                                           @Position,
+                                           @ParetoRenban,
+                                           @CurrentDate,
+                                           @User)
+
+                                    Set @StausCode = 200
+                                  End
+                             else 
+                                Begin
+                                    Set @StausCode = -500
+                                End";
+
+            return commandText;
+        }
+        public static string SP_GetLastDowloadInfo()
+        {
+            var commandText = $@" SELECT TOP (100) 
+                                   [BubanMeiType]
+                                  ,[LastDownloadDateTime]
+                                  ,[Position]
+                                  ,[ParetoRenban]
+                                  ,[DownloadDateTime]
+                                  ,[udownload]
+                              FROM [ask_datadb_test].[dbo].[File_Download_Log]
+
+                                WHERE (1=1)
+                                AND LastDownloadDateTime <= @DateTime
+                                AND BubanMeiType = @BubanMeiType
+
+                                 ORDER BY LastDownloadDateTime DESC, DownloadDateTime DESC";
+            return commandText;
+        }
+        public static string SP_DataImport_Flame_AssyAndFloor_Assy()
+        {
+            var commandText = $@"
+                                  ------------------------------  開始日の残りデータをチェック　--------------------------------------
+                                      SELECT 
+                                         [WAYMD]
+                                        ,[SEQ]
+                                        ,[KATASIKI]
+                                        ,[MEISHO]
+                                        ,[FILLER1]
+                                        ,[OPT]
+                                        ,[JIKU]
+                                        ,[FILLER2]
+                                        ,[DAI]
+                                        ,[MC]
+                                        ,[SIMUKE]
+                                        ,[E0]
+                                        ,[BUBAN]
+                                        ,[TANTO]
+                                        ,[GR]
+                                        ,[KIGO]
+                                        ,[MAKR]
+                                        ,[KOSUU]
+                                        ,[KISYU]
+                                        ,[MEWISYO]
+                                        ,[FYMD]
+                                        ,[SEIHINCD]
+                                        ,[SEHINJNO]
+                                        ,[FileName]
+                                        ,[LineNumber]
+                                        ,[Position]
+                                        ,[CreateDateTime]
+                                        ,FORMAT(CreateDateTime, 'yyyy-MM-dd') as CreateDateTimeFormat
+        
+        
+                                        FROM [ask_datadb_test].[dbo].[DataImport] as a
+                                        WHERE (1=1) 
+                                        AND FORMAT(CreateDateTime, 'yyyy-MM-dd') = FORMAT(@StartDateTime, 'yyyy-MM-dd')
+                                        AND MEWISYO LIKE '%'+ @BubanType +'%'
+                                        AND Position > @StartPosition
+        
+                                       UNION ALL
+                                      --------------------------------------- 今までのデータをチェック　-----------------------------------------------
+                                          SELECT 
+                                             [WAYMD]
+                                            ,[SEQ]
+                                            ,[KATASIKI]
+                                            ,[MEISHO]
+                                            ,[FILLER1]
+                                            ,[OPT]
+                                            ,[JIKU]
+                                            ,[FILLER2]
+                                            ,[DAI]
+                                            ,[MC]
+                                            ,[SIMUKE]
+                                            ,[E0]
+                                            ,[BUBAN]
+                                            ,[TANTO]
+                                            ,[GR]
+                                            ,[KIGO]
+                                            ,[MAKR]
+                                            ,[KOSUU]
+                                            ,[KISYU]
+                                            ,[MEWISYO]
+                                            ,[FYMD]
+                                            ,[SEIHINCD]
+                                            ,[SEHINJNO]
+                                            ,[FileName]
+                                            ,[LineNumber]
+                                            ,[Position]
+                                            ,[CreateDateTime]
+                                            ,FORMAT(CreateDateTime, 'yyyy-MM-dd') as CreateDateTimeFormat
+        
+        
+                                        FROM [ask_datadb_test].[dbo].[DataImport]
+                                        WHERE (1=1)
+                                        AND FORMAT(CreateDateTime, 'yyyy-MM-dd') > FORMAT(@StartDateTime, 'yyyy-MM-dd')
+                                        AND FORMAT(CreateDateTime, 'yyyy-MM-dd') <= FORMAT(GETDATE(), 'yyyy-MM-dd')
+                                        AND MEWISYO LIKE '%'+ @BubanType +'%'
+        
+                                       ORDER BY [CreateDateTime] ASC, [Position] ASC ";
+
+            return commandText;
+        }
         public static bool SP_DataImport_CheckData(DateTime CreateDateTime, string bubanType)
         {
             var isCheck = false;
@@ -31,7 +168,7 @@ namespace ask_read_data.Dao
                     var commandText = $@"select * from [ask_datadb_test].[dbo].[DataImport]
                                            WHERE (1=1)
 	                                            AND FORMAT(CreateDateTime, 'yyyy-MM-dd') = FORMAT(@CreateDateTime, 'yyyy-MM-dd') 
-	                                            AND MEWISYO LIKE '%'+ @BubanType +'%'";
+	                                            AND MEWISYO LIKE @BubanType";
 
                     SqlCommand command = new SqlCommand(commandText, connection);
                     command.Parameters.Clear();
@@ -207,7 +344,7 @@ namespace ask_read_data.Dao
                                                       FROM [ask_datadb_test].[dbo].[File_Download_Log]
                                                       WHERE (1=1)
                                                       AND BubanMeiType like @bubanType
-                                                     ORDER BY LastDownloadDateTime DESC, DownloadDateTime DESC";
+                                                      ORDER BY LastDownloadDateTime DESC, DownloadDateTime DESC";
 
                     SqlCommand command = new SqlCommand(commandText, connection);
                     command.Parameters.Clear();

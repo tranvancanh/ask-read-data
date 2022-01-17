@@ -39,6 +39,12 @@ namespace ask_read_data
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+        //#if DEBUG
+        //    services.AddControllersWithViews().AddRazorRuntimeCompilation();
+        //#else 
+        //    services.AddControllersWithViews();
+        //#endif
+
             // セッションを使う
             //services.AddSession(options => {
             //    // セッションクッキーの名前を変えるなら

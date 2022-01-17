@@ -80,9 +80,9 @@ namespace ask_read_data.Servive
                     //Create the command object
                     SqlCommand cmd = new SqlCommand()
                                                                 {
-                                                                    CommandText = "SP_DataImport_Flame_AssyAndFloor_Assy",
+                                                                    CommandText = ExportExcelDao.SP_DataImport_Flame_AssyAndFloor_Assy(),
                                                                     Connection = connection,
-                                                                    CommandType = CommandType.StoredProcedure
+                                                                    CommandType = CommandType.Text
                                                                 };
                     cmd.Parameters.Clear();
                     SqlParameter BubanType = new SqlParameter
@@ -548,9 +548,9 @@ namespace ask_read_data.Servive
                     //Create the command object
                     SqlCommand cmd = new SqlCommand()
                                                         {
-                                                            CommandText = "SP_File_Download_Log_Insert",
+                                                            CommandText = ExportExcelDao.SP_File_Download_Log_Insert(),
                                                             Connection = connection,
-                                                            CommandType = CommandType.StoredProcedure
+                                                            CommandType = CommandType.Text
                                                         };
                     //パラメータ初期化
                     cmd.Parameters.Clear();
@@ -648,9 +648,9 @@ namespace ask_read_data.Servive
                     //Create the command object
                     SqlCommand cmd = new SqlCommand()
                                                     {
-                                                        CommandText = "SP_GetLastDowloadInfo",
+                                                        CommandText = ExportExcelDao.SP_GetLastDowloadInfo(),
                                                         Connection = connection,
-                                                        CommandType = CommandType.StoredProcedure
+                                                        CommandType = CommandType.Text
                                                     };
                     //パラメータ初期化
                     cmd.Parameters.Clear();

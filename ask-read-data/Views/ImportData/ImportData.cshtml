@@ -42,10 +42,9 @@
             </div>
         </div>
         <br />
-        <div class="row form-group form-inline">
+        <div class="container-fluid row form-group form-inline">
             <div class="col-md-4">
-                <select class="form-control col-md-12 border border-secondary" id="droplistitems" asp-for="@Model.ItemValue" style="width: 100%;" aria-label=".form-select-sm example">
-                </select>
+                @Html.DropDownListFor(x => Model.ItemValue, new SelectList(Model.ListItem, "Value", "Text"), htmlAttributes: new { @class = "form-control col-md-12 border border-secondary", @id = "droplistitems", @style = "width: 100%;" })
             </div>
             <div class="col-md-2 pl-3 pr-0">
                 <select class="form-control col-md-12 border border-secondary" style="width: 100%;" asp-for="@Model.BubanType" aria-label="Default select example">
@@ -86,7 +85,6 @@
         const MinDate = new Date('2000-01-01 00:00:00');
         const MaxDate = new Date('2050-01-01 00:00:00');
         $(document).ready(function () {
-            SearchDateOnchange();
             $('#exportexcelpartial').DataTable();
             //デフォルトのファイル選択UIを非表示にして、機能だけ使用する仕掛け
             $('#file-select-button').on('click', function (e) {

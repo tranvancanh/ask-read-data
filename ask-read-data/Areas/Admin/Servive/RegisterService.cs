@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ask_read_data.Areas.Admin.Models;
 using ask_read_data.Areas.Admin.Repository;
+using ask_read_data.Areas.Dao;
 using ask_read_data.Commons;
 using ask_tzn_funamiKD.Commons;
 
@@ -28,9 +29,9 @@ namespace ask_read_data.Areas.Admin.Servive
                     //Create the command object
                     SqlCommand cmd = new SqlCommand()
                     {
-                        CommandText = "SP_Users",
+                        CommandText = RegisterDao.SP_Users(),
                         Connection = connection,
-                        CommandType = CommandType.StoredProcedure
+                        CommandType = CommandType.Text
                     };
                     //パラメータ初期化
                     cmd.Parameters.Clear();

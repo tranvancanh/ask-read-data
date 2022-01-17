@@ -45,9 +45,9 @@ namespace ask_read_data.Servive
                     //Create the command object
                     SqlCommand cmd = new SqlCommand()
                                                         {
-                                                            CommandText = "SP_DataImportInsert",
+                                                            CommandText = ImportDataDao.SP_DataImportInsert(),
                                                             Connection = connection,
-                                                            CommandType = CommandType.StoredProcedure,
+                                                            CommandType = CommandType.Text,
                                                             Transaction = transaction
                                                         };
                     foreach (var data in datas)
@@ -351,9 +351,9 @@ namespace ask_read_data.Servive
                     /////////////////////////////////////////////////////////////  SetParameter設定  /////////////////////////////////////////////////////
                     SqlCommand cmd1 = new SqlCommand()
                                                         {
-                                                            CommandText = "SP_BU_Mastar_SelectInsertUpdateDelete",
+                                                            CommandText = ImportDataDao.SP_BU_Mastar_SelectInsertUpdateDelete(),
                                                             Connection = connection,
-                                                            CommandType = CommandType.StoredProcedure,
+                                                            CommandType = CommandType.Text,
                                                             Transaction = transaction
                                                         };
                     var statementType = "Insert";
@@ -416,7 +416,7 @@ namespace ask_read_data.Servive
                                                                 {
                                                                     ParameterName = "@StausCode",
                                                                     SqlDbType = SqlDbType.Int,
-                                                                    Direction = ParameterDirection.Output
+                                                                    Direction = System.Data.ParameterDirection.Output
                                                                 };
 
                         cmd1.Parameters.Add(User);
@@ -434,9 +434,9 @@ namespace ask_read_data.Servive
 /////////////////////////////////////////////////////////////  SetParameter設定  ////////////////////////////////////////////////////////////
                     SqlCommand cmd2 = new SqlCommand()
                                                         {
-                                                            CommandText = "SP_File_Import_Log_Insert",
+                                                            CommandText = ImportDataDao.SP_File_Import_Log_Insert(),
                                                             Connection = connection,
-                                                            CommandType = CommandType.StoredProcedure,
+                                                            CommandType = CommandType.Text,
                                                             Transaction = transaction
                                                         };
                     statementType = "Insert";

@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using ask_read_data.Commons;
+using ask_read_data.Dao;
 using ask_read_data.Models;
 using ask_read_data.Models.Entity;
 using ask_read_data.Repository;
@@ -27,9 +28,9 @@ namespace ask_read_data.Servive
                     //Create the command object
                     SqlCommand cmd = new SqlCommand()
                                                         {
-                                                            CommandText = "SP_BU_Mastar_GetAll2000Record",
+                                                            CommandText = DataDao.SP_BU_Mastar_GetAll2000Record(),
                                                             Connection = connection,
-                                                            CommandType = CommandType.StoredProcedure
+                                                            CommandType = CommandType.Text
                                                         };
                     cmd.Parameters.Clear();
 
@@ -87,9 +88,9 @@ namespace ask_read_data.Servive
                     //Create the command object
                     SqlCommand cmd = new SqlCommand()
                                                         {
-                                                            CommandText = "SP_BU_Mastar_SearchDataImport",
+                                                            CommandText = DataDao.SP_BU_Mastar_SearchDataImport(),
                                                             Connection = connection,
-                                                            CommandType = CommandType.StoredProcedure
+                                                            CommandType = CommandType.Text
                                                         };
                     cmd.Parameters.Clear();
                     SqlParameter CreateDateTime = new SqlParameter

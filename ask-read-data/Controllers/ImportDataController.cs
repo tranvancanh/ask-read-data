@@ -46,6 +46,7 @@ namespace ask_read_data.Controllers
         {
             try
             {
+                viewModel.ListItem = CheckListItems(viewModel.SearchDate);
                 viewModel.ListData = new DataViewModel() { DataTableHeader = new Models.Entity.DataModel(), DataTableBody = _importData.FindDataOfLastTimeInit(DateTime.Today) };
             }
             catch
@@ -162,6 +163,25 @@ namespace ask_read_data.Controllers
             
             return vm;
         }
+
+        [HttpGet]
+        public IActionResult SearchData()
+        {
+            var viewModel = new ImportViewModel(); 
+            try
+            {
+                viewModel.ListItem = CheckListItems(viewModel.SearchDate);
+                viewModel.ListData = new DataViewModel() { DataTableHeader = new Models.Entity.DataModel(), DataTableBody = _importData.FindDataOfLastTime(viewModel) };
+
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("ImportData", new ImportViewModel());
+            }
+
+            return View("ImportData", viewModel);
+        }
+
         [HttpPost]
         public IActionResult SearchData(ImportViewModel viewModel)
         {
@@ -175,6 +195,7 @@ namespace ask_read_data.Controllers
                 {
                     return View("ImportData", new ImportViewModel());
                 }
+                viewModel.ListItem = CheckListItems(viewModel.SearchDate);
                 viewModel.ListData = new DataViewModel() { DataTableHeader = new Models.Entity.DataModel(), DataTableBody = _importData.FindDataOfLastTime(viewModel)};
                 
             }
@@ -407,6 +428,42 @@ namespace ask_read_data.Controllers
             }
 
             return Json(new { StatusCode = true, droplists });
+        }
+
+        private List<SelectListItem> CheckListItems(DateTime date)
+        {
+            var items = new Tuple<List<string>, List<string>>(new List<string>(), new List<string>());
+            List<SelectListItem> droplists = new List<SelectListItem>();
+            try
+            {
+                items = _importData.FindDropList(date);
+                var i = 0;
+                bool isSelected = true;
+                foreach (var item in items.Item1)
+                {
+                    if (i == 0) { isSelected = true; }
+                    else { isSelected = false; }
+                    droplists.Add(new SelectListItem()
+                    {
+                        Text = item,
+                        Value = i.ToString(),
+                        Selected = isSelected
+                    });
+                    i++;
+                }
+                for (int j = 0; j < droplists.Count; j++)
+                {
+                    droplists[j].Value = items.Item2[j];
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorInfor.DebugWriteLineError(ex);
+                Debug.WriteLine("========================================================================================");
+                throw;
+            }
+
+            return droplists;
         }
     }
 }

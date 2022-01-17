@@ -13,6 +13,210 @@ namespace ask_read_data.Dao
 {
     public class ImportDataDao
     {
+        public static string SP_DataImportInsert()
+        {
+            var commandText = $@" INSERT INTO [ask_datadb_test].[dbo].[DataImport]
+                                   (
+                                    WAYMD       ,
+                                    SEQ         ,
+                                    KATASIKI    ,
+                                    MEISHO      ,
+                                    FILLER1     ,
+                                    OPT         ,
+                                    JIKU        ,
+                                    FILLER2     ,
+                                    DAI         ,
+                                    MC          ,
+                                    SIMUKE      ,
+                                    E0          ,
+                                    BUBAN       ,
+                                    TANTO       ,
+                                    GR          ,
+                                    KIGO        ,
+                                    MAKR        ,
+                                    KOSUU       ,
+                                   KISYU       ,
+                                   MEWISYO     ,
+                                   FYMD        ,
+                                   SEIHINCD    ,
+                                   SEHINJNO    ,
+                                   FileName    ,
+                                   LineNumber  ,
+                                   Position    ,
+                                   CreateBy    ,
+                                   CreateDateTime 
+                                  ) 
+                                VALUES 
+                                    ( 
+                                    @WAYMD       ,
+                                    @SEQ         ,
+                                    @KATASIKI    ,
+                                    @MEISHO      ,
+                                    @FILLER1     ,
+                                    @OPT         ,
+                                    @JIKU        ,
+                                    @FILLER2     ,
+                                    @DAI         ,
+                                    @MC          ,
+                                    @SIMUKE      ,
+                                    @E0          ,
+                                    @BUBAN       ,
+                                    @TANTO       ,
+                                    @GR          ,
+                                    @KIGO        ,
+                                    @MAKR        ,
+                                    @KOSUU       ,
+                                    @KISYU       ,
+                                    @MEWISYO     ,
+                                    @FYMD        ,
+                                    @SEIHINCD    ,
+                                    @SEHINJNO    ,
+                                    @FileName    ,
+                                    @LineNumber  ,
+                                    @Position    ,
+                                    @CreateBy    ,
+                                    @CurrentDate 
+                                    );";
+
+            return commandText;
+        }
+
+        public static string SP_BU_Mastar_SelectInsertUpdateDelete()
+        {
+            var commandText = $@" DECLARE @CurrentDate datetime;  
+                                  DECLARE @UpBy as nvarchar(50)
+                                  DECLARE @CreateBy as nvarchar(50)
+                                  DECLARE @UpDateTime as datetime
+                                  DECLARE @CreateDateTime as datetime
+
+                                  SET     @CurrentDate = FORMAT(GETDATE(), 'yyyy/MM/dd HH:mm:ss');
+                                  SET     @UpBy = @User
+                                  SET     @CreateBy = @User
+                                  SET     @UpDateTime  = @CurrentDate
+                                  SET     @CreateDateTime  = @CurrentDate
+                                  SET     @StausCode = 0
+  
+                                ---------------------- Check User -----------------------------------------------
+                                 IF @StatementType='Select'
+                                 BEGIN
+                                  ------------------------ Check Exits ------------------------------------------
+                                  if (EXISTS( select * from [ask_datadb_test].[dbo].[BU_Mastar] where BUBAN = @BUBAN ))
+                                      Begin
+                                        Set @StausCode = 200
+                                        Return select @StausCode
+                                      End
+                                 else 
+                                    Begin
+                                        Set @StausCode = -500
+                                        Return select @StausCode
+                                    End
+                                  END
+                                  ---------------------- Update分  -----------------------------------------------
+                                  ELSE IF @StatementType = 'Update'
+                                  BEGIN
+                                    ------------------------ Check Exits ------------------------------------------
+                                  if (EXISTS( select * from [ask_datadb_test].[dbo].[BU_Mastar] where BUBAN = @BUBAN ))
+                                      Begin
+                                       UPDATE [ask_datadb_test].[dbo].[BU_Mastar] 
+                                       SET MEWISYO = @MEWISYO,
+                                           Nyusu = @Nyusu,
+                                           UpDateTime = @CurrentDate,
+                                           UpBy = @User
+
+                                        WHERE BUBAN = @BUBAN 
+                                         Set @StausCode = 200
+                                         Return select @StausCode
+                                       End
+                                  else 
+                                     Begin
+                                         Set @StausCode = -500
+                                         Return select @StausCode
+                                     End
+                                  END
+                                  ----------------------------- Delete分 --------------------------------------------
+                                  ELSE IF @StatementType = 'Delete'
+                                  BEGIN
+                                  ----------------------------- Check Exits ------------------------------------------
+                                  if (EXISTS( select * from [ask_datadb_test].[dbo].[BU_Mastar] where BUBAN = @BUBAN ))
+                                       Begin
+                                         DELETE FROM [ask_datadb_test].[dbo].[BU_Mastar] 
+    
+                                        WHERE BUBAN = @BUBAN 
+                                         Set @StausCode = 200
+                                         Return select @StausCode
+                                       End
+                                  else 
+                                     Begin
+                                         Set @StausCode = -500
+                                         Return select @StausCode
+                                     End
+       
+                                  END
+                                  ---------------------------- Insert分 --------------------------------------------
+                                  ELSE IF @StatementType = 'Insert'
+                                   BEGIN
+                                  ---------------------------- Check Exits ------------------------------------------
+                                   IF(NOT EXISTS( select * from [ask_datadb_test].[dbo].[BU_Mastar] where BUBAN = @BUBAN ))
+                                      Begin
+                                         INSERT INTO [ask_datadb_test].[dbo].[BU_Mastar] 
+                                          (BUBAN   ,
+                                           KIGO    ,
+                                           MEWISYO ,
+                                           KatakanaName,
+                                           Nyusu   ,
+                                           CreateDateTime,
+                                           CreateBy)
+                                         VALUES 
+                                         (@BUBAN,
+                                          @KIGO,
+                                          @MEWISYO,
+                                          @KatakanaName,
+                                          @Nyusu, 
+                                          @CreateDateTime, 
+                                          @User)
+                                          Set @StausCode = 200
+                                         Return select @StausCode
+                                       End
+         
+                                   END";
+
+            return commandText;
+        }
+
+        public static string SP_File_Import_Log_Insert()
+        {
+            var commandText = $@" DECLARE @CurrentDate datetime;
+                                 SET @StausCode = 0;
+                                 SET @CurrentDate = FORMAT(GETDATE(), 'yyyy/MM/dd HH:mm:ss');
+     
+                                if (NOT EXISTS( select * from [ask_datadb_test].[dbo].[File_Import_Log] where 1=1 
+                                                            AND CreateDateTime = @CurrentDate 
+                                                            AND FileName = @FileName
+                                                            AND TotalLine = @TotalLine
+                                                            AND MaxPosition = @MaxPosition
+                                                            AND Createby = @User
+                                
+                                                            ))
+                                   Begin
+                                   INSERT INTO [ask_datadb_test].[dbo].[File_Import_Log]
+                                         (CreateDateTime, 
+                                          FileName, 
+                                          TotalLine, 
+                                          MaxPosition,
+                                          Createby)
+                                   VALUES (@CurrentDate, 
+                                          @FileName, 
+                                          @TotalLine,
+                                          @MaxPosition,
+                                          @User)
+
+                                     Set @StausCode = 200
+                                     Return select @StausCode
+                                    End
+                             ";
+
+            return commandText;
+        }
         public static int DataImport_Before_CheckPosition(DateTime dateTime)
         {
             int position = 0;
