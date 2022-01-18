@@ -40,6 +40,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="wDocument\" />
     <Folder Include="wwwroot\DownloadFiles\" />
   </ItemGroup>
 
