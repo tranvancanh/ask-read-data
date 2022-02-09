@@ -37,7 +37,7 @@ namespace ask_read_data.Dao
                                   ,[LineNumber]
                                   ,[Position]
 
-	                               FROM [ask_datadb_test].[dbo].[DataImport]";
+	                               FROM [ask_datadb].[dbo].[DataImport]";
 
             return commandText;
         }
@@ -72,7 +72,7 @@ namespace ask_read_data.Dao
                                   ,[LineNumber]
                                   ,[Position]
 
-	                               FROM [ask_datadb_test].[dbo].[DataImport]
+	                               FROM [ask_datadb].[dbo].[DataImport]
 	                               WHERE FORMAT(CreateDateTime, 'yyyy-MM-dd 00:00:00') = FORMAT(@CreateDateTime, 'yyyy-MM-dd 00:00:00')";
 
             return commandText;

@@ -19,13 +19,13 @@ namespace ask_read_data.Dao
                                  SET @StausCode = 0
                                  SET @CurrentDate = FORMAT(GETDATE(), 'yyyy/MM/dd HH:mm:ss');
  
-                              if (NOT EXISTS( select * from [ask_datadb_test].[dbo].[File_Download_Log] where 1=1 
+                              if (NOT EXISTS( select * from [ask_datadb].[dbo].[File_Download_Log] where 1=1 
                                                 AND BubanMeiType = @BubanMeiType 
                                                 AND LastDownloadDateTime = @LastDownloadDateTime
                                                 AND DownloadDateTime = @CurrentDate
                                                 AND udownload = @User))
                                    Begin
-                                   INSERT INTO [ask_datadb_test].[dbo].[File_Download_Log] 
+                                   INSERT INTO [ask_datadb].[dbo].[File_Download_Log] 
                                           (BubanMeiType, 
                                            LastDownloadDateTime, 
                                            Position, 
@@ -57,7 +57,7 @@ namespace ask_read_data.Dao
                                   ,[ParetoRenban]
                                   ,[DownloadDateTime]
                                   ,[udownload]
-                              FROM [ask_datadb_test].[dbo].[File_Download_Log]
+                              FROM [ask_datadb].[dbo].[File_Download_Log]
 
                                 WHERE (1=1)
                                 AND LastDownloadDateTime <= @DateTime
@@ -101,7 +101,7 @@ namespace ask_read_data.Dao
                                         ,FORMAT(CreateDateTime, 'yyyy-MM-dd') as CreateDateTimeFormat
         
         
-                                        FROM [ask_datadb_test].[dbo].[DataImport] as a
+                                        FROM [ask_datadb].[dbo].[DataImport] as a
                                         WHERE (1=1) 
                                         AND FORMAT(CreateDateTime, 'yyyy-MM-dd') = FORMAT(@StartDateTime, 'yyyy-MM-dd')
                                         AND MEWISYO LIKE '%'+ @BubanType +'%'
@@ -140,7 +140,7 @@ namespace ask_read_data.Dao
                                             ,FORMAT(CreateDateTime, 'yyyy-MM-dd') as CreateDateTimeFormat
         
         
-                                        FROM [ask_datadb_test].[dbo].[DataImport]
+                                        FROM [ask_datadb].[dbo].[DataImport]
                                         WHERE (1=1)
                                         AND FORMAT(CreateDateTime, 'yyyy-MM-dd') > FORMAT(@StartDateTime, 'yyyy-MM-dd')
                                         AND FORMAT(CreateDateTime, 'yyyy-MM-dd') <= FORMAT(GETDATE(), 'yyyy-MM-dd')
@@ -165,7 +165,7 @@ namespace ask_read_data.Dao
                     connection.Open();
 
                     //commmand
-                    var commandText = $@"select * from [ask_datadb_test].[dbo].[DataImport]
+                    var commandText = $@"select * from [ask_datadb].[dbo].[DataImport]
                                            WHERE (1=1)
 	                                            AND FORMAT(CreateDateTime, 'yyyy-MM-dd') = FORMAT(@CreateDateTime, 'yyyy-MM-dd') 
 	                                            AND MEWISYO LIKE @BubanType";
@@ -217,7 +217,7 @@ namespace ask_read_data.Dao
                                       ,[Position]
                                       ,[ParetoRenban]
                                       ,[DownloadDateTime]
-                                  FROM [ask_datadb_test].[dbo].[File_Download_Log]
+                                  FROM [ask_datadb].[dbo].[File_Download_Log]
                                   WHERE FORMAT(LastDownloadDateTime, 'yyyy-MM-dd') = FORMAT(@date, 'yyyy-MM-dd') 
                                   AND BubanMeiType like @bubanType
                                   ORDER BY LastDownloadDateTime DESC, DownloadDateTime DESC";
@@ -268,7 +268,7 @@ namespace ask_read_data.Dao
                     var commandText = $@"SELECT * FROM (
                                         ------------------------------------------------------ FL00R Data -------------------------------------
                                                         SELECT
-                                                        * FROM [ask_datadb_test].[dbo].[File_Download_Log]
+                                                        * FROM [ask_datadb].[dbo].[File_Download_Log]
                         
                                                             WHERE (1=1)
                                                             AND BubanMeiType LIKE '%FL00R ASSY%' 
@@ -279,7 +279,7 @@ namespace ask_read_data.Dao
                                         ------------------------------------------------------ FRAME Data -------------------------------------
                                                     UNION ALL
                                                         SELECT
-                                                            * FROM [ask_datadb_test].[dbo].[File_Download_Log]
+                                                            * FROM [ask_datadb].[dbo].[File_Download_Log]
                                 
                                                             WHERE (1=1)
                                                             AND BubanMeiType LIKE '%FRAME ASSY%' 
@@ -341,7 +341,7 @@ namespace ask_read_data.Dao
 
                     //commmand
                     var commandText = $@"SELECT TOP (10) * 
-                                                      FROM [ask_datadb_test].[dbo].[File_Download_Log]
+                                                      FROM [ask_datadb].[dbo].[File_Download_Log]
                                                       WHERE (1=1)
                                                       AND BubanMeiType like @bubanType
                                                       ORDER BY LastDownloadDateTime DESC, DownloadDateTime DESC";

@@ -93,6 +93,7 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 <script type="text/javascript">
+    let ROOT = '@Url.Content("~")';
     $(document).ready(function () {
         $('#exportexcelpartial').DataTable();
     });
@@ -118,7 +119,7 @@
         let SearchDate = document.getElementById("datetimeSearch").value;
 
         $.ajax({
-            url: '/ExportExcel/ExportExcel',
+            url: ROOT + '/ExportExcel/ExportExcel',
             type: "POST",
             data: { Floor_Assy: Floor_Assy, Floor_Position: Floor_Position, Floor_ParetoRenban: Floor_ParetoRenban, Flame_Assy: Flame_Assy, Flame_Position: Flame_Position, Flame_ParetoRenban: Flame_ParetoRenban, SearchDate: SearchDate, clickbtn: clickbtn },
             success: function (response) {
@@ -160,7 +161,7 @@
     function GetPositionParetoRenbanAjax(x, bubantype) {
         let date = x;
         $.ajax({
-            url: '/ExportExcel/GetPositionParetoRenban',
+            url: ROOT +'/ExportExcel/GetPositionParetoRenban',
             type: "POST",
             data: { date: date, bubantype: bubantype },
             success: function (response) {

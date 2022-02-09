@@ -18,9 +18,9 @@ namespace ask_read_data.Commons
 
         public GetConnectString()
         {
-            var databaseName = "ask_datadb_test";
+            var databaseName = "ask_datadb";
     #if DEBUG
-            databaseName = "ask_datadb_test";
+            databaseName = "ask_datadb";
     #endif
             var builder = new ConfigurationBuilder()
                     .SetBasePath(Directory.GetCurrentDirectory())

@@ -28,7 +28,7 @@ namespace ask_read_data.Areas.Dao
                                         Return select @StausCode
                                     End
                                     ---------------------- Check Exits -------------------------------------
-                                  if (EXISTS( select * from [ask_datadb_test].[dbo].[LoginUser] where UserName = @UserName and Password = @PasswordHash))
+                                  if (EXISTS( select * from [ask_datadb].[dbo].[LoginUser] where UserName = @UserName and Password = @PasswordHash))
                                     Begin
                                      Set @StausCode = 200
                                      Return select @StausCode

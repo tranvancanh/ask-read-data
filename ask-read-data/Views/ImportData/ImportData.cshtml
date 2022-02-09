@@ -81,7 +81,8 @@
 </div>
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-<script type="text/javascript">
+    <script type="text/javascript">
+        let ROOT = '@Url.Content("~")';
         const MinDate = new Date('2000-01-01 00:00:00');
         const MaxDate = new Date('2050-01-01 00:00:00');
         $(document).ready(function () {
@@ -178,7 +179,7 @@
             var droplist = $("#droplistitems");
             if (date >= MinDate && date <= MaxDate) {
                 $.ajax({
-                    url: '/ImportData/GetDropListAjax',
+                    url: ROOT +'/ImportData/GetDropListAjax',
                     type: "POST",
                     data: { date: x },
                     success: function (response) {
@@ -200,6 +201,6 @@
                 });
             }
         }
-</script>
+    </script>
 
 }
