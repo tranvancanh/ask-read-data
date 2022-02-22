@@ -46,11 +46,11 @@
                     </div>
                     <div class="col-md-2 pr-0">
                         <input class="form-control text-center col-md-6 col-lg-6 col-xl-6 fw-normal" value="Position" disabled />
-                        <input class="form-control col-md-5 border border-secondary" id="flame_assy_position" type="number" asp-for="@Model.Flame_Position" min="0" step="1" autocomplete="on" />
+                        <input class="form-control col-md-5 border border-secondary" id="flame_assy_position" type="number" asp-for="@Model.Flame_Position" min="1" step="1" autocomplete="on" required/>
                     </div>
                     <div class="col-md-3 pr-0">
                         <input class="form-control text-center col-md-6 col-lg-6 col-xl-6 fw-normal" value="パレット連番" disabled />
-                        <input class="form-control col-md-3 border border-secondary" id="flame_assy_paretorenban" type="number" asp-for="@Model.Flame_ParetoRenban" min="0" step="1" autocomplete="on" />
+                        <input class="form-control col-md-3 border border-secondary" id="flame_assy_paretorenban" type="number" asp-for="@Model.Flame_ParetoRenban" min="1" step="1" autocomplete="on" required/>
                     </div>
                     <div class="col-md-2">
                         <button class="col-md-12 col-lg-12 col-xl-12 btn btn-primary btn-sm float-left" type="button" name="flameassy" value="flameassy" margin-right onclick="FunctionSubmitAjax('flameassy')">FLAME ダウンロード</button>
