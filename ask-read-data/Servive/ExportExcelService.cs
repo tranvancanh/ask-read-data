@@ -115,6 +115,16 @@ namespace ask_read_data.Servive
                     cmd.Parameters.Add(StartPosition);
                     //SQL実行
                     reader = cmd.ExecuteReader();
+                    if(bubanType == ExportExcelController.FL00R_ASSY)
+                    {
+                        if (startParetoRenban >= MAX_RENBAN_FLOOR_ASSY)
+                            startParetoRenban = 0;
+                    }
+                    else if (bubanType == ExportExcelController.FRAME_ASSY)
+                    {
+                        if (startParetoRenban >= MAX_RENBAN_FRAME_ASSY)
+                            startParetoRenban = 0;
+                    }
                     int PaletNo = startParetoRenban + 1;
                     int index = 0;
                     if (!reader.HasRows)
