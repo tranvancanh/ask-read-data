@@ -1210,6 +1210,9 @@ namespace mclogi.common
                                     {
                                         worksheet.Cells[startIndexOfPage + 2, 7, startIndexOfPage + 37, 7].Merge = true;
                                     }
+                                    // merge パレット連番
+                                    LoadMergeParetoRenban(ref worksheet, startIndexOfPage, buBanType);
+
                                     // Alignment is center
                                     worksheet.Cells[startIndexOfPage + 2, 1, startIndexOfPage + 37, 6].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                                     worksheet.Row(index * 38).PageBreak = true;
@@ -1287,6 +1290,9 @@ namespace mclogi.common
                                     {
                                         worksheet.Cells[startIndexOfPage + 2, 7, startIndexOfPage + 37, 7].Merge = true;
                                     }
+                                    // merge パレット連番
+                                    LoadMergeParetoRenban(ref worksheet, startIndexOfPage, buBanType);
+
                                     // Alignment is center
                                     worksheet.Cells[startIndexOfPage + 2, 1, startIndexOfPage + 37, 6].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                                     worksheet.Row(index * 38).PageBreak = true;
@@ -1375,6 +1381,9 @@ namespace mclogi.common
                                     {
                                         worksheet.Cells[startIndexOfPage + 2, 7, startIndexOfPage + 36, 7].Merge = true;
                                     }
+                                    // merge パレット連番
+                                    LoadMergeParetoRenban(ref worksheet, startIndexOfPage, buBanType);
+
                                     // Alignment is center
                                     worksheet.Cells[startIndexOfPage + 2, 1, startIndexOfPage + 36, 6].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                                     worksheet.Row(index * 37).PageBreak = true;
@@ -1451,6 +1460,9 @@ namespace mclogi.common
                                     {
                                         worksheet.Cells[startIndexOfPage + 2, 7, startIndexOfPage + 36, 7].Merge = true;
                                     }
+                                    // merge パレット連番
+                                    LoadMergeParetoRenban(ref worksheet, startIndexOfPage, buBanType);
+
                                     // Alignment is center
                                     worksheet.Cells[startIndexOfPage + 2, 1, startIndexOfPage + 36, 6].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                                     worksheet.Row(index * 37).PageBreak = true;
@@ -1497,6 +1509,117 @@ namespace mclogi.common
             {
                 worksheet.Cells[index, 1].Value = "【生産用】FLAME  ASSY";
             }
+        }
+
+        private void LoadMergeParetoRenban(ref ExcelWorksheet worksheet, int startIndexOfPage, string buBanType)
+        {
+            // merge パレット連番
+            // .Merge = true; //Merge columns start and end range
+            //  Font should be bold
+            //  Alignment is center
+            //
+            switch (buBanType)
+            {
+                case ExportExcelController.FL00R_ASSY:
+                    {
+                        // Block 1
+                        {
+                            worksheet.Cells[startIndexOfPage + 3, 1, startIndexOfPage + 10, 1].Merge = true; 
+                            worksheet.Cells[startIndexOfPage + 3, 1, startIndexOfPage + 10, 1].Style.Font.Bold = true; 
+                            worksheet.Cells[startIndexOfPage + 3, 1, startIndexOfPage + 10, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                            worksheet.Cells[startIndexOfPage + 3, 1, startIndexOfPage + 10, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                            worksheet.Cells[startIndexOfPage + 3, 1, startIndexOfPage + 10, 1].Style.Font.Size = 70;
+                        }
+                        // Block 2
+                        {
+                            worksheet.Cells[startIndexOfPage + 12, 1, startIndexOfPage + 19, 1].Merge = true; 
+                            worksheet.Cells[startIndexOfPage + 12, 1, startIndexOfPage + 19, 1].Style.Font.Bold = true; 
+                            worksheet.Cells[startIndexOfPage + 12, 1, startIndexOfPage + 19, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                            worksheet.Cells[startIndexOfPage + 12, 1, startIndexOfPage + 19, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                            worksheet.Cells[startIndexOfPage + 12, 1, startIndexOfPage + 19, 1].Style.Font.Size = 70;
+                        }
+                        // Block 3
+                        {
+                            worksheet.Cells[startIndexOfPage + 21, 1, startIndexOfPage + 28, 1].Merge = true; 
+                            worksheet.Cells[startIndexOfPage + 21, 1, startIndexOfPage + 28, 1].Style.Font.Bold = true; 
+                            worksheet.Cells[startIndexOfPage + 21, 1, startIndexOfPage + 28, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                            worksheet.Cells[startIndexOfPage + 21, 1, startIndexOfPage + 28, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                            worksheet.Cells[startIndexOfPage + 21, 1, startIndexOfPage + 28, 1].Style.Font.Size = 70;
+                        }
+                        // Block 4
+                        {
+                            worksheet.Cells[startIndexOfPage + 30, 1, startIndexOfPage + 37, 1].Merge = true; 
+                            worksheet.Cells[startIndexOfPage + 30, 1, startIndexOfPage + 37, 1].Style.Font.Bold = true; 
+                            worksheet.Cells[startIndexOfPage + 30, 1, startIndexOfPage + 37, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                            worksheet.Cells[startIndexOfPage + 30, 1, startIndexOfPage + 37, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                            worksheet.Cells[startIndexOfPage + 30, 1, startIndexOfPage + 37, 1].Style.Font.Size = 70;
+                        }
+                        break;
+                    }
+                case ExportExcelController.FRAME_ASSY:
+                    {
+                        // Block 1
+                        {
+                            worksheet.Cells[startIndexOfPage + 3, 1, startIndexOfPage + 6, 1].Merge = true;
+                            worksheet.Cells[startIndexOfPage + 3, 1, startIndexOfPage + 6, 1].Style.Font.Bold = true;
+                            worksheet.Cells[startIndexOfPage + 3, 1, startIndexOfPage + 6, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                            worksheet.Cells[startIndexOfPage + 3, 1, startIndexOfPage + 6, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                            worksheet.Cells[startIndexOfPage + 3, 1, startIndexOfPage + 6, 1].Style.Font.Size = 70;
+                        }
+                        // Block 2
+                        {
+                            worksheet.Cells[startIndexOfPage + 8, 1, startIndexOfPage + 11, 1].Merge = true;
+                            worksheet.Cells[startIndexOfPage + 8, 1, startIndexOfPage + 11, 1].Style.Font.Bold = true;
+                            worksheet.Cells[startIndexOfPage + 8, 1, startIndexOfPage + 11, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                            worksheet.Cells[startIndexOfPage + 8, 1, startIndexOfPage + 11, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                            worksheet.Cells[startIndexOfPage + 8, 1, startIndexOfPage + 11, 1].Style.Font.Size = 70;
+                        }
+                        // Block 3
+                        {
+                            worksheet.Cells[startIndexOfPage + 13, 1, startIndexOfPage + 16, 1].Merge = true;
+                            worksheet.Cells[startIndexOfPage + 13, 1, startIndexOfPage + 16, 1].Style.Font.Bold = true;
+                            worksheet.Cells[startIndexOfPage + 13, 1, startIndexOfPage + 16, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                            worksheet.Cells[startIndexOfPage + 13, 1, startIndexOfPage + 16, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                            worksheet.Cells[startIndexOfPage + 13, 1, startIndexOfPage + 16, 1].Style.Font.Size = 70;
+                        }
+                        // Block 4
+                        {
+                            worksheet.Cells[startIndexOfPage + 18, 1, startIndexOfPage + 21, 1].Merge = true;
+                            worksheet.Cells[startIndexOfPage + 18, 1, startIndexOfPage + 21, 1].Style.Font.Bold = true;
+                            worksheet.Cells[startIndexOfPage + 18, 1, startIndexOfPage + 21, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                            worksheet.Cells[startIndexOfPage + 18, 1, startIndexOfPage + 21, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                            worksheet.Cells[startIndexOfPage + 18, 1, startIndexOfPage + 21, 1].Style.Font.Size = 70;
+                        }
+
+                        // Block 5
+                        {
+                            worksheet.Cells[startIndexOfPage + 23, 1, startIndexOfPage + 26, 1].Merge = true;
+                            worksheet.Cells[startIndexOfPage + 23, 1, startIndexOfPage + 26, 1].Style.Font.Bold = true;
+                            worksheet.Cells[startIndexOfPage + 23, 1, startIndexOfPage + 26, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                            worksheet.Cells[startIndexOfPage + 23, 1, startIndexOfPage + 26, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                            worksheet.Cells[startIndexOfPage + 23, 1, startIndexOfPage + 26, 1].Style.Font.Size = 70;
+                        }
+                        // Block 6
+                        {
+                            worksheet.Cells[startIndexOfPage + 28, 1, startIndexOfPage + 31, 1].Merge = true;
+                            worksheet.Cells[startIndexOfPage + 28, 1, startIndexOfPage + 31, 1].Style.Font.Bold = true;
+                            worksheet.Cells[startIndexOfPage + 28, 1, startIndexOfPage + 31, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                            worksheet.Cells[startIndexOfPage + 28, 1, startIndexOfPage + 31, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                            worksheet.Cells[startIndexOfPage + 28, 1, startIndexOfPage + 31, 1].Style.Font.Size = 70;
+                        }
+                        // Block 7
+                        {
+                            worksheet.Cells[startIndexOfPage + 33, 1, startIndexOfPage + 36, 1].Merge = true;
+                            worksheet.Cells[startIndexOfPage + 33, 1, startIndexOfPage + 36, 1].Style.Font.Bold = true;
+                            worksheet.Cells[startIndexOfPage + 33, 1, startIndexOfPage + 36, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                            worksheet.Cells[startIndexOfPage + 33, 1, startIndexOfPage + 36, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                            worksheet.Cells[startIndexOfPage + 33, 1, startIndexOfPage + 36, 1].Style.Font.Size = 70;
+                        }
+
+                        break;
+                    }
+            }
+
         }
         #region CSV出力
         /// <summary>

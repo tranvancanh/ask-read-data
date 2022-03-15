@@ -39,6 +39,8 @@ namespace ask_read_data.Servive
                         dateStart = Convert.ToDateTime(new DateTime(modelRequset.Floor_Assy.Year, modelRequset.Floor_Assy.Month, modelRequset.Floor_Assy.Day, 00, 00, 00).ToString("yyyy-MM-dd HH:mm:ss"));
                         startPosition = modelRequset.Floor_Position;
                         startParetoRenban = modelRequset.Floor_ParetoRenban;
+                        if (startParetoRenban >= MAX_RENBAN_FLOOR_ASSY || startParetoRenban <= 0)
+                            startParetoRenban = 0;
                         break;
                     }
                 case ExportExcelController.FRAME_ASSY:
@@ -46,6 +48,8 @@ namespace ask_read_data.Servive
                         dateStart = Convert.ToDateTime(new DateTime(modelRequset.Flame_Assy.Year, modelRequset.Flame_Assy.Month, modelRequset.Flame_Assy.Day, 00, 00, 00).ToString("yyyy-MM-dd HH:mm:ss"));
                         startPosition = modelRequset.Flame_Position;
                         startParetoRenban = modelRequset.Flame_ParetoRenban;
+                        if (startParetoRenban >= MAX_RENBAN_FRAME_ASSY || startParetoRenban <= 0)
+                            startParetoRenban = 0;
                         break;
                     }
             }
@@ -115,16 +119,6 @@ namespace ask_read_data.Servive
                     cmd.Parameters.Add(StartPosition);
                     //SQL実行
                     reader = cmd.ExecuteReader();
-                    if(bubanType == ExportExcelController.FL00R_ASSY)
-                    {
-                        if (startParetoRenban >= MAX_RENBAN_FLOOR_ASSY)
-                            startParetoRenban = 0;
-                    }
-                    else if (bubanType == ExportExcelController.FRAME_ASSY)
-                    {
-                        if (startParetoRenban >= MAX_RENBAN_FRAME_ASSY)
-                            startParetoRenban = 0;
-                    }
                     int PaletNo = startParetoRenban + 1;
                     int index = 0;
                     if (!reader.HasRows)
