@@ -78,7 +78,8 @@ namespace ask_read_data.Commons
             if (!System.IO.File.Exists(filePath))
                 using (System.IO.File.CreateText(filePath)) { }
 
-            File.AppendAllText(filePath, strLog + Environment.NewLine);
+            var striDate = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss.ffff");
+            File.AppendAllText(filePath, striDate + " | " + strLog + Environment.NewLine);
 
             //FileInfo logFileInfo = new FileInfo(filePath);
             //DirectoryInfo logDirInfo = new DirectoryInfo(logFileInfo.DirectoryName);
