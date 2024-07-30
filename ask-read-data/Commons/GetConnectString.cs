@@ -32,7 +32,7 @@ namespace ask_read_data.Commons
                 {
                     if (pathBase.Equals("/ask-read-data"))
                     {
-                        databaseName = "ask_datadb"; ; // ConnectionString for 本番環境
+                        databaseName = "ask_datadb"; // ConnectionString for 本番環境
                     }
                     else if (pathBase.Equals("/ask-read-data-test"))
                     {
