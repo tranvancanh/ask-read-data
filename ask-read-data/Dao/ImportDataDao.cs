@@ -15,7 +15,7 @@ namespace ask_read_data.Dao
     {
         public static string SP_DataImportInsert()
         {
-            var commandText = $@" INSERT INTO [ask_datadb].[dbo].[DataImport]
+            var commandText = $@" INSERT INTO [DataImport]
                                    (
                                     WAYMD       ,
                                     SEQ         ,
@@ -100,7 +100,7 @@ namespace ask_read_data.Dao
                                  IF @StatementType='Select'
                                  BEGIN
                                   ------------------------ Check Exits ------------------------------------------
-                                  if (EXISTS( select * from [ask_datadb].[dbo].[BU_Mastar] where BUBAN = @BUBAN ))
+                                  if (EXISTS( select * from [BU_Mastar] where BUBAN = @BUBAN ))
                                       Begin
                                         Set @StausCode = 200
                                         Return select @StausCode
@@ -115,9 +115,9 @@ namespace ask_read_data.Dao
                                   ELSE IF @StatementType = 'Update'
                                   BEGIN
                                     ------------------------ Check Exits ------------------------------------------
-                                  if (EXISTS( select * from [ask_datadb].[dbo].[BU_Mastar] where BUBAN = @BUBAN ))
+                                  if (EXISTS( select * from [BU_Mastar] where BUBAN = @BUBAN ))
                                       Begin
-                                       UPDATE [ask_datadb].[dbo].[BU_Mastar] 
+                                       UPDATE [BU_Mastar] 
                                        SET MEWISYO = @MEWISYO,
                                            Nyusu = @Nyusu,
                                            UpDateTime = @CurrentDate,
@@ -137,9 +137,9 @@ namespace ask_read_data.Dao
                                   ELSE IF @StatementType = 'Delete'
                                   BEGIN
                                   ----------------------------- Check Exits ------------------------------------------
-                                  if (EXISTS( select * from [ask_datadb].[dbo].[BU_Mastar] where BUBAN = @BUBAN ))
+                                  if (EXISTS( select * from [BU_Mastar] where BUBAN = @BUBAN ))
                                        Begin
-                                         DELETE FROM [ask_datadb].[dbo].[BU_Mastar] 
+                                         DELETE FROM [BU_Mastar] 
     
                                         WHERE BUBAN = @BUBAN 
                                          Set @StausCode = 200
@@ -156,9 +156,9 @@ namespace ask_read_data.Dao
                                   ELSE IF @StatementType = 'Insert'
                                    BEGIN
                                   ---------------------------- Check Exits ------------------------------------------
-                                   IF(NOT EXISTS( select * from [ask_datadb].[dbo].[BU_Mastar] where BUBAN = @BUBAN ))
+                                   IF(NOT EXISTS( select * from [BU_Mastar] where BUBAN = @BUBAN ))
                                       Begin
-                                         INSERT INTO [ask_datadb].[dbo].[BU_Mastar] 
+                                         INSERT INTO [BU_Mastar] 
                                           (BUBAN   ,
                                            KIGO    ,
                                            MEWISYO ,
@@ -189,7 +189,7 @@ namespace ask_read_data.Dao
                                  SET @StausCode = 0;
                                  SET @CurrentDate = FORMAT(GETDATE(), 'yyyy/MM/dd HH:mm:ss');
      
-                                if (NOT EXISTS( select * from [ask_datadb].[dbo].[File_Import_Log] where 1=1 
+                                if (NOT EXISTS( select * from [File_Import_Log] where 1=1 
                                                             AND CreateDateTime = @CurrentDate 
                                                             AND FileName = @FileName
                                                             AND TotalLine = @TotalLine
@@ -198,7 +198,7 @@ namespace ask_read_data.Dao
                                 
                                                             ))
                                    Begin
-                                   INSERT INTO [ask_datadb].[dbo].[File_Import_Log]
+                                   INSERT INTO [File_Import_Log]
                                          (CreateDateTime, 
                                           FileName, 
                                           TotalLine, 
@@ -225,7 +225,7 @@ namespace ask_read_data.Dao
             SqlCommand command = null;
             try
             {
-                var ConnectionString = new GetConnectString().ConnectionString;
+                var ConnectionString = new GetConnectString().ConnectionString();
                 using (connection = new SqlConnection(ConnectionString))
                 {
                     //open
@@ -233,7 +233,7 @@ namespace ask_read_data.Dao
 
                     //commmand
                     var commandText = $@"SELECT MAX(Position)  AS START_POSITION
-                                        FROM [ask_datadb].[dbo].[DataImport]
+                                        FROM [DataImport]
                                         WHERE (1=1)
                                         AND FORMAT(CreateDateTime, 'yyyy-MM-dd') = FORMAT(@dateTime, 'yyyy-MM-dd')";
                     command = new SqlCommand(commandText, connection);
@@ -269,14 +269,14 @@ namespace ask_read_data.Dao
             SqlDataReader reader = null;
             try
             {
-                var ConnectionString = new GetConnectString().ConnectionString;
+                var ConnectionString = new GetConnectString().ConnectionString();
                 using (connection = new SqlConnection(ConnectionString))
                 {
                     //open
                     connection.Open();
                     var commandText = $@"SELECT TOP(5) FORMAT(CreateDateTime, 'yyyy-MM-dd') AS CreateDateTime
                                                   ,MAX(Position) AS MaxPosition
-                                            FROM [ask_datadb].[dbo].[DataImport]
+                                            FROM [DataImport]
 
                                             WHERE FORMAT(CreateDateTime, 'yyyy-MM-dd') <= FORMAT(CAST(@date AS date), 'yyyy-MM-dd')
                                             GROUP BY FORMAT(CreateDateTime, 'yyyy-MM-dd')
@@ -321,7 +321,7 @@ namespace ask_read_data.Dao
             SqlDataReader reader = null;
             try
             {
-                var ConnectionString = new GetConnectString().ConnectionString;
+                var ConnectionString = new GetConnectString().ConnectionString();
                 using (connection = new SqlConnection(ConnectionString))
                 {
                     //open
@@ -334,7 +334,7 @@ namespace ask_read_data.Dao
                                 var createDateTime = viewModel.ItemValue;
                                 if(connection.State != System.Data.ConnectionState.Open) { connection.Open(); }
                                 var commandText = $@"SELECT TOP (2000) *
-                                      FROM [ask_datadb].[dbo].[DataImport]
+                                      FROM [DataImport]
                                       where (1=1)
                                       AND MEWISYO LIKE @bubanType
                                       AND FORMAT(CreateDateTime, 'yyyy-MM-dd') = FORMAT(CAST(@createDateTime AS date), 'yyyy-MM-dd')
@@ -375,7 +375,7 @@ namespace ask_read_data.Dao
                                 if (connection.State != System.Data.ConnectionState.Open) { connection.Open(); }
                                 var commandText = $@"
                                                 ------------------------------------------------------ Data -------------------------------------
-                                                SELECT * FROM [ask_datadb].[dbo].[DataImport]
+                                                SELECT * FROM [DataImport]
                                                   WHERE (1=1)
                                                   AND FORMAT(CreateDateTime, 'yyyy-MM-dd') = FORMAT(CAST(@createDateTime AS date), 'yyyy-MM-dd')
 
@@ -431,14 +431,14 @@ namespace ask_read_data.Dao
             SqlDataReader reader = null;
             try
             {
-                var ConnectionString = new GetConnectString().ConnectionString;
+                var ConnectionString = new GetConnectString().ConnectionString();
                 using (connection = new SqlConnection(ConnectionString))
                 {
                     //open
                     connection.Open();
                     var commandText = $@"SELECT TOP(5) FORMAT(CreateDateTime, 'yyyy-MM-dd') AS CreateDateTime
                                                   ,MAX(Position) AS MaxPosition
-                                            FROM [ask_datadb].[dbo].[DataImport]
+                                            FROM [DataImport]
 
                                             WHERE FORMAT(CreateDateTime, 'yyyy-MM-dd') <= FORMAT(CAST(@date AS date), 'yyyy-MM-dd')
                                             GROUP BY FORMAT(CreateDateTime, 'yyyy-MM-dd')
@@ -471,7 +471,7 @@ namespace ask_read_data.Dao
                     if (connection.State != System.Data.ConnectionState.Open) { connection.Open(); }
                     commandText = $@"
                                                 ------------------------------------------------------ Data -------------------------------------
-                                                SELECT * FROM [ask_datadb].[dbo].[DataImport]
+                                                SELECT * FROM [DataImport]
                                                   WHERE (1=1)
                                                   AND FORMAT(CreateDateTime, 'yyyy-MM-dd') = FORMAT(CAST(@createDateTime AS date), 'yyyy-MM-dd')
 
@@ -524,13 +524,13 @@ namespace ask_read_data.Dao
             SqlConnection connection = null;
             try
             {
-                var ConnectionString = new GetConnectString().ConnectionString;
+                var ConnectionString = new GetConnectString().ConnectionString();
                 using (connection = new SqlConnection(ConnectionString))
                 {
                     //open
                     connection.Open();
                     var commandText = $@"
-                                          if (EXISTS( select * from [ask_datadb].[dbo].[DataImport] WHERE FORMAT([CreateDateTime], 'yyyy-MM-dd') = FORMAT(@date, 'yyyy-MM-dd') ))
+                                          if (EXISTS( select * from [DataImport] WHERE FORMAT([CreateDateTime], 'yyyy-MM-dd') = FORMAT(@date, 'yyyy-MM-dd') ))
                                             Begin
                                             DECLARE @datestart datetime
                                             SET @datestart = GETDATE()
@@ -538,21 +538,21 @@ namespace ask_read_data.Dao
                                              BEGIN TRY
                                                BEGIN TRANSACTION MYTRAN;
                                                  SET @datestart = (select FORMAT(CreateDateTime, 'yyyy-MM-dd HH:mm:ss')
-                                                     FROM [ask_datadb].[dbo].[DataImport]
+                                                     FROM [DataImport]
                                                      WHERE FORMAT(CreateDateTime, 'yyyy-MM-dd') = FORMAT(@date, 'yyyy-MM-dd')
                                                      AND Position = 1);
                                                  PRINT @datestart
                                              ------------------------------------------------------ [dbo].[DataImport] ----------------------------------------------
-                                                  DELETE FROM [ask_datadb].[dbo].[DataImport] 
+                                                  DELETE FROM [DataImport] 
                                                             WHERE (1=1)
                                                             AND FORMAT(CreateDateTime, 'yyyy-MM-dd') = FORMAT(@date, 'yyyy-MM-dd');
                                              ------------------------------------------------------ [dbo].[File_Download_Log] ---------------------------------------
-                                                 DELETE FROM [ask_datadb].[dbo].[File_Download_Log] 
+                                                 DELETE FROM [File_Download_Log] 
                                                  WHERE FORMAT([DownloadDateTime], 'yyyy-MM-dd') = FORMAT(@date, 'yyyy-MM-dd')
                                                           AND [DownloadDateTime] >= @datestart;
 
                                               ------------------------------------------------------ [dbo].[File_Import_Log] ----------------------------------------
-                                                DELETE FROM [ask_datadb].[dbo].[File_Import_Log]
+                                                DELETE FROM [File_Import_Log]
                                                 WHERE FORMAT([CreateDateTime], 'yyyy-MM-dd') = FORMAT(@date, 'yyyy-MM-dd');
 
                                                 PRINT '>> COMMITING'

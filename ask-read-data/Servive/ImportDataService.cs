@@ -28,7 +28,7 @@ namespace ask_read_data.Servive
             var listFileName = new List<string>();
             var respon = new ResponResult();
             int affectedRows = 0;
-            var ConnectionString = new GetConnectString().ConnectionString;
+            var ConnectionString = new GetConnectString().ConnectionString();
             var UserName = Claims.Where(c => c.Type == ClaimTypes.Name).First().Value;
             DateTime insertDateTime = Convert.ToDateTime(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             // インポートの前に、Positionの値をチェックする

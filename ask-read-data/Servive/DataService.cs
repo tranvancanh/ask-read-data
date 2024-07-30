@@ -18,7 +18,7 @@ namespace ask_read_data.Servive
         public List<DataModel> GetAll2000DataImport()
         {
             var objList = new List<DataModel>();
-            var ConnectionString = new GetConnectString().ConnectionString;
+            var ConnectionString = new GetConnectString().ConnectionString();
             using (var connection = new SqlConnection(ConnectionString))
             {
                 SqlDataReader reader = null;
@@ -78,7 +78,7 @@ namespace ask_read_data.Servive
         public List<DataModel> SearchDataImport(DateTime importDate)
         {
             var objList = new List<DataModel>();
-            var ConnectionString = new GetConnectString().ConnectionString;
+            var ConnectionString = new GetConnectString().ConnectionString();
             using (var connection = new SqlConnection(ConnectionString))
             {
                 SqlDataReader reader = null;

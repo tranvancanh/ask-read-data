@@ -19,7 +19,7 @@ namespace read_data.Areas.Admin.Servive
             int statusCode = -500;
             string passwordHash = Encryptor.MD5Hash(loginUser.Password);
 
-            var ConnectionString = new GetConnectString().ConnectionString;
+            var ConnectionString = new GetConnectString().ConnectionString();
             using (var connection = new SqlConnection(ConnectionString))
             {
                 try

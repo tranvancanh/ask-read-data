@@ -12,6 +12,7 @@ using ask_read_data.Models.Entity;
 using ask_read_data.Models.ViewModel;
 using ask_read_data.Repository;
 using ask_tzn_funamiKD.Commons;
+using mclogi.common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -116,6 +117,39 @@ namespace ask_read_data.Controllers
                     }
 
                 }
+
+                // 取込フォルダパス
+                var rootPath = Directory.GetCurrentDirectory();
+                var uploadPath = Path.Combine(rootPath, @"wwwroot\ImportFiles");
+                //Webサーバーのuploadフォルダーがない場合は作成
+                if (!System.IO.Directory.Exists(uploadPath))
+                {
+                    System.IO.Directory.CreateDirectory(uploadPath);
+                }
+                foreach (var file in files)
+                {
+                    if (file.Length > 0)
+                    {
+                        // Get the file name with extension
+                        string fileNameWithExtension = file.FileName;
+                        // Get the file name without the extension
+                        var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileNameWithExtension);
+                        // Get the file extension
+                        var fileExtension = Path.GetExtension(fileNameWithExtension);
+                        var fileName = string.Concat(fileNameWithoutExtension, "_", HttpContext.Session.GetString(Utility.SESSION_KEY_USERCD),
+                        "_",
+                        DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss_fff"),
+                        "_",
+                        Path.ChangeExtension(Path.GetRandomFileName(), fileExtension)
+                        );
+                        var filePath = Path.Combine(uploadPath, fileName);
+                        using (Stream fileStream = new FileStream(filePath, FileMode.Create))
+                        {
+                            file.CopyTo(fileStream);
+                        }
+                    }
+                }
+
             }
             catch (Exception ex)
             {

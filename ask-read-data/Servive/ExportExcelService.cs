@@ -74,7 +74,7 @@ namespace ask_read_data.Servive
                               };
             MyDataTable.Columns.AddRange(cols);
 
-            var ConnectionString = new GetConnectString().ConnectionString;
+            var ConnectionString = new GetConnectString().ConnectionString();
             using (var connection = new SqlConnection(ConnectionString))
             {
                 SqlDataReader reader = null;
@@ -543,7 +543,7 @@ namespace ask_read_data.Servive
             }
             int statusCode = 0;
             int affectedRows = 0;
-            var ConnectionString = new GetConnectString().ConnectionString;
+            var ConnectionString = new GetConnectString().ConnectionString();
             using (var connection = new SqlConnection(ConnectionString))
             {
                 try
@@ -643,7 +643,7 @@ namespace ask_read_data.Servive
             var LastDownloadDateTime = new DateTime(1900, 01, 01, 00, 00, 00);
             int lastPosition = 0;
             int lastParetoRenban = 0;
-            var ConnectionString = new GetConnectString().ConnectionString;
+            var ConnectionString = new GetConnectString().ConnectionString();
             using (var connection = new SqlConnection(ConnectionString))
             {
                 SqlDataReader reader = null;

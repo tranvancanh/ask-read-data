@@ -42,6 +42,7 @@
   <ItemGroup>
     <Folder Include="wDocument\" />
     <Folder Include="wwwroot\DownloadFiles\" />
+    <Folder Include="wwwroot\ImportFiles\" />
   </ItemGroup>
 
   <ItemGroup>

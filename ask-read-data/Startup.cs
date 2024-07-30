@@ -135,6 +135,8 @@ namespace ask_read_data
                     policy.RequireClaim(ClaimTypes.Role, "test");
                 });
             });
+
+            services.AddHttpContextAccessor(); // Required for IHttpContextAccessor
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

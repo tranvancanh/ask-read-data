@@ -20,7 +20,7 @@ namespace ask_read_data.Areas.Admin.Servive
             int statusCode = -500;
             var obj = new UserViewModel();
          
-                var ConnectionString = new GetConnectString().ConnectionString;
+                var ConnectionString = new GetConnectString().ConnectionString();
                 using (var connection = new SqlConnection(ConnectionString))
                 {
                 try
