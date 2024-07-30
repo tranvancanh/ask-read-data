@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Text;
 
 namespace ask_tzn_funamiKD.Commons
 {
@@ -68,6 +67,38 @@ namespace ask_tzn_funamiKD.Commons
             {
                 return string.Empty;
             }
+        }
+    }
+
+    public static class DataTableExtensions
+    {
+        public static string ToCsv(this DataTable dataTable, char delimiter = ',')
+        {
+            StringBuilder csvData = new StringBuilder();
+
+            // Write the header line
+            foreach (DataColumn column in dataTable.Columns)
+            {
+                csvData.Append(column.ColumnName + delimiter);
+            }
+            csvData.Length--; // Remove the last delimiter
+            csvData.Length--; // Remove the last delimiter
+            csvData.Length--; // Remove the last delimiter
+            csvData.AppendLine();
+
+            // Write data rows
+            foreach (DataRow row in dataTable.Rows)
+            {
+                foreach (DataColumn column in dataTable.Columns)
+                {
+                    csvData.Append(row[column].ToString() + delimiter);
+                }
+                csvData.Length--; // Remove the last delimiter
+                csvData.Length--; // Remove the last delimiter
+                csvData.AppendLine();
+            }
+
+            return csvData.ToString();
         }
     }
 }

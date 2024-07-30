@@ -1,5 +1,4 @@
-﻿
-@using Microsoft.AspNetCore.Http
+﻿@using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor HttpContextAccessor
 @model ask_read_data.Models.ViewModel.ExportExcelViewModel
 
@@ -29,13 +28,20 @@
                         <input class="form-control text-center col-md-6 col-lg-6 col-xl-6 fw-normal" value="Position" disabled />
                         <input class="form-control col-md-5 border border-secondary" id="floor_assy_position" type="number" asp-for="@Model.Floor_Position" min="0" step="1" autocomplete="on" />
                     </div>
-                    <div class="col-md-3 pr-0">
+                    <div class="col-md-2 pr-0">
                         <input class="form-control text-center col-md-6 col-lg-6 col-xl-6 fw-normal" value="パレット連番" disabled />
-                        <input class="form-control col-md-3 border border-secondary" id="floor_assy_paretorenban" type="number" asp-for="@Model.Floor_ParetoRenban" min="0" step="1" autocomplete="on" />
+                        <input class="form-control col-md-5 border border-secondary" id="floor_assy_paretorenban" type="number" asp-for="@Model.Floor_ParetoRenban" min="0" step="1" autocomplete="on" />
                     </div>
-                    <div class="col-md-2">
-                        <button class="col-md-12 col-lg-12 col-xl-12 btn btn-primary btn-sm float-left" type="button" name="floorassy" value="floorassy" margin-right onclick="FunctionSubmitAjax('floorassy')">FLOOR ダウンロード</button>
+                    <div class="col-md-1 form-check">
+                        <input class="col-md-4 form-check-input" type="radio" name="floorRadioOptions" id="floorRadio1" style="cursor:pointer;" value="Excel" checked="checked">
+                        <label class="form-check-label" for="floorRadio1" style="cursor:pointer;">Excel</label>
                     </div>
+                    <div class="col-md-1 form-check">
+                        <input class="col-md-4 form-check-input" type="radio" name="floorRadioOptions" id="floorRadio2" style="cursor:pointer;" value="Csv">
+                        <label class="form-check-label" for="floorRadio2" style="cursor:pointer;">Csv</label>
+                    </div>
+                    <button class="col-md-2 col-lg-2 col-xl-2 btn btn-primary btn-sm float-left" type="button" name="floorassy" value="floorassy" margin-right onclick="FunctionSubmitAjax('floorassy')">FLOOR ダウンロード</button>
+
                 </div>
                 <div class="row form-group form-inline">
                     <div class="col-md-2">
@@ -46,15 +52,21 @@
                     </div>
                     <div class="col-md-2 pr-0">
                         <input class="form-control text-center col-md-6 col-lg-6 col-xl-6 fw-normal" value="Position" disabled />
-                        <input class="form-control col-md-5 border border-secondary" id="flame_assy_position" type="number" asp-for="@Model.Flame_Position" min="1" step="1" autocomplete="on" required/>
+                        <input class="form-control col-md-5 border border-secondary" id="flame_assy_position" type="number" asp-for="@Model.Flame_Position" min="1" step="1" autocomplete="on" required />
                     </div>
-                    <div class="col-md-3 pr-0">
+                    <div class="col-md-2 pr-0">
                         <input class="form-control text-center col-md-6 col-lg-6 col-xl-6 fw-normal" value="パレット連番" disabled />
-                        <input class="form-control col-md-3 border border-secondary" id="flame_assy_paretorenban" type="number" asp-for="@Model.Flame_ParetoRenban" min="1" step="1" autocomplete="on" required/>
+                        <input class="form-control col-md-5 border border-secondary" id="flame_assy_paretorenban" type="number" asp-for="@Model.Flame_ParetoRenban" min="1" step="1" autocomplete="on" required />
                     </div>
-                    <div class="col-md-2">
-                        <button class="col-md-12 col-lg-12 col-xl-12 btn btn-primary btn-sm float-left" type="button" name="flameassy" value="flameassy" margin-right onclick="FunctionSubmitAjax('flameassy')">FLAME ダウンロード</button>
+                    <div class="col-md-1 form-check">
+                        <input class="col-md-4 form-check-input" type="radio" name="flameRadioOptions" id="flameRadio1" style="cursor:pointer;" value="Excel" checked="checked">
+                        <label class="form-check-label" for="flameRadio1" style="cursor:pointer;">Excel</label>
                     </div>
+                    <div class="col-md-1 form-check">
+                        <input class="col-md-4 form-check-input" type="radio" name="flameRadioOptions" id="flameRadio2" style="cursor:pointer;" value="Csv">
+                        <label class="form-check-label" for="flameRadio2" style="cursor:pointer;">Csv</label>
+                    </div>
+                    <button class="col-md-2 col-lg-2 col-xl-2 btn btn-primary btn-sm float-left" type="button" name="flameassy" value="flameassy" margin-right onclick="FunctionSubmitAjax('flameassy')">FLAME ダウンロード</button>
                 </div>
                 <br />
                 @*/*///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/*@
@@ -91,109 +103,119 @@
     @await Html.PartialAsync("/Views/ExportExcel/_DataDownloadLog.cshtml", Model.ListData)
 </div>
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-<script type="text/javascript">
-    let ROOT = '@Url.Content("~")';
-    $(document).ready(function () {
-        $('#exportexcelpartial').DataTable();
-    });
-    const MinDate = new Date('2000-01-01 00:00:00');
-    const MaxDate = new Date('2050-01-01 00:00:00');
-    document.getElementById("error").innerHTML = "";
-    document.getElementById("success").innerHTML = "";
-    function ResetTextFunction() {
-        document.getElementById("error").innerHTML = "";
-        document.getElementById("success").innerHTML = "";
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-
-    function FunctionSubmitAjax(clickbtn) {
+    <script type="text/javascript">
+        let ROOT = '@Url.Content("~")';
+        $(document).ready(function () {
+            $('#exportexcelpartial').DataTable();
+        });
+        const MinDate = new Date('2000-01-01 00:00:00');
+        const MaxDate = new Date('2050-01-01 00:00:00');
         document.getElementById("error").innerHTML = "";
         document.getElementById("success").innerHTML = "";
-        let Floor_Assy = document.getElementById("datetimeFloor").value;
-        let Floor_Position = document.getElementById("floor_assy_position").value;
-        let Floor_ParetoRenban = document.getElementById("floor_assy_paretorenban").value;
-        ////////////////////////////////////////////////////////////////////////////////////
-        let Flame_Assy = document.getElementById("datetimeFlame").value;
-        let Flame_Position = document.getElementById("flame_assy_position").value;
-        let Flame_ParetoRenban = document.getElementById("flame_assy_paretorenban").value;
-        let SearchDate = document.getElementById("datetimeSearch").value;
+        function ResetTextFunction() {
+            document.getElementById("error").innerHTML = "";
+            document.getElementById("success").innerHTML = "";
+        }
 
-        $.ajax({
-            url: ROOT + '/ExportExcel/ExportExcel',
-            type: "POST",
-            data: { Floor_Assy: Floor_Assy, Floor_Position: Floor_Position, Floor_ParetoRenban: Floor_ParetoRenban, Flame_Assy: Flame_Assy, Flame_Position: Flame_Position, Flame_ParetoRenban: Flame_ParetoRenban, SearchDate: SearchDate, clickbtn: clickbtn },
-            success: function (response) {
-                ////success
-                if (response.statusCode === true) {
-                    //get the file name for download
-                    if (response.fileName != "" && response.fileName != null) {
-                        var url = "Download/?fileName=" + response.fileName;
-                        var a = document.createElement("a");
-                        a.href = url;
-                        a.download = response.fileName;
-                        document.body.appendChild(a);
-                        a.click();
-                        //location.reload();
-                        setTimeout(() => { location.reload(); }, 500);
+        function FunctionSubmitAjax(clickbtn) {
+            document.getElementById("error").innerHTML = "";
+            document.getElementById("success").innerHTML = "";
+            let Floor_Assy = document.getElementById("datetimeFloor").value;
+            let Floor_Position = document.getElementById("floor_assy_position").value;
+            let Floor_ParetoRenban = document.getElementById("floor_assy_paretorenban").value;
+            ////////////////////////////////////////////////////////////////////////////////////
+            let Flame_Assy = document.getElementById("datetimeFlame").value;
+            let Flame_Position = document.getElementById("flame_assy_position").value;
+            let Flame_ParetoRenban = document.getElementById("flame_assy_paretorenban").value;
+            let SearchDate = document.getElementById("datetimeSearch").value;
+
+            let fileExtension = '';
+            if (clickbtn == 'floorassy') {
+                fileExtension = $('input[name="floorRadioOptions"]:checked').val();
+            }
+            else if (clickbtn == 'flameassy') {
+                fileExtension = $('input[name="flameRadioOptions"]:checked').val();
+            }
+
+            $.ajax({
+                url: ROOT + '/ExportExcel/ExportExcel',
+                type: "POST",
+                data: { Floor_Assy: Floor_Assy, Floor_Position: Floor_Position, Floor_ParetoRenban: Floor_ParetoRenban, Flame_Assy: Flame_Assy, Flame_Position: Flame_Position, Flame_ParetoRenban: Flame_ParetoRenban, SearchDate: SearchDate, clickbtn: clickbtn, fileExtension: fileExtension },
+                success: function (response) {
+                    ////success
+                    if (response.statusCode === true) {
+                        //get the file name for download
+                        if (response.fileName != "" && response.fileName != null) {
+                            var url = "Download/?fileName=" + response.fileName;
+                            var a = document.createElement("a");
+                            a.href = url;
+                            a.download = response.fileName;
+                            document.body.appendChild(a);
+                            a.click();
+                            //location.reload();
+                            setTimeout(() => { location.reload(); }, 500);
+                        }
                     }
-                }
-                else {
+                    else {
                         //use window.location.href for redirect to download action for download the file
-                    @* window.location.href = "@Url.RouteUrl(new { Controller = "ExportExcel", Action = "Download" })/?fileName=" + response.fileName;*@
+        @* window.location.href = "@Url.RouteUrl(new { Controller = "ExportExcel", Action = "Download" })/?fileName=" + response.fileName;*@
+                            document.getElementById("error").innerHTML = response.mess;
+                    }
+                },
+                error: function (err) {
                     document.getElementById("error").innerHTML = response.mess;
                 }
-            },
-            error: function (err) {
-                document.getElementById("error").innerHTML = response.mess;
-            }
-        });
-    }
-    function FloorAssyOnchange() {
-        let x = document.getElementById("datetimeFloor").value;
-        //document.getElementById("demo_FLOOR").innerHTML = "You selected floor: " + x;
-        GetPositionParetoRenbanAjax(x, "floorassy");
-    }
-    function FlameAssyOnchange() {
-        let x = document.getElementById("datetimeFlame").value;
-        //document.getElementById("demo_FLAME").innerHTML = "You selected flame: " + x;
-        GetPositionParetoRenbanAjax(x, "flameassy");
-    }
-    function GetPositionParetoRenbanAjax(x, bubantype) {
-        let date = x;
-        $.ajax({
-            url: ROOT +'/ExportExcel/GetPositionParetoRenban',
-            type: "POST",
-            data: { date: date, bubantype: bubantype },
-            success: function (response) {
-                ////success
-                if (response.statusCode === true) {
-                    // alert(response.position + '====' + response.renban);
-                    switch (bubantype) {
-                        case "floorassy": {
-                            document.getElementById("floor_assy_position").value = response.position;
-                            document.getElementById("floor_assy_paretorenban").value = response.renban;
-                            break;
-                        }
-                        case "flameassy": {
-                            document.getElementById("flame_assy_position").value = response.position;
-                            document.getElementById("flame_assy_paretorenban").value = response.renban;
-                            break;
-                        }
-                        default: {
-                            //alert("button error");
-                            break;
+            });
+        }
+        function FloorAssyOnchange() {
+            let x = document.getElementById("datetimeFloor").value;
+            //document.getElementById("demo_FLOOR").innerHTML = "You selected floor: " + x;
+            GetPositionParetoRenbanAjax(x, "floorassy");
+        }
+        function FlameAssyOnchange() {
+            let x = document.getElementById("datetimeFlame").value;
+            //document.getElementById("demo_FLAME").innerHTML = "You selected flame: " + x;
+            GetPositionParetoRenbanAjax(x, "flameassy");
+        }
+        function GetPositionParetoRenbanAjax(x, bubantype) {
+            let date = x;
+            $.ajax({
+                url: ROOT + '/ExportExcel/GetPositionParetoRenban',
+                type: "POST",
+                data: { date: date, bubantype: bubantype },
+                success: function (response) {
+                    ////success
+                    if (response.statusCode === true) {
+                        // alert(response.position + '====' + response.renban);
+                        switch (bubantype) {
+                            case "floorassy": {
+                                document.getElementById("floor_assy_position").value = response.position;
+                                document.getElementById("floor_assy_paretorenban").value = response.renban;
+                                break;
+                            }
+                            case "flameassy": {
+                                document.getElementById("flame_assy_position").value = response.position;
+                                document.getElementById("flame_assy_paretorenban").value = response.renban;
+                                break;
+                            }
+                            default: {
+                                //alert("button error");
+                                break;
+                            }
                         }
                     }
+                    else {
+                        //alert(response.statusCode);
+                    }
+                },
+                error: function (err) {
+                    //alert(err.statusCode);
                 }
-                else {
-                    //alert(response.statusCode);
-                }
-            },
-            error: function (err) {
-                //alert(err.statusCode);
-            }
-        });
-    }
+            });
+        }
 
-</script>
+    </script>
 }

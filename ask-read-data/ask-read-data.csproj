@@ -16,6 +16,12 @@
   </ItemGroup>
 
   <ItemGroup>
+	  <Content Remove="wwwroot\DownloadFiles\**" Condition="'$(Configuration)' == 'Release'" />
+	  <Content Remove="wwwroot\ImportFiles\**" Condition="'$(Configuration)' == 'Release'" />
+	  <Content Remove="wwwroot\Logs\**" Condition="'$(Configuration)' == 'Release'" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="EPPlus.Core" Version="1.5.4" />
     <PackageReference Include="Microsoft.AspNet.Identity.Core" Version="2.2.3" />
     <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.2.7" />
@@ -41,8 +47,6 @@
 
   <ItemGroup>
     <Folder Include="wDocument\" />
-    <Folder Include="wwwroot\DownloadFiles\" />
-    <Folder Include="wwwroot\ImportFiles\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -51,6 +55,9 @@
     <None Include="Views\Shared\Error.cshtml" />
     <None Include="Views\Shared\_Layout.cshtml" />
     <None Include="Views\Shared\_ValidationScriptsPartial.cshtml" />
+	  <None Include="wwwroot\DownloadFiles\**" CopyToOutputDirectory="PreserveNewest" Condition="'$(Configuration)' != 'Release'" />
+	  <None Include="wwwroot\ImportFiles\**" CopyToOutputDirectory="PreserveNewest" Condition="'$(Configuration)' != 'Release'" />
+	  <None Include="wwwroot\Logs\**" CopyToOutputDirectory="PreserveNewest" Condition="'$(Configuration)' != 'Release'" />
   </ItemGroup>
 
 </Project>

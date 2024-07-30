@@ -16,6 +16,7 @@ using OfficeOpenXml;
 using System.Diagnostics;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using ask_tzn_funamiKD.Commons;
 
 namespace ask_read_data.Controllers
 {
@@ -82,7 +83,7 @@ namespace ask_read_data.Controllers
         }
 
         [HttpPost]
-        public IActionResult ExportExcel(DateTime Floor_Assy = new DateTime(),  int Floor_Position = 0, int Floor_ParetoRenban = 0, DateTime Flame_Assy = new DateTime(), int Flame_Position = 0, int Flame_ParetoRenban = 0, DateTime SearchDate = new DateTime(), string clickbtn = "")
+        public IActionResult ExportExcel(DateTime Floor_Assy = new DateTime(),  int Floor_Position = 0, int Floor_ParetoRenban = 0, DateTime Flame_Assy = new DateTime(), int Flame_Position = 0, int Flame_ParetoRenban = 0, DateTime SearchDate = new DateTime(), string clickbtn = "", string fileExtension = "")
         {
             var modelRequset = new ExportExcelViewModel() { 
                                                              Floor_Assy = Floor_Assy ,
@@ -156,45 +157,97 @@ namespace ask_read_data.Controllers
             }
             /////////////////////////////////////////////////////////////////////////////////////////////////////
             // ファイル名
-            var tmpFilename = string.Concat(filename,
+            var tmpFilenameCommon = string.Concat(filename,
                 "_",
                 HttpContext.Session.GetString(Utility.SESSION_KEY_USERCD),
                 "_",
                 DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                "_",
-                Path.ChangeExtension(Path.GetRandomFileName(), Utility.EXTENSION_XLSX)
+                "_"
                 );
-            string tempPath = Path.Combine(rootPath, tempFile);
-            // 出力パス
-            var expPath = Path.Combine(path, tmpFilename);
 
             try
             {
                 if (dt1.Rows.Count <= 0 || dt2.Rows.Count <= 0)
                 {
-
                     TempData["error"] = "データが存在していませんのでダウンロードに失敗しました";
                     return Json(new { StatusCode = false, Mess = TempData["error"] });
                 }
-                // Excelファイル生成
-                Utility util = new Utility();
-                if (util.ExportExcel(dt1, dt2, expPath, tempPath, BubanMeiType, null, null, sheetName))
+
+                if (fileExtension.Equals("Excel"))
                 {
-                    //////////////////////////////////////////////////////////////////////////////////////////////////////
-                    var outputFilename = string.Concat(filename, Utility.EXTENSION_XLSX);
-                    // InsertFile_Update_Log(UPDOWNKUBUN_DWN, outputFilename);
-                    // ダウンロード履歴登録
-                    // 出力に成功したら、ファイルダウンロード
-                    var file = System.IO.File.ReadAllBytes(expPath);
-                    if (_excelExport.RecordDownloadHistory(ref dt1, BubanMeiType, Claims) > 0)
+                    var excelExtension = Path.ChangeExtension(Path.GetRandomFileName(), Utility.EXTENSION_XLSX);
+                    var tmpFilenameExcel = string.Concat(tmpFilenameCommon, excelExtension);
+                    string tempPath = Path.Combine(rootPath, tempFile);
+                    // 出力パス
+                    var expPath = Path.Combine(path, tmpFilenameExcel);
+
+                    // Excelファイル生成
+                    Utility util = new Utility();
+                    if (util.ExportExcel(dt1, dt2, expPath, tempPath, BubanMeiType, null, null, sheetName))
                     {
-                        TempData["error"] = null;
-                        TempData["success"] = "ダウンロードに成功しました";
-                        //return File(file, System.Net.Mime.MediaTypeNames.Application.Octet, outputFilename, true);
-                        return Json(new { StatusCode = true, fileName = tmpFilename, Mess = TempData["success"] });
+                        //////////////////////////////////////////////////////////////////////////////////////////////////////
+                        //var outputFilename = string.Concat(filename, Utility.EXTENSION_XLSX);
+                        // InsertFile_Update_Log(UPDOWNKUBUN_DWN, outputFilename);
+                        // ダウンロード履歴登録
+                        // 出力に成功したら、ファイルダウンロード
+                        var file = System.IO.File.ReadAllBytes(expPath);
+                        if (_excelExport.RecordDownloadHistory(ref dt1, BubanMeiType, Claims) > 0)
+                        {
+                            TempData["error"] = null;
+                            TempData["success"] = "ダウンロードに成功しました";
+                            //return File(file, System.Net.Mime.MediaTypeNames.Application.Octet, outputFilename, true);
+                            return Json(new { StatusCode = true, fileName = tmpFilenameExcel, Mess = TempData["success"] });
+                        }
+                        TempData["error"] = "ダウンロードに失敗しました";
+                        return Json(new { StatusCode = false, Mess = TempData["error"] });
                     }
-                    TempData["error"] = "ダウンロードに失敗しました";
-                    return Json(new { StatusCode = false, Mess = TempData["error"] });
+                    else
+                    {
+                        TempData["error"] = "ダウンロードに失敗しました";
+                        return Json(new { StatusCode = false, Mess = TempData["error"] });
+                    }
+                }
+                else if (fileExtension.Equals("Csv"))
+                {
+                    var excelExtension = Path.ChangeExtension(Path.GetRandomFileName(), Utility.EXTENSION_CSV);
+                    var tmpFilenameExcel = string.Concat(tmpFilenameCommon, excelExtension);
+                    // 出力パス
+                    var expPath = Path.Combine(path, tmpFilenameExcel);
+                    var shukaData0 = dt1.AsEnumerable()
+                                    .Where (row => (!string.IsNullOrWhiteSpace(row.Field<string>("ラインON"))
+                                    || !string.IsNullOrWhiteSpace(row.Field<string>("SEQ"))
+                                    || !string.IsNullOrWhiteSpace(row.Field<string>("部品番号"))
+                                    || !string.IsNullOrWhiteSpace(row.Field<string>("部品略式記号")))
+                                    && row.Field<string>("ラインON") != "ラインON");
+
+                    var seisanData0 = dt2.AsEnumerable()
+                                    .Where(row => (!string.IsNullOrWhiteSpace(row.Field<string>("ラインON"))
+                                    || !string.IsNullOrWhiteSpace(row.Field<string>("SEQ"))
+                                    || !string.IsNullOrWhiteSpace(row.Field<string>("部品番号"))
+                                    || !string.IsNullOrWhiteSpace(row.Field<string>("部品略式記号")))
+                                    && row.Field<string>("ラインON") != "ラインON");
+                    var dataShuka = dt1.Clone();
+                    var dataSeisan = dt2.Clone();
+                    if (shukaData0.Any())
+                        dataShuka = shukaData0.CopyToDataTable();
+
+                    if (seisanData0.Any())
+                        dataSeisan = seisanData0.CopyToDataTable();
+
+                    var csvData = string.Empty;
+                    csvData = csvData + sheetName[0] + Environment.NewLine;
+                    var csvDataShuka = dataShuka.ToCsv(',');
+                    csvData = csvData + csvDataShuka + Environment.NewLine + Environment.NewLine;
+                    csvData = csvData + sheetName[1] + Environment.NewLine;
+                    var csvDataSeisan = dataSeisan.ToCsv(',');
+                    csvData = csvData + csvDataSeisan;
+
+                    System.IO.File.WriteAllText(expPath, csvData);
+
+                    TempData["error"] = null;
+                    TempData["success"] = "ダウンロードに成功しました";
+                    //return File(file, System.Net.Mime.MediaTypeNames.Application.Octet, outputFilename, true);
+                    return Json(new { StatusCode = true, fileName = tmpFilenameExcel, Mess = TempData["success"] });
                 }
                 else
                 {
