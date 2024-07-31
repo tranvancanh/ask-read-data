@@ -77,10 +77,10 @@ namespace ask_read_data.Commons
                 Debug.WriteLine("Startup Task Executed!");
                 _logger.LogInformation("Startup Task is Executed!");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 Debug.WriteLine("Startup Task Error!");
-                _logger.LogError("Startup Task Error!");
+                _logger.LogError("Startup Task Error!, Exception Message : " + ex.Message);
             }
 
             return Task.CompletedTask;
