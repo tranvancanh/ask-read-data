@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using NLog;
 using System;
 using System.IO;
 
@@ -11,6 +12,19 @@ namespace ask_read_data.Commons
 {
     public class GetConnectString
     {
+        //private readonly ILogger<GetConnectString> _logger;
+        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+
+        public GetConnectString()
+        {
+            _logger.Info("Nlog is started to GetConnectString Class");
+        }
+
+        //public GetConnectString(ILogger<GetConnectString> logger)
+        //{
+        //    _logger = logger;
+        //    _logger.LogInformation("Nlog is started to GetConnectString Class");
+        //}
 
         public string ConnectionString()
         {
@@ -22,9 +36,13 @@ namespace ask_read_data.Commons
                 var databaseName = string.Empty;
                 string pathBase = _httpContextAccessor.HttpContext.Request.PathBase;
                 string path = _httpContextAccessor.HttpContext.Request.Path;
-                WriteLog("pathBase :" + pathBase);
-                WriteLog("path :" + path);
-                WriteLog("host :" + host);
+                _logger.Info("pathBase :" + pathBase);
+                _logger.Info("path :" + path);
+                _logger.Info("host :" + host);
+
+                //WriteLog("pathBase :" + pathBase);
+                //WriteLog("path :" + path);
+                //WriteLog("host :" + host);
 #if DEBUG
                 databaseName = "ask_datadb_20240729111819";
 #else
@@ -54,12 +72,14 @@ namespace ask_read_data.Commons
                        .AddJsonFile("appsettings.json", optional: false);
                 var configuration = builder.Build();
                 var connectionString = configuration.GetSection("connectionString").GetValue<string>(databaseName); // Default case
-                WriteLog("connectionString:" + connectionString);
+                _logger.Info("connectionString:" + connectionString);
+                //WriteLog("connectionString:" + connectionString);
                 return connectionString;
             }
             catch (Exception ex)
             {
-                WriteLog("Exception:" + ex.Message);
+                _logger.Error("Exception:" + ex.Message);
+                //WriteLog("Exception:" + ex.Message);
                 return "";
             }
 

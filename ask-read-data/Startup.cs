@@ -23,6 +23,7 @@ using ask_read_data.Repository;
 using ask_read_data.Servive;
 using ask_read_data.Models;
 using ask_read_data.Models.Entity;
+using ask_read_data.Commons;
 
 namespace ask_read_data
 {
@@ -38,12 +39,14 @@ namespace ask_read_data
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddControllers();
+
+            //services.AddControllersWithViews();
+#if DEBUG
+            services.AddControllersWithViews().AddRazorRuntimeCompilation();
+#else
             services.AddControllersWithViews();
-        //#if DEBUG
-        //    services.AddControllersWithViews().AddRazorRuntimeCompilation();
-        //#else 
-        //    services.AddControllersWithViews();
-        //#endif
+#endif
 
             // セッションを使う
             //services.AddSession(options => {
@@ -122,6 +125,8 @@ namespace ask_read_data
             services.Add(new ServiceDescriptor(typeof(Bu_MastarModel), typeof(Bu_MastarModel), ServiceLifetime.Transient)); 
             services.Add(new ServiceDescriptor(typeof(IData), typeof(DataService), ServiceLifetime.Transient));
             services.Add(new ServiceDescriptor(typeof(IExportExcel), typeof(ExportExcelService), ServiceLifetime.Transient));
+            services.AddScoped<GetConnectString>();
+            services.AddHostedService<StartupTaskService>();
 
             services.AddRazorPages();
             services.AddAuthorization(options =>

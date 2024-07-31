@@ -8,10 +8,39 @@
 *@
 @{
     Layout = null;
+    var _httpContextAccessor = new HttpContextAccessor();
+    var request = _httpContextAccessor.HttpContext.Request;
+    var host = request.Host.Value;
+    var text = string.Empty;
+    string pathBase = _httpContextAccessor.HttpContext.Request.PathBase;
+    string path = _httpContextAccessor.HttpContext.Request.Path;
 }
 
 <!-- Topbar -->
 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
+    @{
+        if (host.Equals("www.tozan.co.jp", StringComparison.OrdinalIgnoreCase))
+        {
+            if (pathBase.Equals("/ask-read-data"))
+            {
+                text = ""; // ConnectionString for 本番環境
+            }
+            else if (pathBase.Equals("/ask-read-data-test"))
+            {
+                text = "Asuka Test"; // ConnectionString for the test テスト環境
+            }
+            else
+            {
+                text = "Asuka Test";
+            }
+        }
+        else
+        {
+            text = "Asuka Test";
+        }
+    }
+    <h3 class="col-md-10 text-center text-danger">@text</h3>
 
     <!-- Sidebar Toggle (Topbar) -->
     <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">

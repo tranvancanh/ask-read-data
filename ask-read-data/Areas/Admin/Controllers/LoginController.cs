@@ -15,6 +15,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace ask_read_data.Areas.Admin.Controllers
 {
@@ -30,7 +31,9 @@ namespace ask_read_data.Areas.Admin.Controllers
         private readonly IConfiguration _configuration;
         private UserViewModel userViewModel;
         public readonly IUser _user;
-        public LoginController(ILoginViewModel login, IRegisterService registerService, IConfiguration configuration, UserViewModel userViewModel, IUser user)
+        private readonly ILogger<LoginController> _logger;
+
+        public LoginController(ILoginViewModel login, IRegisterService registerService, IConfiguration configuration, UserViewModel userViewModel, IUser user, ILogger<LoginController> logger)
         {
             // IHttpContextAccessor httpContextAccessor
             this._login = login;
@@ -39,8 +42,10 @@ namespace ask_read_data.Areas.Admin.Controllers
             this._configuration = configuration;
             this.userViewModel = userViewModel;
             this._user = user;
+            _logger = logger;
+            _logger.LogInformation("NLog injected into LoginController");
         }
-        const string UserName = "";
+        //const string UserName = "";
         /// <summary>
         /// //////////////////////     ============================================================================    /////////////////////
         /// </summary>
@@ -74,6 +79,7 @@ namespace ask_read_data.Areas.Admin.Controllers
         public async Task<IActionResult> Login([FromForm]LoginViewModel loginModel, string returnUrl)
         {
             //ContactDBEntities db = new ContactDBEntities();
+            _logger.LogInformation($"ユーザーID :{loginModel.UserName} | パスワード :{loginModel.Password} でシステムにログインしています");
             try
             {
                 CheckUserLogin(loginModel);
@@ -94,6 +100,7 @@ namespace ask_read_data.Areas.Admin.Controllers
                 if(userViewModel == null)
                 {
                     ViewData.Add("errormess", "ユーザーIDまたはパスワードに誤りがあります");
+                    _logger.LogInformation($"ユーザーID {loginModel.UserName} : ユーザーIDまたはパスワードに誤りがあります");
                     return View("Login");
                 }
                 // サインインに必要なプリンシパルを作る
@@ -122,6 +129,8 @@ namespace ask_read_data.Areas.Admin.Controllers
                   authProperties
                   );
 
+                _logger.LogInformation($"ユーザーID {loginModel.UserName}がログインしました。");
+
                 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                 //this.Session.SetString("UserName", loginModel.UserName);
                 return RedirectToAction("Index", "Home");
@@ -129,6 +138,7 @@ namespace ask_read_data.Areas.Admin.Controllers
             else
             {
                 ViewData.Add("errormess", "ユーザーIDまたはパスワードに誤りがあります");
+                _logger.LogInformation($"ユーザーID {loginModel.UserName} : ユーザーIDまたはパスワードに誤りがあります");
                 return View("Login");
             }
         }
