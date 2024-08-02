@@ -45,7 +45,13 @@ namespace ask_read_data.Commons
             try
             {
                 var dirUpFiles = new DirectoryInfo(uploadPath); //Assuming Test is your Folder
-                var uploadFiles = dirUpFiles.GetFiles("*.txt"); //Getting log files
+                var uploadFiles = dirUpFiles.GetFiles("*.*")
+                                .Where(f => f.Extension.EndsWith(".txt", StringComparison.OrdinalIgnoreCase)) //Getting log files .txt, .TXT, hoặc .Txt
+                                .ToArray();
+                //var txtFiles = Directory.GetFiles(uploadPath, "*.*")
+                //               .Where(file => file.EndsWith(".txt", StringComparison.OrdinalIgnoreCase))
+                //               .ToArray();
+
 
                 var dirDownloadPath = new DirectoryInfo(downloadPath);
                 var downloadFilesXlsx = dirDownloadPath.GetFiles("*.xlsx");
