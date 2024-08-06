@@ -94,7 +94,7 @@ namespace ask_read_data.Commons
                 System.IO.Directory.CreateDirectory(logFilePath);
             }
 
-            var filePath = Path.Combine(logFilePath, "Log-" + System.DateTime.Today.ToString("yyyy-MM-dd") + "." + "txt");
+            var filePath = Path.Combine(logFilePath, "Log-" + System.DateTime.Today.ToString("yyyy-MM-dd") + "." + "log");
             if (!System.IO.File.Exists(filePath))
                 using (System.IO.File.CreateText(filePath)) { }
 
